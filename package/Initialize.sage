@@ -21,14 +21,23 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import os
+# The following line is a bad solution:
+if not __endodir__:
+    __endodir__ = os.getenv("PWD")
+# The following line is a lazy solution:
+magma.chdir(__endodir__)
 magma.load('Initialize.m')
-prec = 200
+
+# This has to be hidden better to prevent accidental overwriting:
+prec = 300
 epscomp = 10^(-prec + 30)
 epsLLL = 5^(-prec + 7)
 epsinv = 2^(-4)
 Bound = 48
-load('Recognition.sage')
-load('Canonize.sage')
-load('Decomposition.sage')
-load('Conversion.sage')
-load('Wrapper.sage')
+
+load(__endodir__ + 'Recognition.sage')
+load(__endodir__ + 'Canonize.sage')
+load(__endodir__ + 'Decomposition.sage')
+load(__endodir__ + 'Conversion.sage')
+load(__endodir__ + 'Wrapper.sage')

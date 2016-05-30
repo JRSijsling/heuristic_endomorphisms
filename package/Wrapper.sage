@@ -158,7 +158,7 @@ class EndomorphismData:
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            self._P_ = magma.PeriodMatrix(h, g, prec = self.prec)
+            self._P_ = magma.PeriodMatrix(self.h, self.g, prec = self.prec)
         return self._P_.sage()
 
     def field_of_definition(self):

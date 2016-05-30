@@ -21,7 +21,8 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-load('Initialize.sage')
+# Add if no initilization script set:
+#load('Initialize.sage')
 
 # To obtain the following matrices, use this Maple code:
 #Digits := 100:

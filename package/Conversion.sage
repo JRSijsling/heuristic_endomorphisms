@@ -41,6 +41,7 @@ def EDs_sagified(EDs, frep):
         ED5 = repr(ED[5])
         EDs_sage.append([ED1, ED2, ED3, ED4, ED5])
     EDs_sage = sorted(EDs_sage, key = lambda t : len(t[0][0]))
+    EDs_sage.reverse()
     return EDs_sage
 
 def ring_pretty(L, f):

@@ -21,7 +21,8 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-load('Initialize.sage')
+# Add if no initilization script set:
+#load('Initialize.sage')
 
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
@@ -31,39 +32,39 @@ R.<x> = PolynomialRing(QQ)
 # Some interesting curves:
 # Many automorphisms, and descent to a smaller field down from degree 12:
 # (a personal favorite)
-g = R(1)
+f = R(1)
 h = x^3 + 1
 # Another degree 12 field:
-g = -2*x^6 + 2*x^3 - 1
+f = -2*x^6 + 2*x^3 - 1
 h = x^3 + 1
 # Endomorphisms and decompositions defined over QQ:
-g = x^4 + x^2
+f = x^4 + x^2
 h = x^3 + 1
 # Case where [RR, CC] occurs:
-g = x^5 + x^4 + 2*x^3 + x^2 + x
+f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 # The big degree 48 case:
-#g = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
+#f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
 #h = R(0)
 # Non-cyclic CM:
-g = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
+f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 h = 0
 # A case with trivial endomorphism ring that shows an alternative input method:
-#g = [-8,12,8,-8,-8,1,1]
+#f = [-8,12,8,-8,-8,1,1]
 #h = [0]
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
-#g = R(g)
+#f = R(f)
 #h = R(h)
 #subst = x + 1
 #subst = -2/3*x + 1 
 #subst = (-1/3*x + 1/3)/(-3/2*x + 2)
 #den = subst.denominator()
-#g = R(den^6 * g(subst))
+#f = R(den^6 * f(subst))
 #h = R(den^3 * h(subst))
 
 # The main functionality:
-End = EndomorphismData(g, h, prec = 200)
+End = EndomorphismData(f, h, prec = 200)
 K.<r> = NumberField(x^3 - x - 1)
 K.<r> = NumberField(x^2 - 5*x + 3)
 print End
@@ -82,3 +83,11 @@ print End.lattice()
 print End.decomposition()
 print End.decomposition().field_of_definition()
 print End.decomposition().factors()
+
+#[[[[3, 4, 2, -1, 1], [0, 1, 0, 0]], [[[3, 4, 2, -1, 1], -1]], ['CC', 'CC'], [1, -1], 'F'], [[[-3, -1, 1], [-1, 1/3, 0, -1/3]], [[[-3, -1, 1], -1]], ['RR', 'RR'], [1, -1], 'F_{ab}'], [[[0, 1], [0, 0, 0, 0]], [[[0, 1], -1]], ['RR'], [1, -1], 'F_{ac}']]
+#[[3, 4, 2, -1, 1], [0, 1, 0, 0]]
+#[]
+
+#[[[[0, 1], [0]], [[[0, 1], -1]], ['RR'], [1, -1], 'USp(4)']]
+#[[0, 1], [0]]
+#[]

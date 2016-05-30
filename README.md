@@ -10,7 +10,12 @@ An installation of both Magma and Sage is required to run this code. It can be l
 
 load('Initialize.sage')
 
-For now only this clunky startup method is available.
+Alternatively, add the following lines to the Sage initialization file (typically found in ~/.sage/init.sage) to enable the functionality on startup anywhere in the system:
+
+\_\_endodir\_\_ = '~/[PATH]/package/'  
+load(\_\_endodir\_\_ + 'Initialize.sage')
+
+where [PATH] is the path to the cloned or copied repository.
 
 Usage
 -----
