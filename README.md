@@ -17,6 +17,19 @@ load(\_\_endodir\_\_ + 'Initialize.sage')
 
 where [PATH] is the path to the cloned or copied repository.
 
+A bug fix
+---------
+
+It is highly recommended (though not absolutely necessary) to fix a Magma bug before using this package. In old version the file magma/package/Algebra/AlgQuat/interface.m had the following as line 145:
+
+c := [Trace(theta), Norm(theta)];
+
+This should be replaced by
+
+cpol := MinimalPolynomial(theta);  
+assert Degree(cpol) eq 2;  
+c := [Coefficient(cpol,1), Coefficient(cpol, 0)];
+
 Usage
 -----
 
