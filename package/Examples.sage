@@ -22,7 +22,7 @@
 """
 
 # Add if no initilization script set:
-#load('Initialize.sage')
+load('Initialize.sage')
 
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
@@ -52,6 +52,7 @@ h = 0
 # A case with trivial endomorphism ring that shows an alternative input method:
 #f = [-8,12,8,-8,-8,1,1]
 #h = [0]
+
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
@@ -83,11 +84,3 @@ print End.lattice()
 print End.decomposition()
 print End.decomposition().field_of_definition()
 print End.decomposition().factors()
-
-#[[[[3, 4, 2, -1, 1], [0, 1, 0, 0]], [[[3, 4, 2, -1, 1], -1]], ['CC', 'CC'], [1, -1], 'F'], [[[-3, -1, 1], [-1, 1/3, 0, -1/3]], [[[-3, -1, 1], -1]], ['RR', 'RR'], [1, -1], 'F_{ab}'], [[[0, 1], [0, 0, 0, 0]], [[[0, 1], -1]], ['RR'], [1, -1], 'F_{ac}']]
-#[[3, 4, 2, -1, 1], [0, 1, 0, 0]]
-#[]
-
-#[[[[0, 1], [0]], [[[0, 1], -1]], ['RR'], [1, -1], 'USp(4)']]
-#[[0, 1], [0]]
-#[]

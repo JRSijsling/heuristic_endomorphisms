@@ -161,7 +161,7 @@ elif Shorthand eq "F" then
             end if;
             ED := EndomorphismData(GeoEndList, L, Kint, Gp, GensHintp, Gphi,
                 GeoFactorsQQ, Shorthand : AddTensor := true, AddRing := false,
-                AddSatoTate := false, AddSplitting := false);
+                AddSatoTate := false, AddDecomposition := false);
             if ED[2] eq ["M_2(RR)"] then
                 return "C_{6,1}";
             elif ED[2] eq ["HH"] then

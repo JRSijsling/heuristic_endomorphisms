@@ -23,8 +23,8 @@
 
 import os
 # The following line is a bad solution:
-if not __endodir__:
-    __endodir__ = os.getenv("PWD")
+if not '__endodir__' in globals():
+    __endodir__ = os.getenv("PWD") + "/"
 # The following line is a lazy solution:
 magma.chdir(__endodir__)
 magma.load('Initialize.m')

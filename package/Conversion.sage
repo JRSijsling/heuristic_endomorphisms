@@ -167,7 +167,7 @@ def endo_statement(factorsQQ, factorsRR, ring, fieldstring):
         # And finally we deal with quaternion algebras over the rationals:
         else:
             statement += """the quaternion algebra over %s of discriminant %s"""\
-                % (factorsQQ_pretty[0], factorsQQ[0][2])
+                % (factorsQQ_pretty[0], factorsQQ[0][1])
     # If there are two factors, then we get two at most quadratic fields:
     else:
         statement += """%s x %s""" % (factorsQQ_pretty[0], factorsQQ_pretty[1])
