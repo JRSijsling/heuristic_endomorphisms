@@ -44,14 +44,14 @@ h = x^3 + 1
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 # The big degree 48 case:
-#f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
-#h = R(0)
+f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
+h = R(0)
+# A case with trivial endomorphism ring that shows an alternative input method:
+f = [-8,12,8,-8,-8,1,1]
+h = [0]
 # Non-cyclic CM:
 f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 h = 0
-# A case with trivial endomorphism ring that shows an alternative input method:
-#f = [-8,12,8,-8,-8,1,1]
-#h = [0]
 
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)

@@ -27,7 +27,7 @@ function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epscomp0);
 // Output:   A minimal polynomial one of whose roots approximates a well.
 R<x> := PolynomialRing(Rationals());
 Ca := Parent(a);
-Ra := RealField(Ca);
+Ra := RealField(Precision(Ca));
 // d is redundant but useful for clarity
 d := 0;
 h := 1;
@@ -100,7 +100,7 @@ function AlgebraizeElementInField(a, frep, h : epscomp := epscomp0,
 //           corresponding to frep.
 Ca := Parent(a);
 ran := Ca!h;
-Ra := RealField(Ca);
+Ra := RealField(Precision(Ca));
 K := NumberField(Polynomial(frep));
 d := Degree(K);
 // FIXME: Usual hateful dichotomy. Maybe take roots of DefiningPolynomial or

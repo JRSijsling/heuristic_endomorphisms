@@ -90,15 +90,16 @@ class Lattice:
     def __repr__(self):
         statement = ''
         if self.h == 0:
-            statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 = {}\n".format(str(self.g))
+            statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 = {}\n\n".format(str(self.g))
         else:
-            statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}\n".format(str(self.h), str(self.g))
-        statement += """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n""" % intlist_to_poly(self._frep_)
+            statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}\n\n".format(str(self.h), str(self.g))
+        statement += """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
         for ED in self._lat_:
             statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))
             statement += endo_statement(ED[1], ED[2], ED[3], r'F')
             statement += st_group_statement(ED[4])
             statement += gl2_simple_statement(ED[1], ED[2])
+            statement += '\n'
         return statement
 
 class Decomposition:
