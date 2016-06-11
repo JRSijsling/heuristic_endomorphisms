@@ -21,7 +21,13 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-# Usage: Specify indices of defining polynomials and Sato-Tate group here;
+# Adds endomorphism data to a file of colon-separated lines
+
+# Defining polynomials have to be provided in pairs, defined by strings in x or
+# by lists of integers. These polynomials (and the conjectural Sato-Tate group,
+# if provided) need to be at a consistent index in the provided lines.
+
+# Specify indices of defining polynomials and Sato-Tate group here;
 # making the latter negative ignores the final check.
 fh_index = 1
 st_index = -1
@@ -42,17 +48,15 @@ R.<x> = PolynomialRing(QQ)
 subst_list = [ x + 1, x ]
 # Bound on height of random substitutions after these have been tried:
 B = 3
-# The maximum number of retries:
+# The maximum number of retries for difficult curves:
 maxrun = 2^5
+# Indices of particularly nasty curves (typically those for which the period
+# calculation leads into an infinite loop):
+hell = [ 56306 ]
 # The counter for the current run and the line:
 run = 0
 counter = 0
-# Skipping a specific curve if needed:
-hell = [ 56306 ]
-
-# Automatic determination of line length of input:
-with open(inputfile) as inputstream:
-    n = min([ len(line.split(':')) for line in inputstream ])
+done_list = [ ]
 
 stop = False
 exhaust = False
@@ -80,9 +84,9 @@ while not stop:
                 counter += 1
                 linestrip = line.rstrip()
                 linesplit = linestrip.split(':')
-                linestart = ":".join(linesplit[:n])
+                linestart = linestrip
                 # We have to see if there is no new information on the line yet:
-                if len(linesplit) == n:
+                if not counter in done_list:
                     # In the USp(4) case we know everything:
                     if linesplit[st_index] == "USp(4)":
                         outputstream.write(linestart + ':' +
@@ -95,7 +99,7 @@ while not stop:
                         outputstream.write(line)
                     else:
                         print counter
-                        pol_list = eval(linesplit[fh_index])
+                        pol_list = eval(linesplit[fh_index].replace('^', '**'))
                         f = R(pol_list[0])
                         h = R(pol_list[1])
                         den = subst.denominator()
@@ -122,6 +126,7 @@ while not stop:
                                         + '\n')
                             else:
                                 outputstream.write(line)
+                            done_list.append(counter)
                         except:
                             # In case of an error postpone until next time:
                             outputstream.write(line)
