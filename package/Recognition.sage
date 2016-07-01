@@ -36,6 +36,8 @@ def Common_Splitting_Field(AsPol, Bound = 0):
     for pol in Pols:
         if not magma.HasRoot(pol, K):
             Pols_used.append(pol)
+            #print "Calculating splitting field of:"
+            #print Pols_used
             K = magma.SplittingField(Pols_used)
             f = magma.DefiningPolynomial(K)
             cs = magma.Eltseq(f)

@@ -92,27 +92,14 @@ elif Shorthand eq "F" then
             return "D_{4,1}";
         elif IsIsomorphic(Hp, DihedralGroup(6)) then
             // We split the group as in Fité--Kedlaya--Rotger--Sutherland (4.3).
-            // It suffices to look at the subgroup of order 2 and find one for
+            // It suffices to look at the subgroups of order 2 and find one for
             // which the polynomial defining the center of the geometric
             // endomorphism ring does not have a root in the corresponding
             // field:
-            F := BaseRing(GeoFactorsQQ[1]);
-            f := DefiningPolynomial(F);
-            SubHps := Subgroups(Hp : OrderEqual := 2);
-            for struct in SubHps do
-                SubHp := struct`subgroup;
-                SubHf := [ Gphi(g) : g in SubHp ];
-                SubHpFF := FixedField(L, SubHf);
-                // FIXME: Further bug guard:
-                if Degree(L) ne Degree(SubHpFF) * #SubHp then
-                    error Error("Magma took an incorrect FixedField");
-                end if;
-                if not HasRoot(f, SubHpFF) then
-                    // Found intermediate field:
-                    GensHintp := Generators(SubHp);
-                    Kint := SubHpFF;
-                end if;
-            end for;
+            SubHp := Center(Hp);
+            SubHf := [ Gphi(g) : g in SubHp ];
+            Kint := FixedField(L, SubHf);
+            GensHintp := Generators(SubHp);
             ED := EndomorphismData(GeoEndList, L, Kint, Gp, GensHintp, Gphi,
                 GeoFactorsQQ, Shorthand : AddTensor := true, AddRing := false,
                 AddSatoTate := false, AddDecomposition := false);

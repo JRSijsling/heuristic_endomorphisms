@@ -126,14 +126,14 @@ def endo_statement(factorsQQ, factorsRR, ring, fieldstring):
         # If there are two factors, then they are both at most quadratic
         # and we can prettify them
         else:
-            statement += ' x '.join([ ring_pretty(factorQQ[1], 1) for factorQQ in factorsQQ ])
+            statement += ' x '.join([ ring_pretty(factorQQ[0], 1) for factorQQ in factorsQQ ])
     # Then the case where there is still a single factor:
     elif factorsQQ_number == 1:
         # Number field case:
         if factorsQQ[0][1] == -1:
             # Prettify in quadratic case:
             if len(factorsQQ[0][0]) in [2, 3]:
-                statement += """%s""" % ring_pretty(factorsQQ[0][1], ring[0])
+                statement += """%s""" % ring_pretty(factorsQQ[0][0], ring[0])
             else:
                 statement += """an order of conductor of norm %s in End (J_%s) ox QQ""" % (ring[0], fieldstring)
         # Otherwise mention whether the order is Eichler:
