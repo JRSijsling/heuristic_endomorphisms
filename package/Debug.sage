@@ -131,7 +131,8 @@ while True:
     f = bug_pols[0]
     h = bug_pols[1]
 
-    End = EndomorphismData(f, h, prec = 300)
+    End = EndomorphismData(f, h, prec = 500)
+    #print End.geometric_representations()
     #print End.over_base().description()
     Lat = End.lattice()
     # Just for Sato-Tate:

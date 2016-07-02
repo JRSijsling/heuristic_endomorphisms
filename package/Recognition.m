@@ -22,6 +22,31 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+function CompositeReduce(Ks);
+// Input:   A list of fields.
+// Output:  A compositum.
+if #Ks eq 1 then
+    return [ Ks[1] ];
+else
+    return &cat[ CompositeFields(Ks[1], L) : L in CompositeReduce(Ks[2..#Ks])];
+end if;
+end function;
+
+function MySplittingField(fs);
+// Input:   A list of polynomials.
+// Output:  A corresponding splitting field.
+//          Default functionality was slow so this one tries a compositum
+//          first.
+Ks := [ NumberField(f) : f in fs ];
+Ls := [ IntegralRepresentationNF(L : iso := false) : L in CompositeReduce(Ks) ];
+for L in Ls do
+    if IsNormal(L) then
+        return L;
+    end if;
+end for;
+return SplittingField(fs);
+end function;
+
 function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epscomp0);
 // Input:    An element of a complex field.
 // Output:   A minimal polynomial one of whose roots approximates a well.
@@ -195,7 +220,7 @@ return AsAlg, fhom;
 end function;
 
 
-function IntegralRepresentationNF(K);
+function IntegralRepresentationNF(K : iso := true);
 // Input:   A number field K.
 // Output:  A number field L with a small integral defining polynomial and an
 //          isomorphism h from K to L.
@@ -218,20 +243,22 @@ else
     // not always make the defining polynomial integral. Instead of this we find
     // a small element of the maximal order that defines the field and apply the
     // function to that instead:
-    ZK := Integers(K);
-    r := ZK.1;
-    B := 0;
-    // This loop is guaranteed to terminate:
-    while true do
-        g := MinimalPolynomial(r);
-        if Degree(g) eq d then
-            L := OptimizedRepresentation(NumberField(g));
-            test, h := IsIsomorphic(K, L);
-            return L, h;
-        end if;
-        r := ZK!([Random([-B..B]) : n in [1..d]]);
-        B +:= 1;
-    end while;
+    r := K.1;
+    dens := Reverse([ Denominator(coeff) : coeff in Coefficients(MinimalPolynomial(r)) ]);
+    primes := &join[ Set([ tup[1] : tup in Factorization(den) ]) : den in dens | den ne 0 ];
+    if #primes eq 0 then
+        common_den := 1;
+    else
+        common_den := &*[ p^Maximum([ Ceiling(Valuation(dens[k], p)/k) : k in [1..#dens] | dens[k] ne 0 ]) : p in primes ];
+    end if;
+    g := MinimalPolynomial(common_den*r);
+    L := NumberField(g);
+    if not iso then
+        return L;
+    end if;
+    L := OptimizedRepresentation(NumberField(g));
+    test, h := IsIsomorphic(K, L);
+    return L, h;
 end if;
 
 end function;

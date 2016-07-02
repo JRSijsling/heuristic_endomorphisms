@@ -33,12 +33,15 @@ def Common_Splitting_Field(AsPol, Bound = 0):
     f = x
     K = magma.RationalsAsNumberField()
     Bound_Set = (Bound != 0)
+    # Sort by degree to find one likely to give a generator of the splitting
+    # field:
+    Pols = sorted(Pols, key = lambda pol : -pol.degree())
     for pol in Pols:
         if not magma.HasRoot(pol, K):
             Pols_used.append(pol)
             #print "Calculating splitting field of:"
             #print Pols_used
-            K = magma.SplittingField(Pols_used)
+            K = magma.MySplittingField(Pols_used)
             f = magma.DefiningPolynomial(K)
             cs = magma.Eltseq(f)
             # Apply GP simplification plus a dirty hack because I do not know

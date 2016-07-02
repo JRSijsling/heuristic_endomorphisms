@@ -40,6 +40,8 @@ forward MatrixRatInBasisOverNF;
 
 // Functionality for recognizing complex numbers as algebraic numbers and
 // related optimizations
+forward CompositeReduce;
+forward MySplittingField;
 forward PolynomializeElement;
 forward PolynomializeMatrix;
 forward FractionalApproximation;

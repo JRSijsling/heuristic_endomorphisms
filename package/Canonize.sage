@@ -51,6 +51,9 @@ def Canonize_Subfield(grep, frep):
     R.<x> = PolynomialRing(QQ)
     f = R(frep)
     L.<r> = NumberField(f)
+    # TODO: Sage sometimes bugs here when 1 is given, so we do that by hand:
+    if L(grep) == L(1):
+        return [ [0, 1], L(0).list() ]
     tup = L.subfield(L(grep))
     K = tup[0]
     phi = tup[1]
