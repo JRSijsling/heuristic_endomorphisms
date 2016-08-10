@@ -176,9 +176,9 @@ class EndomorphismData:
             self._geo_reps_pol_ = [ magma.PolynomializeMatrix(A, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for A in self._geo_reps_app_[0] ]
             self._frep_ = Common_Splitting_Field(self._geo_reps_pol_, Bound = self._Bound_)
             L = magma.AlgebraizeMatricesInField(self._geo_reps_app_[0], self._geo_reps_pol_, self._frep_, epscomp = self._epscomp_, nvals = 2)
-            self._geo_reps__alg = L[0]
+            self._geo_reps_alg_ = L[0]
             self._fhom_ = L[1]
-            self._geo_reps_ = [ self._geo_reps__alg, self._geo_reps_app_[0], self._geo_reps_app_[1] ]
+            self._geo_reps_ = [ self._geo_reps_alg_, self._geo_reps_app_[0], self._geo_reps_app_[1] ]
         # For some weird reason this fails:
         #return [ [ rep.sage() for rep in reps ] for reps in self._geo_reps_ ]
         return self._geo_reps_
@@ -194,7 +194,15 @@ class EndomorphismData:
     def over_field(self, K):
         geo_reps = self.geometric_representations()
         return OverField(self, K = K)
-    
+
+    def rosati_involution(self, A):
+        geo_reps = self.geometric_representations()
+        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
+
+    def degree_estimate(self, A):
+        geo_reps = self.geometric_representations()
+        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
+
     def lattice(self):
         if not self._lat_:
             AsAlg, As, Rs = self.geometric_representations()

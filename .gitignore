@@ -1,3 +1,5 @@
 *.swp
 *~
 *.sage.py
+package/database/Add_To_Database*
+package/database/gce*

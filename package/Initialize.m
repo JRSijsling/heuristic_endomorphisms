@@ -83,6 +83,9 @@ forward InducedEmbedding;
 forward LatticesFromIdempotents;
 //forward EllipticCurveFromEisensteinValues;
 
+// Rosati involution functionality
+forward RosatiInvolution;
+
 // The actual loading
 load "Linear.m";
 load "Recognition.m";
@@ -90,3 +93,4 @@ load "Analytic.m";
 load "Algebraic.m";
 load "SatoTate.m";
 load "Decomposition.m";
+load "Rosati.m";

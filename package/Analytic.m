@@ -138,7 +138,8 @@ K := IntegralKernel(M : epsLLL := epsLLL);
 // Deciding which rows to keep
 Rs := [];
 for r in Rows(K) do
-    alpha := Matrix(Integers(), 2*g, 2*g, Eltseq(r));
+    //alpha := Matrix(Integers(), 2*g, 2*g, Eltseq(r));
+    alpha := Matrix(Rationals(), 2*g, 2*g, Eltseq(r));
 
     // Another PEL point
     //if not IsZero(E) then

@@ -69,7 +69,11 @@ End = EndomorphismData(f, h, prec = 200)
 K.<r> = NumberField(x^3 - x - 1)
 K.<r> = NumberField(x^2 - 5*x + 3)
 print End
-print End.geometric_representations()
+AsAlg, As, Rs = End.geometric_representations()
+M = AsAlg[len(AsAlg)]
+print M
+print End.rosati_involution(M)
+print End.degree_estimate(M)
 print End.field_of_definition()
 print End.geometric()
 print End.geometric().representations()
