@@ -21,8 +21,16 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+
+function DecompositionDegree(R);
+
+return LCM([ Denominator(c) : c in Eltseq(R) ]);
+
+end function;
+
+
 function SmallIdempotent(Q, GensQ);
-// Input:   A split quaterion algebra and a basis for an order.
+// Input:   A split quaternion algebra and a basis for an order.
 // Output:  A nilpotent element that is small with respect to that order in the
 //          sense that the numerator is small
 
@@ -36,7 +44,7 @@ return invf(M![1,0,0,0]);
 end function;
 
 
-function InducedEmbedding(fsubgen, fhom, frep : epscomp := epscomp0); 
+function InducedEmbedding(fsubgen, fhom, frep : epscomp := epscomp0);
 // Returns induced embedding on a subfield.
 
 CC := Parent(fhom);
@@ -72,42 +80,24 @@ for idem in idemsAn do
     // Create analytic idempotent and project:
     PEllHuge := P * idem;
     PEllBig := Transpose(Matrix([ [ row[1] : row in Rows(PEllHuge) ] ]));
-    // Change row if the result is too small (this happens!):
+    col_number := 1;
+    // Change column if the result is too small (this happens!):
     if &and([ Abs(c) lt epscomp : c in Eltseq(PEllBig) ]) then
         PEllBig := Transpose(Matrix([ [ row[2] : row in Rows(PEllHuge) ] ]));
+        col_number := 2;
     end if;
     PEllBigSplit := SplitPeriodMatrix(PEllBig);
     PEllSplit := InvertibleSubmatrix(PEllBigSplit : epsinv := epsinv);
     // We create an approximately integral matrix from this; instead of
     // inverting we use NumericalSolve.
-    LMatAn := Matrix([ NumericalSolve(PEllSplit, Matrix(row)) : row in
-        Rows(PEllBigSplit) ]);
-    LMat := Matrix([ [ FractionalApproximation(c : epscomp := epscomp, epsLLL :=
-        epsLLL) : c in Eltseq(row) ] : row in Rows(LMatAn) ]);
+    LMatAn := Matrix([ NumericalSolve(PEllSplit, Matrix(row)) : row in Rows(PEllBigSplit) ]);
+    LMat := Matrix([ [ FractionalApproximation(c : epscomp := epscomp, epsLLL := epsLLL) : c in Eltseq(row) ] : row in Rows(LMatAn) ]);
     M := Matrix(Basis(Lattice(LMat)));
     // Change to basis of lattice and return corresponding periods:
     Append(~Ls, Eltseq(CombinePeriodMatrix(M * PEllSplit)));
 end for;
 
-return Ls;
-
-end function;
-
-
-// Deprecated:
-function EllipticCurveFromEisensteinValues(eisvalsalg);
-// Input:   An algebraized tuple of outputs of elleisnum.
-// Output:  The corresponding elliptic curve.
-
-if #eisvalsalg[1] eq 1 then
-    // Rational case: Cremona label.
-    E := EllipticCurve([-eisvalsalg[1][1]/48, -eisvalsalg[2][1]/864]);
-    return CremonaReference(E);
-else
-    // Otherwise return the Eltseq as a Weierstrass equation:
-    // to be divided by -48 and -864.
-    return eisvalsalg;
-end if;
+return Ls, col_number;
 
 end function;
 

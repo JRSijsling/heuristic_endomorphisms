@@ -306,7 +306,7 @@ if g eq 2 then
     return ED, idems, FactorsQQ;
 else
     // The generic non-genus 2 case:
-    FactorsQQ := EndomorphismAlgebraFactorsGeneric(C); 
+    FactorsQQ := EndomorphismAlgebraFactorsGeneric(C);
     Append(~ED, FactorsQQ);
     if AddRing then
         // If asked for information about the order, we merely return its

@@ -52,13 +52,16 @@ h = [0]
 # Non-cyclic CM:
 f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 h = 0
+# Test case for decomposition (to be sure of transpose issues):
+f = -2*x^4 + 4*x^2 - 9*x - 14
+h = x^3 + 1
 
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
 #h = R(h)
 #subst = x + 1
-#subst = -2/3*x + 1 
+#subst = -2/3*x + 1
 #subst = (-1/3*x + 1/3)/(-3/2*x + 2)
 #den = subst.denominator()
 #f = R(den^6 * f(subst))
@@ -85,6 +88,15 @@ print End.over_field(K)
 print End.over_field(K).representations()
 print End.over_field(K).description()
 print End.lattice()
-print End.decomposition()
-print End.decomposition().field_of_definition()
-print End.decomposition().factors()
+
+Dec = End.decomposition()
+print Dec
+print Dec.field_of_definition()
+print Dec.factors()
+
+#idems = Dec._idems_
+#print idems[1]
+#projs = Dec.projections_g2()
+#print projs
+
+exit()

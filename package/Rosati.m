@@ -29,7 +29,7 @@ return Adagger;
 
 end function;
 
-    
+
 function DegreeEstimate(AsAlg, As, Rs, A);
 // Round because of non-exact case
 // Alternatively, could use Rdagger instead of Addager

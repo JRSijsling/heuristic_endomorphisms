@@ -77,11 +77,17 @@ forward GeoEndRRShorthand;
 // Determining the Sato-Tate group
 forward SatoTateGroupG2;
 
+// Subfield canonization
+forward CanonizeMatrix;
+
 // Elliptic curves from decompositions
+forward DecompositionDegree;
 forward SmallIdempotent;
 forward InducedEmbedding;
 forward LatticesFromIdempotents;
-//forward EllipticCurveFromEisensteinValues;
+
+// Explicit projection morphisms
+forward ProjectionToEllipticFactorG2;
 
 // Rosati involution functionality
 forward RosatiInvolution;
@@ -92,5 +98,7 @@ load "Recognition.m";
 load "Analytic.m";
 load "Algebraic.m";
 load "SatoTate.m";
+load "Canonize.m";
 load "Decomposition.m";
+load "Projection.m";
 load "Rosati.m";

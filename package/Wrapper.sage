@@ -136,8 +136,28 @@ class Decomposition:
         if not hasattr(self, "_ECs_"):
             Lats = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_)
             self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
-        # Doing this directly (instead of using the detour through Magma) gives an incomprehensible error
+        # TODO: Doing this directly (instead of using the detour through Magma) gives an incomprehensible error
         return [ magma.EllipticCurve([ -K(EC_rep[0])/48, -K(EC_rep[1])/864]).sage() for EC_rep in self._ECs_rep_ ]
+
+    def projections_g2(self):
+        # TODO: Think about this and integrate it better
+        spl_fod_data = Canonize_Subfield_And_Idempotents(self._fsubgen_.sage(), self._frep_, self._idems_)
+        self._spl_fod_ = spl_fod_data
+        self._fsubrep_opt_ = spl_fod_data[0]
+        self._fsubgen_opt_ = spl_fod_data[1]
+        self._fsubhom_opt_ = magma.InducedEmbedding(self._fsubgen_opt_, self._fhom_, self._frep_).sage()
+        K = self.field_of_definition()
+        Lats, col_number = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
+        self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
+        # Convert everything and pass to Magma
+        R.<x> = PolynomialRing(K.sage())
+        fX = magma(R(4*self.g + self.h^2))
+        fEs = magma([ x + (-K(EC_rep[0])/48)*x^3 + (-K(EC_rep[1])/864)*x^4 for EC_rep in self._ECs_rep_ ])
+        As = magma(spl_fod_data[2])
+        degs = magma([ magma.DecompositionDegree(idem) for idem in self._idems_[3] ])
+        # Factor -2 due to various normalizations
+        As = magma([ magma.Eltseq(-2 * degs[i] * magma.Rows(magma.Transpose(As[i]))[col_number]) for i in [1..len(As)] ])
+        return [ magma.ProjectionToEllipticFactorG2(fX, fEs[i], As[i], degs[i]) for i in [1..len(As)] ]
 
 class EndomorphismData:
     def __init__(self, g, h = 0, prec = prec):
@@ -186,7 +206,7 @@ class EndomorphismData:
     def geometric(self):
         geo_reps = self.geometric_representations()
         return OverField(self, K = "geometric")
-    
+
     def over_base(self):
         geo_reps = self.geometric_representations()
         return OverField(self, K = "base")

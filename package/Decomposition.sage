@@ -21,8 +21,7 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-def Elliptic_Curve_From_Lattice(L, frep, h, prec = prec, epscomp = epscomp,
-        epsLLL = epsLLL): 
+def Elliptic_Curve_From_Lattice(L, frep, h, prec = prec, epscomp = epscomp, epsLLL = epsLLL):
     # Input:    A lattice of complex numbers L, a representation of a number
     #           field frep, and number representing a homomorphism h from that
     #           field into the complex numbers.
@@ -37,7 +36,3 @@ def Elliptic_Curve_From_Lattice(L, frep, h, prec = prec, epscomp = epscomp,
     eisvals_alg = [ magma.AlgebraizeElementInField(magma(eisval), magma(frep),
         magma(h), epscomp = epscomp, epsLLL = epsLLL) for eisval in eisvals_an ]
     return eisvals_alg
-
-# Part of TODO:
-# This allows us to find the curves. To get points later, use
-# gp.ellwp(w, 0.00001), which indeed has a quadratic pole.

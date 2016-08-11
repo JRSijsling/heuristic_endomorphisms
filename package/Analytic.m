@@ -109,7 +109,7 @@ function PeriodMatrix(h, g : prec := prec0)
 // Output:  The corresponding period matrix.
 
 R := PolynomialRing(ComplexField(prec));
-f := (R!g) + ((R!h)/2)^2;
+f := 4*(R!g) + (R!h)^2;
 J := AnalyticJacobian(f);
 return Transpose(BigPeriodMatrix(J));
 
@@ -160,7 +160,7 @@ end for;
 // for the first entry in the LMFDB, causing the algebraization of the matrices
 // to take too long.
 //Rs := [Transpose(R) : R in Rs];
-As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0, 
+As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
     epsinv := epsinv) : R in Rs];
 
 return As, Rs;
