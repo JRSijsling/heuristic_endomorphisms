@@ -89,7 +89,6 @@ F := BaseRing(X);
 RP<t> := PowerSeriesRing(F);
 
 fX := DefiningEquations(X)[1];
-gX := (Degree(fX) - 1) div 2;
 KX<xX, yX> := FunctionField(X);
 PX0 := X ! [ Coefficient(c, 0) : c in PX ];
 duX := Differential(KX ! MyUniformizer(fX, PX0));
@@ -99,7 +98,6 @@ BXP := [ RP ! Evaluate(Q ! (b / duX), PX) : b in BX ];
 pX := &+[ A[i] * BXP[i] : i in [1..#A] ];
 
 fE := DefiningEquations(E)[1];
-gE := (Degree(fE) - 1) div 2;
 KE<xE, yE> := FunctionField(E);
 PE0 := E ! [ Coefficient(c, 0) : c in PE ];
 duE := Differential(KE ! MyUniformizer(fE, PE0));
@@ -110,10 +108,8 @@ pE := BEP[1];
 
 n := 1;
 RP<t> := PowerSeriesRing(F, 2);
-// Quotient always well-defined:
-// (need absolute, not relative precision)
 pE0 := Coefficient(pE, 0);
-u := Coefficient(pX, 0)/pE0 * t + O(t^2);
+u := (Coefficient(pX, 0)/pE0)*t + O(t^2);
 
 while n lt N do
     n := n + 1;
@@ -123,6 +119,110 @@ while n lt N do
     ev_rhs := RP ! pX;
     un := Coefficient(ev_rhs - ev_lhs, n - 1) / (pE0 * n);
     u +:= un * t^n;
+end while;
+
+return MyEvaluate(fE, PE, u);
+
+end function;
+
+
+function LinTermMult(lt1, lt2);
+
+n := #Rows(Transpose(lt1));
+return Matrix([ [ &+[ lt1[1, j] * lt2[1, i + 1 - j] : j in [1..i] ] : i in [1..n] ] ]);
+
+end function;
+
+
+function EvaluateOldGuess(fi, tj_old, n, m);
+
+F := BaseRing(Parent(tj_old));
+RP<t> := PowerSeriesRing(F, n + m + 1);
+tj := &+[ Coefficient(tj_old, i) * t^i : i in [1..n] ] + O(t^(n + m + 1));
+
+power0 := RP ! 1;
+power1 := tj;
+power_term0 := Matrix([ [ F ! 0 : k in [1..m] ] ]);
+power_term1 := Matrix([ [ F ! 1 ] cat [ F ! 0 : k in [2..m] ] ]);
+deriv := Matrix([ [ Coefficient(tj, k) : k in [1..m] ] ]);
+
+powers := [ power0, power1 ];
+power_terms := [ power_term0, power_term1 ];
+power := power1;
+power_term := power_term1;
+for k in [2..(n + m - 1)] do
+    Append(~powers, power1 * powers[#powers]);
+    if k le (m - 1) then
+        power_term := LinTermMult(deriv, power_term);
+        Append(~power_terms, k * power_term);
+    end if;
+end for;
+
+evs0 := [ ];
+lin_terms := [ ];
+ev0 := &+[ Coefficient(fi, k) * powers[k + 1] : k in [0..(n + m - 1)] ] + O(t^(n + m));
+lin_term := Coefficient(fi, 0) * power_terms[1];
+for k:=2 to m do
+    c := Coefficient(fi, k - 1);
+    power_term := power_terms[k];
+    for l:=k to m do
+        lin_term[1, l] +:= c * power_term[1, l + 1 - k];
+    end for;
+end for;
+
+return ev0, lin_term;
+
+end function;
+
+
+function NthApproxs(X, PX, E, PE, A, N);
+
+A2 := Ambient(X);
+Q<x,y> := FieldOfFractions(CoordinateRing(A2));
+F := BaseRing(X);
+RP<t> := PowerSeriesRing(F);
+
+fX := DefiningEquations(X)[1];
+KX<xX, yX> := FunctionField(X);
+PX0 := X ! [ Coefficient(c, 0) : c in PX ];
+duX := Differential(KX ! MyUniformizer(fX, PX0));
+dxX := Differential(xX);
+BX := [ dxX / yX , xX * dxX / yX ];
+BXP := [ RP ! Evaluate(Q ! (b / duX), PX) : b in BX ];
+pX := &+[ A[i] * BXP[i] : i in [1..#A] ];
+
+fE := DefiningEquations(E)[1];
+KE<xE, yE> := FunctionField(E);
+PE0 := E ! [ Coefficient(c, 0) : c in PE ];
+duE := Differential(KE ! MyUniformizer(fE, PE0));
+dxE := Differential(xE);
+BE := [ dxE / yE ];
+BEP := [ RP ! Evaluate(Q ! (b / duE), PE) : b in BE ];
+pE := BEP[1];
+
+n := 1;
+RP<t> := PowerSeriesRing(F, 2);
+pE0 := Coefficient(pE, 0);
+u := (Coefficient(pX, 0)/pE0)*t + O(t^2);
+while n lt N do
+    m := Minimum(n, N - n);
+    RP<t> := PowerSeriesRing(F, n + m + 1);
+    ev0, lin_term := EvaluateOldGuess(pE, u, n, m);
+    u := &+[ Coefficient(u, j) * t^j : j in [1..n] ] + O(t^(n + m + 1));
+    ev_lhs := ev0 * Derivative(u);
+    ev_rhs := RP ! pX;
+    diff1 := ev_rhs - ev_lhs;
+    for k in [1..m] do
+        diff2 := Coefficient(diff1, n + k - 1);
+        for l in [1..k] do
+            diff2 -:= (n + l) * Coefficient(u, n + l) * Coefficient(ev0, k - l);
+            gamma := MySum([ lin_term[1, l + 1 - ind] * Coefficient(u, n + ind) : ind in [1..Minimum(l, k - 1)] ]);
+            diff2 -:= (k + 1 - l) * Coefficient(u, k + 1 - l) * gamma;
+        end for;
+        un := diff2 / (pE0 * (n + k));
+        u +:= un * t^(n + k);
+    end for;
+    n *:= 2;
 end while;
 
 return MyEvaluate(fE, PE, u);
@@ -155,7 +255,7 @@ end function;
 
 
 function ProjectionToEllipticFactorG2(pX, pE, A, deg : margin := 2^4);
-// Geared to a quite specific setting... for now
+// Geared to a quite specific setting for now
 
 S<t> := Parent(pX);
 F := SplittingField((t^2 - Evaluate(pX, 0))*(t^2 - Evaluate(pE, 0)));
@@ -176,13 +276,27 @@ KE := FunctionField(E);
 PX0 := X ! [ 0, Roots(t^2 - Evaluate(pX, 0))[1][1] ];
 PE0 := E ! [ 0, Roots(t^2 - Evaluate(pE, 0))[1][1] ];
 
-// TODO: Prec needed? Theory.
 n := 4*deg + 2^4;
 PX := DevelopInUnif(fX, PX0, n);
 PE := DevelopInUnif(fE, PE0, n);
-imPX := NthApproxsOld(X, PX, E, PE, A, n);
+time imPX := NthApproxs(X, PX, E, PE, A, n);
+
 return AlgebraizePoint(imPX, PX, X, 2*deg);
 
 end function;
 
-// TODO: Optimize, good expressions, test
+
+function MyTest();
+
+n := 4;
+m := 4;
+RP<x> := PowerSeriesRing(Rationals(), 2*n + 1);
+fi := &+[ l*x^(l-1) : l in [1..(2*n + 1)] ];
+K<a,b,c,d> := RationalFunctionField(Rationals(), n);
+RP<t> := PowerSeriesRing(K, 2*n);
+tj := 111*t^1 + 17*t^2 - 11*t^3 + 31*t^4 + a*t^5 + b*t^6 + c*t^7 + d*t^8;
+ev0, M := EvaluateOldGuess(fi, tj, n, m);
+
+return [* [ tj^k : k in [1..2*n] ], Evaluate(fi, tj), ev0, M *];
+
+end function;
