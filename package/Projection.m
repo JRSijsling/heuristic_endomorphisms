@@ -230,31 +230,55 @@ return MyEvaluate(fE, PE, u);
 end function;
 
 
-function AlgebraizePoint(imPX, PX, X, deg);
+function AlgebraizeTangentRepresentation(X, fX, PX0, E, fE, PE0, A, degf0 : margin := 2^4);
 
-prec := Precision(Parent(imPX[1])) - 1;
-A2<x,y> := Ambient(X);
-numdens := [ x^i : i in [0..(deg div 2)] ] cat [ x^i*y : i in [0..((deg - 3) div 2)] ];
-A := Matrix([ [ Coefficient(Evaluate(numden, PX), i) : i in [0..(prec - 1)] ] : numden in numdens ]);
-imPX_alg := [ ];
-for c in imPX do
-    B := Matrix([ [ Coefficient(Evaluate(numden, PX) * c, i) : i in [0..(prec - 1)] ] : numden in numdens ]);
-    M := VerticalJoin(A, B);
-    K := Kernel(M);
-    w := K.1;
-    num := [ w[i] : i in [1..#numdens] ];
-    den := [ -w[i] : i in [(#numdens + 1)..(2*#numdens)] ];
-    num := &+[ num[i] * numdens[i] : i in [1..#numdens] ];
-    den := &+[ den[i] * numdens[i] : i in [1..#numdens] ];
-    Append(~imPX_alg, num/den);
+for degf in [degf0..degf0^2] do
+    print degf;
+    deg := 3*degf + 3;
+    n := 2*deg + margin;
+
+    repeat
+        PX := DevelopInUnif(fX, PX0, n);
+        PE := DevelopInUnif(fE, PE0, n);
+        imPX := NthApproxs(X, PX, E, PE, A, n);
+
+        prec := Precision(Parent(imPX[1])) - 1;
+        A2<x,y> := Ambient(X);
+        numdens := [ x^i : i in [0..(deg div 2)] ] cat [ x^i*y : i in [0..((deg - 5) div 2)] ];
+        A1 := Matrix([ [ Coefficient(Evaluate(numden, PX), i) : i in [0..(prec - 1)] ] : numden in numdens ]);
+        n +:= 1;
+    until Rank(A1) eq #numdens;
+
+    imPX_alg := [ ];
+    for c in imPX do
+        A2 := Matrix([ [ Coefficient(Evaluate(numden, PX) * c, i) : i in [0..(prec - 1)] ] : numden in numdens ]);
+        M := VerticalJoin(A1, A2);
+        K := Kernel(M);
+        if Dimension(K) ne 0 then
+            w := K.1;
+            num := [ w[i] : i in [1..#numdens] ];
+            den := [ -w[i] : i in [(#numdens + 1)..(2*#numdens)] ];
+            num := &+[ num[i] * numdens[i] : i in [1..#numdens] ];
+            den := &+[ den[i] * numdens[i] : i in [1..#numdens] ];
+            Append(~imPX_alg, num/den);
+        end if;
+    end for;
+
+    if #imPX_alg eq 2 then
+        KX<x,y> := FunctionField(X);
+        eqs := [ KX ! c : c in imPX_alg ];
+        if Evaluate(fE, eqs) eq 0 then
+            return true, eqs;
+        end if;
+    end if;
 end for;
-K<x,y> := FunctionField(X);
-return [ K ! c : c in imPX_alg ];
+
+return false, 0;
 
 end function;
 
 
-function ProjectionToEllipticFactorG2(pX, pE, A, deg : margin := 2^4);
+function ProjectionToEllipticFactorG2(pX, pE, A, deg0 : margin := 2^4);
 // Geared to a quite specific setting for now
 
 S<t> := Parent(pX);
@@ -276,12 +300,7 @@ KE := FunctionField(E);
 PX0 := X ! [ 0, Roots(t^2 - Evaluate(pX, 0))[1][1] ];
 PE0 := E ! [ 0, Roots(t^2 - Evaluate(pE, 0))[1][1] ];
 
-n := 4*deg + 2^4;
-PX := DevelopInUnif(fX, PX0, n);
-PE := DevelopInUnif(fE, PE0, n);
-time imPX := NthApproxs(X, PX, E, PE, A, n);
-
-return AlgebraizePoint(imPX, PX, X, 2*deg);
+return AlgebraizeTangentRepresentation(X, fX, PX0, E, fE, PE0, A, deg0);
 
 end function;
 
