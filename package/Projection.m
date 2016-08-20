@@ -1,3 +1,27 @@
+/***
+ *  Explicitly calculating and verifying projection to factors
+ *
+ *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
+ *
+ *  Distributed under the terms of the GNU General License (GPL)
+ *                  http://www.gnu.org/licenses/
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc., 51
+ *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+
 function MyUniformizer(f, P0);
 
 R<x, y> := Parent(f);
@@ -232,19 +256,20 @@ end function;
 
 function AlgebraizeTangentRepresentation(X, fX, PX0, E, fE, PE0, A, degf0 : margin := 2^4);
 
+KX<x,y> := FunctionField(X);
+A2<x,y> := Ambient(X);
+
 for degf in [degf0..degf0^2] do
     print degf;
-    deg := 3*degf + 3;
-    n := 2*deg + margin;
+    deg := 4*degf + 2;
+    numdens := [ x^i : i in [0..(deg div 2)] ] cat [ x^i*y : i in [0..((deg - 5) div 2)] ];
 
+    n := 2*deg + margin;
     repeat
         PX := DevelopInUnif(fX, PX0, n);
         PE := DevelopInUnif(fE, PE0, n);
         imPX := NthApproxs(X, PX, E, PE, A, n);
-
         prec := Precision(Parent(imPX[1])) - 1;
-        A2<x,y> := Ambient(X);
-        numdens := [ x^i : i in [0..(deg div 2)] ] cat [ x^i*y : i in [0..((deg - 5) div 2)] ];
         A1 := Matrix([ [ Coefficient(Evaluate(numden, PX), i) : i in [0..(prec - 1)] ] : numden in numdens ]);
         n +:= 1;
     until Rank(A1) eq #numdens;
@@ -264,8 +289,8 @@ for degf in [degf0..degf0^2] do
         end if;
     end for;
 
+    print [ KX ! c : c in imPX_alg ];
     if #imPX_alg eq 2 then
-        KX<x,y> := FunctionField(X);
         eqs := [ KX ! c : c in imPX_alg ];
         if Evaluate(fE, eqs) eq 0 then
             return true, eqs;
@@ -282,7 +307,7 @@ function ProjectionToEllipticFactorG2(pX, pE, A, deg0 : margin := 2^4);
 // Geared to a quite specific setting for now
 
 S<t> := Parent(pX);
-F := SplittingField((t^2 - Evaluate(pX, 0))*(t^2 - Evaluate(pE, 0)));
+F<r> := SplittingField((t^2 - Evaluate(pX, 0))*(t^2 - Evaluate(pE, 0)));
 S<t> := PolynomialRing(F);
 pX := S ! pX;
 pE := S ! pE;
@@ -300,7 +325,7 @@ KE := FunctionField(E);
 PX0 := X ! [ 0, Roots(t^2 - Evaluate(pX, 0))[1][1] ];
 PE0 := E ! [ 0, Roots(t^2 - Evaluate(pE, 0))[1][1] ];
 
-return AlgebraizeTangentRepresentation(X, fX, PX0, E, fE, PE0, A, deg0);
+return AlgebraizeTangentRepresentation(X, fX, PX0, E, fE, PE0, A, deg0 : margin := margin);
 
 end function;
 

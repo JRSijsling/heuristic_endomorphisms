@@ -93,10 +93,7 @@ Dec = End.decomposition()
 print Dec
 print Dec.field_of_definition()
 print Dec.factors()
+print Dec._idems_[1]
+print Dec.certificate_g2()
 
-#idems = Dec._idems_
-#print idems[1]
-#projs = Dec.projections_g2()
-#print projs
-
-exit()
+#exit()

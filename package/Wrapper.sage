@@ -139,7 +139,7 @@ class Decomposition:
         # TODO: Doing this directly (instead of using the detour through Magma) gives an incomprehensible error
         return [ magma.EllipticCurve([ -K(EC_rep[0])/48, -K(EC_rep[1])/864]).sage() for EC_rep in self._ECs_rep_ ]
 
-    def projections_g2(self):
+    def certificate_g2(self):
         # TODO: Think about this and integrate it better
         spl_fod_data = Canonize_Subfield_And_Idempotents(self._fsubgen_.sage(), self._frep_, self._idems_)
         self._spl_fod_ = spl_fod_data
@@ -152,11 +152,12 @@ class Decomposition:
         # Convert everything and pass to Magma
         R.<x> = PolynomialRing(K.sage())
         fX = magma(R(4*self.g + self.h^2))
+        # NOTE: This will give a rational point in the upcoming algorithm
         fEs = magma([ x + (-K(EC_rep[0])/48)*x^3 + (-K(EC_rep[1])/864)*x^4 for EC_rep in self._ECs_rep_ ])
         As = magma(spl_fod_data[2])
         degs = magma([ magma.DecompositionDegree(idem) for idem in self._idems_[3] ])
-        # Factor -2 due to various normalizations
-        As = magma([ magma.Eltseq(-2 * degs[i] * magma.Rows(magma.Transpose(As[i]))[col_number]) for i in [1..len(As)] ])
+        # TODO: Check factor
+        As = magma([ magma.Eltseq( -2 * magma.Rows(magma.Transpose(As[i]))[col_number]) for i in [1..len(As)] ])
         return [ magma.ProjectionToEllipticFactorG2(fX, fEs[i], As[i], degs[i]) for i in [1..len(As)] ]
 
 class EndomorphismData:
