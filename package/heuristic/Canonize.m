@@ -1,5 +1,5 @@
-"""
- *  Initialization of the Sage part of the package
+/***
+ *  Canonizing a matrix
  *
  *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
  *
@@ -19,25 +19,21 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc., 51
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-"""
+ */
 
-import os
-# The following line is a bad solution:
-if not '__endodir__' in globals():
-    __endodir__ = os.getenv("PWD") + "/"
-# The following line is a lazy solution:
-magma.chdir(__endodir__)
-magma.load('Initialize.m')
+function CanonizeMatrix(grep, frep, idem);
 
-# This has to be hidden better to prevent accidental overwriting:
-prec = 300
-epscomp = 10^(-prec + 30)
-epsLLL = 5^(-prec + 7)
-epsinv = 2^(-4)
-Bound = 48
+R<x> := PolynomialRing(Rationals());
+f := R ! frep;
+// TODO: Magma greatly loses here since the rationals do not admit a subfield constructor
+if frep eq [0, 1] then
+    L := Rationals();
+    K := Rationals();
+else
+    L := NumberField(f);
+    K := sub< L | L ! grep >;
+end if;
 
-load(__endodir__ + 'heuristic/Recognition.sage')
-load(__endodir__ + 'heuristic/Canonize.sage')
-load(__endodir__ + 'heuristic/Decomposition.sage')
-load(__endodir__ + 'heuristic/Conversion.sage')
-load(__endodir__ + 'Wrapper.sage')
+return Matrix(K, [ [ K ! c : c in Eltseq(row) ] : row in Rows(idem) ]);
+
+end function;

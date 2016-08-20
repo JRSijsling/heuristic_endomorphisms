@@ -1,5 +1,5 @@
 """
- *  Initialization of the Sage part of the package
+ *  Debugging functionality over a finite field
  *
  *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
  *
@@ -21,23 +21,26 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import os
-# The following line is a bad solution:
-if not '__endodir__' in globals():
-    __endodir__ = os.getenv("PWD") + "/"
-# The following line is a lazy solution:
-magma.chdir(__endodir__)
-magma.load('Initialize.m')
+load('EndoChecker.sage')
+load('LocalInfo.sage')
+magma.load('EndoChecker.m')
+magma.load('LocalInfo.m')
 
-# This has to be hidden better to prevent accidental overwriting:
-prec = 300
-epscomp = 10^(-prec + 30)
-epsLLL = 5^(-prec + 7)
-epsinv = 2^(-4)
-Bound = 48
+# TODO: Use split primes only for speedup?
+ps = [ n for n in [10^6..10^6 + 100] if n.is_prime() ]
+for p in ps:
+    F = FiniteField(p)
+    R.<x> = PolynomialRing(F)
+    
+    f = 1 + 2*x + 7*x^2 + 4*x^3 + 7*x^4 + 2*x^5 + x^6
+    X = HyperellipticCurve(f)
+    P0 = [0, 1]
+    M = Matrix(F, [[3, 0], [0, 3]])
+    M = Matrix(F, [[0, 1], [1, 0]])
+    M = Matrix(F, [[0, -1], [-1, 0]])
 
-load(__endodir__ + 'heuristic/Recognition.sage')
-load(__endodir__ + 'heuristic/Canonize.sage')
-load(__endodir__ + 'heuristic/Decomposition.sage')
-load(__endodir__ + 'heuristic/Conversion.sage')
-load(__endodir__ + 'Wrapper.sage')
+    EC = EndoChecker(X, P0, 1)
+    n = 300
+    print p
+    print EC.LI.nth_approxs(M, n)
+    print EC.LI.nth_approxs_old(M, n)

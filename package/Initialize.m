@@ -86,19 +86,19 @@ forward SmallIdempotent;
 forward InducedEmbedding;
 forward LatticesFromIdempotents;
 
-// Explicit projection morphisms
-forward ProjectionToEllipticFactorG2;
-
 // Rosati involution functionality
 forward RosatiInvolution;
 
+// Explicit projection morphisms
+forward ProjectionToEllipticFactorG2;
+
 // The actual loading
-load "Linear.m";
-load "Recognition.m";
-load "Analytic.m";
-load "Algebraic.m";
-load "SatoTate.m";
-load "Canonize.m";
-load "Decomposition.m";
-load "Projection.m";
-load "Rosati.m";
+load "heuristic/Linear.m";
+load "heuristic/Recognition.m";
+load "heuristic/Analytic.m";
+load "heuristic/Algebraic.m";
+load "heuristic/SatoTate.m";
+load "heuristic/Canonize.m";
+load "heuristic/Decomposition.m";
+load "polarization/Rosati.m";
+load "projection/Projection.m";
