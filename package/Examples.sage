@@ -58,6 +58,10 @@ h = x^3 + 1
 # Test case for verification:
 f = 1 + 2*x + 7*x^2 + 4*x^3 + 7*x^4 + 2*x^5 + x^6
 h = 0
+# One more:
+f = 1 + 3*x + 7*x^2 + 4*x^3 + 7*x^4 + 3*x^5 + x^6
+h = 0
+
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
