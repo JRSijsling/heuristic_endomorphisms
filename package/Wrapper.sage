@@ -220,8 +220,7 @@ class EndomorphismData:
         X = magma.ChangeRing(magma.HyperellipticCurve(4*self.g + self.h^2), L)
         EC = EndoChecker(X, P0)
         tests = [ ]
-        for i in range(len(As) - 1):
-            A = As[i+1]
+        for A in As:
             At = magma.Transpose(A)
             if magma.IsScalar(At):
                 tests.append(True)
