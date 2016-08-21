@@ -55,7 +55,9 @@ h = 0
 # Test case for decomposition (to be sure of transpose issues):
 f = -2*x^4 + 4*x^2 - 9*x - 14
 h = x^3 + 1
-
+# Test case for verification:
+f = 1 + 2*x + 7*x^2 + 4*x^3 + 7*x^4 + 2*x^5 + x^6
+h = 0
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
@@ -69,8 +71,6 @@ h = x^3 + 1
 
 # The main functionality:
 End = EndomorphismData(f, h, prec = 200)
-K.<r> = NumberField(x^3 - x - 1)
-K.<r> = NumberField(x^2 - 5*x + 3)
 print End
 AsAlg, As, Rs = End.geometric_representations()
 M = AsAlg[len(AsAlg)]
@@ -84,11 +84,14 @@ print End.geometric().description()
 print End.over_base()
 print End.over_base().representations()
 print End.over_base().description()
+K.<r> = NumberField(x^3 - x - 1)
+K.<r> = NumberField(x^2 - 5*x + 3)
 print End.over_field(K)
 print End.over_field(K).representations()
 print End.over_field(K).description()
 print End.lattice()
 
+# NEW! Verifying decomposition data:
 Dec = End.decomposition()
 print Dec
 print Dec.field_of_definition()
@@ -96,4 +99,8 @@ print Dec.factors()
 print Dec._idems_[1]
 print Dec.certificate_g2()
 
+# NEW! Verifying geometric endomorphisms:
+print End.geometric_representations_check()
+
 #exit()
+

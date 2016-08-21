@@ -39,7 +39,7 @@ for p in ps:
     M = Matrix(F, [[0, 1], [1, 0]])
     M = Matrix(F, [[0, -1], [-1, 0]])
 
-    EC = EndoChecker(X, P0, 1)
+    EC = EndoChecker(X, P0)
     n = 300
     print p
     print EC.LI.nth_approxs(M, n)

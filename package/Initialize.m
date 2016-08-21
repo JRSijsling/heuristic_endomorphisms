@@ -102,3 +102,5 @@ load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
 load "polarization/Rosati.m";
 load "projection/Projection.m";
+load "puiseux/EndoChecker.m";
+load "puiseux/LocalInfo.m";

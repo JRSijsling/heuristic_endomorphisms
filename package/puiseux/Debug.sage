@@ -48,12 +48,23 @@ M = Matrix(F, [[1, 0], [0, -1]])
 
 f = 1 + 2*x + 7*x^2 + 4*x^3 + 7*x^4 + 2*x^5 + x^6
 P0 = [0, 1]
+#f = 4*f
+#P0 = [0, 2]
 M = Matrix(F, [[3, 0], [0, 3]])
 M = Matrix(F, [[0, 1], [1, 0]])
 M = Matrix(F, [[0, -1], [-1, 0]])
 
 X = HyperellipticCurve(f)
-EC = EndoChecker(X, P0, 1)
+
+#F = magma.NumberField(magma.Polynomial([1,1,0,1]))
+#R = magma.PolynomialRing(F)
+#x = magma.GeneratorsSequence(R)[1]
+#f = 1 + 2*x + 7*x^2 + 4*x^3 + 7*x^4 + 2*x^5 + x^6
+#P0 = magma([0, 1])
+#M = magma.Matrix(F, [[0, -1], [-1, 0]])
+#X = magma.HyperellipticCurve(f)
+
+EC = EndoChecker(X, P0)
 n = 100
 print EC.LI.nth_approxs(M, n)
 # NOTE: Test lines for general case.

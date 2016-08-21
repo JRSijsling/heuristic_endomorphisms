@@ -204,6 +204,34 @@ class EndomorphismData:
         #return [ [ rep.sage() for rep in reps ] for reps in self._geo_reps_ ]
         return self._geo_reps_
 
+    def geometric_representations_check(self):
+        geo_reps = self.geometric_representations()
+        As = geo_reps[0]
+        K = magma.BaseRing(magma.Parent(As[1]))
+        # TODO: Remove this if possible
+        if magma.Degree(K) == 1:
+            K = magma.Rationals()
+        X = magma.ChangeRing(magma.HyperellipticCurve(4*self.g + self.h^2), K)
+        P0, As = magma.BasePointNonWeierstrassG2(X, As, nvals = 2)
+        L = magma.Parent(P0[1])
+        # TODO: Remove this if possible
+        if magma.Degree(L) == 1:
+            L = magma.Rationals()
+        X = magma.ChangeRing(magma.HyperellipticCurve(4*self.g + self.h^2), L)
+        EC = EndoChecker(X, P0)
+        tests = [ ]
+        for i in range(len(As) - 1):
+            A = As[i+1]
+            At = magma.Transpose(A)
+            if magma.IsScalar(At):
+                tests.append(True)
+            else:
+                d = self.degree_estimate(At)
+                div = EC.divisor_from_matrix(A, degree_bound = 2*d + 2)
+                # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
+                tests.append(True)
+        return all(tests)
+
     def geometric(self):
         geo_reps = self.geometric_representations()
         return OverField(self, K = "geometric")

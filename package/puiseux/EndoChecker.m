@@ -138,7 +138,8 @@ eqs := eqs cat [ h(DE) : h in hs, DE in DEs ];
 A := AffineSpace(Rprod);
 S := Scheme(A, eqs);
 
-/* NOTE: The final two steps may be a time sink. */
+/* NOTE: The final two steps may be a time sink. Currently skipped. */
+return [ S ];
 Is := IrreducibleComponents(S);
 return [ ReducedSubscheme(I) : I in Is ];
 
@@ -161,7 +162,28 @@ R := CoordinateRing(A);
 g := #Eltseq(P0);
 eqs := [ R.i - P0[i] : i in [ 1..g ] ];
 S := Scheme(A, DefiningEquations(I) cat eqs);
-test := (Dimension(S) eq 0) and (Degree(S) eq g) and (#PointsOverSplittingField(S) eq 1);
+test := (Dimension(S) eq 0) and (Degree(S) eq g) and (Degree(ReducedSubscheme(S)) eq 1);
 return test;
+
+end function;
+        
+
+function BasePointNonWeierstrassG2(X, As);
+
+f, h := HyperellipticPolynomials(X);
+n0 := 0;
+while true do
+    ev0 := Evaluate(f, n0);
+    if ev0 ne 0 then
+        break;
+    end if;
+    n0 +:= 1;
+end while;
+K := BaseRing(X);
+R<t> := PolynomialRing(K);
+L := SplittingField(t^2 - ev0);
+P0 := [ L ! n0, Roots(t^2 - ev0, L)[1][1] ];
+AsL := [ ChangeRing(A, L) : A in As ];
+return P0, AsL;
 
 end function;

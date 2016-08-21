@@ -307,7 +307,7 @@ function ProjectionToEllipticFactorG2(pX, pE, A, deg0 : margin := 2^4);
 // Geared to a quite specific setting for now
 
 S<t> := Parent(pX);
-F<r> := SplittingField((t^2 - Evaluate(pX, 0))*(t^2 - Evaluate(pE, 0)));
+F := SplittingField((t^2 - Evaluate(pX, 0))*(t^2 - Evaluate(pE, 0)));
 S<t> := PolynomialRing(F);
 pX := S ! pX;
 pE := S ! pE;

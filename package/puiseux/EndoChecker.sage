@@ -22,10 +22,9 @@
 """
 
 class EndoChecker:
-    def __init__(self, X, P0, degree_bound = 0):
+    def __init__(self, X, P0):
         X = magma(X)
         P0 = X(magma(P0))
-        self.degree_bound = degree_bound
         self.is_hyp = magma.IsHyperellipticCurve(X)
         self.is_planar = magma.IsPlaneCurve(X)
         self.is_smooth = magma.IsSingular(X)
@@ -46,9 +45,9 @@ class EndoChecker:
     def candidate_divisors(self, d):
         return magma.CandidateDivisors(self.X, self.g, self.is_hyp, self.is_planar, d)
 
-    def divisor_from_matrix(self, M, margin = 2^4):
+    def divisor_from_matrix(self, M, degree_bound = 1, margin = 2^4):
         # We start at a suspected estimate and then increase degree until we find an appropriate divisor:
-        d = self.degree_bound
+        d = degree_bound
         while True:
             print "Trying degree {}...".format(str(d))
             fs = self.candidate_divisors(d)
@@ -62,6 +61,8 @@ class EndoChecker:
                 if not all([ c == 0 for c in Q ]):
                     break
             # Fit a divisor to it:
+            # (TODO: Actually no irreducible components are currently calculated.)
+            print "Calculating irreducible components..."
             ICs = magma.IrrCompsFromBranch(self.X, fs, n, P, Q)
             for I in ICs:
                 if magma.IrrCompCheck(I, self.P0):
