@@ -61,7 +61,12 @@ h = 0
 # One more:
 f = 1 + 3*x + 7*x^2 + 4*x^3 + 7*x^4 + 3*x^5 + x^6
 h = 0
-
+# RM over QQ:
+f = -x^5
+h = x^3 + x + 1
+# Potential RM:
+f = x^6 + 2*x^3 - x
+h = x^3 + 1
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
@@ -75,35 +80,35 @@ h = 0
 
 # The main functionality:
 End = EndomorphismData(f, h, prec = 200)
-print End
 AsAlg, As, Rs = End.geometric_representations()
 M = AsAlg[len(AsAlg)]
-print M
-print End.rosati_involution(M)
-print End.degree_estimate(M)
+#print End
+#print M
+#print End.rosati_involution(M)
+#print End.degree_estimate(M)
 print End.field_of_definition()
-print End.geometric()
-print End.geometric().representations()
+#print End.geometric()
+print End.geometric().representations()[0]
 print End.geometric().description()
-print End.over_base()
-print End.over_base().representations()
-print End.over_base().description()
-K.<r> = NumberField(x^3 - x - 1)
-K.<r> = NumberField(x^2 - 5*x + 3)
-print End.over_field(K)
-print End.over_field(K).representations()
-print End.over_field(K).description()
-print End.lattice()
+#print End.over_base()
+#print End.over_base().representations()
+#print End.over_base().description()
+#K.<r> = NumberField(x^3 - x - 1)
+#K.<r> = NumberField(x^2 - 5*x + 3)
+#print End.over_field(K)
+#print End.over_field(K).representations()
+#print End.over_field(K).description()
+#print End.lattice()
 
 # NEW! Verifying decomposition data:
-Dec = End.decomposition()
-print Dec
-print Dec.field_of_definition()
-print Dec.factors()
-print Dec._idems_[1]
-print Dec.certificate_g2()
+#Dec = End.decomposition()
+#print Dec
+#print Dec.field_of_definition()
+#print Dec.factors()
+#print Dec._idems_[1]
+#print Dec.certificate_g2()
 
-# NEW! Verifying geometric endomorphisms:
+# Verification of geometric endomorphisms:
 print End.geometric_representations_check()
 
 #exit()

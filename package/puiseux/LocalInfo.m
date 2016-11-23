@@ -1,122 +1,29 @@
-/***
- *  Local information around a point, Magma code
- *
- *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
- *
- *  Distributed under the terms of the GNU General License (GPL)
- *                  http://www.gnu.org/licenses/
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc., 51
- *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+forward LiftPuiseuxSeries;
 
-function MyUniformizer(X, P0, is_planar);
-/*
- * Input:   A curve X,
- *          a point P0 on X,
- *          and whether or not X is planar.
- * Output:  A uniformizing element at P0.
- */
+forward InitializeMatrix;
+forward PuiseuxRamificationIndex;
+forward InitializeImageBranch;
 
-if is_planar then
-    K := FunctionField(X);
-    f := DefiningEquations(X)[1];
-    R<x, y> := Parent(f);
-    if Evaluate(Derivative(f, y), P0) ne 0 then
-        return K ! x;
-    else
-        return K ! y;
-    end if;
-else
-    return UniformizingParameter(P0);
+forward RootWithHensel;
+forward DevelopPoint;
+
+forward InitializeLift;
+forward CreateLiftIterator;
+forward ApproximationsFromTangentAction;
+
+
+function LiftPuiseuxSeries(f, PR, e)
+
+L := [ Coefficient(f, i/e)*PR.1^(i/e) : i in [0..e*AbsolutePrecision(f) - 1] ];
+if #L eq 0 then
+    return PR ! 0;
 end if;
+return PR ! (&+L);
 
 end function;
 
 
-function DevelopInUnif(X, P0, is_planar, n);
-/*
- * Input:   A curve X,
- *          a point P0 on X,
- *          whether or not X is planar,
- *          and a precision n.
- * Output:  A development to precision n of P in a uniformizing parameter.
- *          The correct branch at P0 is chosen,
- *          and a coordinate is used in the case of a plane curve.
- */
-
-if not is_planar then
-    // TODO: Name issues.
-    xs := GeneratorsSequence(CoordinateRing(Ambient(X)));
-    K<x, y> := FunctionField(X);
-    Pl0 := Place(P0);
-    return [ Expand(K ! c, Pl0 : AbsPrec := n) : c in xs ];
-end if;
-f := DefiningEquations(X)[1];
-R<x, y> := Parent(f);
-xy := [x, y];
-F := BaseRing(R);
-RP<t> := PowerSeriesRing(F, n);
-u := MyUniformizer(X, P0, is_planar);
-S := PolynomialRing(RP);
-/* The following is perhaps a bit ridiculous; copying and pasting would also have worked. */
-if u eq x then
-    i := 1;
-else
-    i := 2;
-end if;
-subst := [S!0, S!0];
-subst[i] := t + P0[i];
-subst[(i mod 2) + 1] := S.1;
-h := hom<R -> S | subst>;
-g := h(f);
-for rt in [ tup[1] : tup in Roots(g) ] do
-    if Coefficient(rt, 0) eq P0[(i mod 2) + i] then
-        dev := [ RP!0, RP!0 ];
-        dev[i] := t + P0[i];
-        dev[(i mod 2) + 1] := rt;
-        return dev;
-    end if;
-end for;
-
-end function;
-
-
-function NormalizeDiffBasis(X, P0, is_planar, B);
-/*
- * Input:   A curve X,
- *          a point P0 on X,
- *          whether or not X is planar,
- *          and a basis of differentials B of X.
- * Output:  A differential basis Bnorm that is normalized with respect to the uniformizing parameter,
- *          the expansion of Bnorm,
- *          along with a matrix T such that multiplication by T sends B to Bnorm.
- */
-
-g := #B;
-P := DevelopInUnif(X, P0, is_planar, g);
-du := Differential(MyUniformizer(X, P0, is_planar));
-Q := FieldOfFractions(CoordinateRing(Ambient(X)));
-BP := [ Evaluate(Q ! (b / du), P) : b in B ];
-T := Matrix([ [ Coefficient(BP[i], j-1) : j in [1..g] ] : i in [1..g] ])^(-1);
-Bnorm := [ &+[ T[i,j] * B[j] : j in [1..g] ] : i in [1..g] ];
-return Bnorm, T;
-
-end function;
-
-
-function RamificationIndex(M);
+function PuiseuxRamificationIndex(M)
 /*
  * Input:   A matrix M that represents an endomorphism,
  *          after normalizing to an upper triangular form.
@@ -137,18 +44,18 @@ end while;
 end function;
 
 
-function InitializeImageBranch(M);
+function InitializeImageBranch(M)
 /*
- * Input:   A matrix M that represents an endomorphism,
- *          after normalizing to an upper triangular form,
- *          and a base point P0.
- * Output:  The leading coefficients of the corresponding Puiseux expansions.
+ * Input:   A matrix M that represents an endomorphism
+ *          after normalizing to an upper triangular form.
+ * Output:  The leading coefficients of the corresponding Puiseux expansions
+ *          and the polynomial that gives their field of definition.
  */
 
 /* Recovering old invariants: */
 F := Parent(M[1,1]);
 g := #Rows(M);
-e := RamificationIndex(M);
+e := PuiseuxRamificationIndex(M);
 
 /* Normalized equations (depend only on the matrix): */
 A := AffineSpace(F, g);
@@ -164,278 +71,207 @@ for n in [1..g] do
 end for;
 S := Scheme(A, eqs);
 
-/* Note: the upcoming steps are taken to avoid the use of an algebraic closure. */
-RF<t> := PolynomialRing(F);
+/* The upcoming steps are taken to avoid the use of an algebraic closure */
+RF := PolynomialRing(F);
 hc := [ RF!0 : i in [1..g] ];
-hc[#hc] := t;
+hc[#hc] := RF.1;
 h := hom<RA -> RF | hc>;
 
 /* By symmetry, this extension always suffices */
 G := GroebnerBasis(ideal<RA | eqs>);
-K := SplittingField(h(G[#G]));
+if not IsFinite(F) then
+    K := GaloisSplittingField(h(G[#G]));
+else
+    K := SplittingField(h(G[#G]));
+end if;
 
 /* Extending and evaluating: */
 SK := BaseExtend(S, K);
-Pt := Eltseq(Points(SK)[1]);
-RK<tK> := PuiseuxSeriesRing(K, 1);
-wK := tK^(1/e);
-return [ Pt[i] * wK : i in [1..g] ];
-
-end function;
-
-
-function LinTermMult(lt1, lt2);
-// Multiplies linear contributions
-
-n := #Rows(Transpose(lt1));
-return Matrix([ [ &+[ lt1[1, j] * lt2[1, i + 1 - j] : j in [1..i] ] : i in [1..n] ] ]);
-
-end function;
-
-
-function EvaluateOldGuess(fis, tj_old, n, m);
-/*
- * Input:   A list of power series fis with relative precision at least 2n,
- *          a Puiseux series tj_old to be substituted in xj of relative precision n/e,
- *          and the integer n used above (for Magma problems with precision).
- * Output:  The evaluation of the first terms
- *          and the linear coefficients for the terms of higher order in the fi (tj).
- * NOTE:    The techniques are specific to the power series considered in the paper.
- */
-/* TODO: Exploit symmetry when using this later? */
-
-g := #fis;
-e := Denominator(Valuation(tj_old));
-F := BaseRing(Parent(tj_old));
-RP<t> := PuiseuxSeriesRing(F, n + m);
-
-/* Carrying over old guess to higher precision and extracting required information: */
-tj := &+[ Coefficient(tj_old, i/e) * t^(i/e) : i in [1..n] ];
-power0 := RP ! 1;
-power1 := tj;
-power_term0 := Matrix([ [ F ! 0 : k in [1..m] ] ]);
-power_term1 := Matrix([ [ F ! 1 ] cat [ F ! 0 : k in [2..m] ] ]);
-deriv := Matrix([ [ Coefficient(tj, k/e) : k in [1..m] ] ]);
-
-/* Calculating contributions from higher powers of tj: */
-powers := [ power0, power1 ];
-power_terms := [ power_term0, power_term1 ];
-power := power1;
-power_term := power_term1;
-for k in [2..((g - 1) + (n + m - 1))] do
-    Append(~powers, power1 * powers[#powers]);
-    if k le ((g - 1) + (m - 1)) then
-        power_term := LinTermMult(deriv, power_term);
-        Append(~power_terms, k * power_term);
-    end if;
-end for;
-
-/* Combining for the given fis: */
-evs0 := [ ];
-lin_terms := [ ];
-for i:=1 to g do
-    ev0 := &+[ Coefficient(fis[i], k) * powers[k + 1] : k in [0..((i - 1) + (n + m - 1))] ];
-    Append(~evs0, ev0);
-    lin_term := Coefficient(fis[i], i - 1) * power_terms[i];
-    /* Terms from higher powers: */
-    for k:=2 to m do
-        c := Coefficient(fis[i], (i - 1) + (k - 1));
-        power_term := power_terms[i + k - 1];
-        /* Add shift: */
-        for l:=k to m do
-            lin_term[1, l] +:= c * power_term[1, l + 1 - k];
-        end for;
-    end for;
-    Append(~lin_terms, lin_term);
-end for;
-
-return evs0, lin_terms;
-
-end function;
-
-
-function MyEvaluate(X, P, is_planar, tj);
-// Slightly faster evaluation in planar case.
-// TODO: Similar to what went before, and we may wish to combine these.
-
-if not is_planar then
-    return [ Evaluate(c, tj) : c in P ];
-end if;
-f := DefiningEquations(X)[1];
-R<x, y> := Parent(f);
-xy := [x, y];
-F := BaseRing(R);
-RP<t> := Parent(tj);
-S := PolynomialRing(RP);
-P0 := [ Coefficient(c, 0) : c in P ];
-u := MyUniformizer(X, P0, is_planar);
-/* The following is perhaps a bit ridiculous; copying and pasting would also have worked. */
-if u eq x then
-    i := 1;
+P := Eltseq(Points(SK)[1]);
+if e eq 1 then
+    RK := PowerSeriesRing(K, 2);
+    wK := RK.1;
 else
-    i := 2;
+    RK := PuiseuxSeriesRing(K, 2);
+    wK := RK.1^(1/e);
 end if;
-subst := [S!0, S!0];
-subst[i] := tj;
-subst[(i mod 2) + 1] := S.1;
-h := hom<R -> S | subst>;
-g := h(f);
-for rt in [ tup[1] : tup in Roots(g) ] do
-    if Coefficient(rt, 0) eq Coefficient(P[(i mod 2) + i], 0) then
-        dev := [ RP!0, RP!0 ];
-        dev[i] := tj;
-        dev[(i mod 2) + 1] := rt;
-        return dev;
+return [ P[i] * wK + O(wK^2) : i in [1..g] ], h(G[#G]);
+
+end function;
+
+
+function RootWithHensel(f, P0, n)
+/*
+ * Input:   An algebraic relation f between two variables,
+ *          a point P0 that satisfies this,
+ *          and the requested number of digits n.
+ * Output:  A corresponding development of both components.
+ *
+ * The relation f has to be non-singular when developing in y,
+ * and the x-coordinate can be specified as a Puiseux series. */
+
+if Type(P0[1]) in [ RngSerPuisElt, RngSerPowElt ] then
+    F := BaseRing(Parent(P0[1]));
+else
+    F := Parent(P0[1]);
+end if;
+df := Derivative(f, 2);
+x0 := P0[1]; y0 := P0[2];
+
+PR := PuiseuxSeriesRing(F, 1);
+x := PR ! Coefficient(PR ! x0, 0); y := PR ! Coefficient(PR ! y0, 0);
+if n eq 0 then
+    return [x, y];
+end if;
+
+log := 0;
+while log le Ceiling(Log(2, n)) - 1 do
+    prec := Minimum(2^(log + 1), n);
+    PR := PuiseuxSeriesRing(F, prec);
+    if x0 in F then
+        e := 1;
+        x := x0 + PR.1;
+    else
+        /* TODO: We further assume a somewhat special kind of series here,
+         *       which we encounter in our applications. */
+        e := Integers() ! (1/Valuation(x0 - Coefficient(x0, 0)));
+        x := LiftPuiseuxSeries(x0, PR, e);
     end if;
-end for;
+    y := LiftPuiseuxSeries(y, PR, e);
+    h := -Evaluate(f, [x, y])/Evaluate(df, [x, y]);
+    y +:= h;
+    log +:= 1;
+end while;
+return [x, y];
 
 end function;
 
 
-function MySum(L);
+function DevelopPoint(X, P0, n)
+/*
+ * Input:   A curve X,
+ *          a point P0 on it (may be over a series ring),
+ *          and a precision n.
+ * Output:  A development to precision n of P in a uniformizing parameter.
+ *          The correct branch at P0 is chosen,
+ *          and a coordinate is used in the case of a plane curve.
+ */
 
-if #L eq 0 then
-    return 0;
+if not X`is_planar then
+    /* Here only for constant points, in which case we fall back to the given
+     * base point. We do get an expansion that may not be in our uniformizer. */
+    return [ Expand(X`K ! c, Place(X`Q0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
 end if;
-return &+L;
+f := X`DEs[1];
+if X`index eq 1 then
+    return RootWithHensel(f, P0, n);
+else
+    f_swap := Evaluate(f, [(X`R).2, (X`R).1]);
+    P0_swap := [ P0[2], P0[1] ];
+    P := RootWithHensel(f_swap, P0_swap, n);
+    return [ P[2], P[1] ];
+end if;
 
 end function;
 
 
-function NthApproxs(X, P, is_planar, B, M, N);
-/*
- * Input:   A curve X,
- *          a branch P,
- *          a basis of differentials B on X,
- *          a matrix representation M,
- *          and a precision N.
- * Output:  The Puiseux expansions of alpha (P) up to precision N.
- */
+function InitializeLift(X, M)
 
-/* Recovering old invariants: */
-g := #Rows(M);
+P0 := X`Q0;
+e := PuiseuxRamificationIndex(M);
+tjs0 := InitializeImageBranch(M);
+PR := Parent(tjs0[1]);
 
-/* Initializing and recovering corresponding Vandermonde matrix: */
-ts0 := InitializeImageBranch(M);
-e := Denominator(Valuation(ts0[1]));
-A := Matrix([ [ Coefficient(ts0[j], 1/e)^(i - 1) : j in [1..g] ] : i in [1..g] ])^(-1);
-F := BaseRing(Parent(ts0[1]));
+/* Creating P */
+P := [ PR ! P0[1], PR ! P0[2] ];
+P[X`index] +:= PR.1;
+Pnew := [ PR ! c : c in DevelopPoint(X, P, 2) ];
+P := [ PR ! c : c in DevelopPoint(X, P, 2) ];
 
-/* Evaluating differentials to power series: */
-P0 := X ! [ Coefficient(c, 0) : c in P ];
-du := Differential(MyUniformizer(X, P0, is_planar));
-Q := FieldOfFractions(CoordinateRing(Ambient(X)));
-BP := [ Evaluate(Q ! (b / du), P) : b in B ];
-ev_rhs := [ &+[ M[i, j] * BP[j] : j in [1..g] ] : i in [1..g] ];
+/* Creating Qjs */
+Qjs := [ [ PR ! P0[1], PR ! P0[2] ] : i in [1..X`g] ];
+for i in [1..X`g] do
+    Qjs[i][X`index] +:= tjs0[i];
+end for;
+Qjs := [ [ PR ! c : c in DevelopPoint(X, Qj, 2) ] : Qj in Qjs ];
+return P, Qjs;
 
-/* Lifting: */
-ts := ts0;
-n := 1;
-while n lt N do
-    m := Minimum(n, N - n);
-    // TODO: Clinch relative precision here.
-    R<t> := PuiseuxSeriesRing(F, n + m);
-    evss0 := [ ];
-    lin_termss := [ ];
-    for tj in ts do
-        evs0, lin_terms := EvaluateOldGuess(BP, tj, n, m);
-        Append(~evss0, [ R ! ev0 : ev0 in evs0 ]);
-        Append(~lin_termss, lin_terms);
+end function;
+
+
+function CreateLiftIterator(X, M)
+
+index_unif := X`index;
+index_other := (index_unif mod 2) + 1;
+f := X`DEs[1];
+df := Derivative(f, index_other);
+B := X`NormB;
+g := X`g;
+
+e := PuiseuxRamificationIndex(M);
+
+    function Iterate(P, Qjs, n);
+
+    /* Create ring of higher precision: */
+    K := BaseRing(Parent(P[1]));
+    prec := Minimum(2*Precision(Parent(P[1])), n);
+    PR := PuiseuxSeriesRing(K, prec);
+
+    /* Lift Qjs: */
+    Qjs := [ [ LiftPuiseuxSeries(c, PR, e) : c in Qj ] : Qj in Qjs ];
+    for i in [1..g] do
+        h := -Evaluate(f, Qjs[i])/Evaluate(df, Qjs[i]);
+        Qjs[i][index_other] +:= h;
     end for;
-    ts := [ &+[ Coefficient(ts[i], j/e) * t^(j/e) : j in [1..n] ] : i in [1..g] ];
-    ev_lhs := [ &+[ evss0[j][i] * Derivative(ts[j]) : j in [1..g] ] : i in [1..g] ];
-    diffs := [ ev_rhs[i] - ev_lhs[i] : i in [1..g] ];
-    /* Yes, this is a horrible stack of for-loops. But it is fast. */
-    for k in [1..m] do
-        diffsdiffed := [ Coefficient(diffs[i], (i - 1 + n + k)/e - 1) : i in [1..g] ];
-        for i in [1..g] do
-            for j in [1..g] do
-                for l in [1..k] do
-                    /* Next line has zero entry at k: */
-                    diffsdiffed[i] -:= ((n + l)/e) * Coefficient(ts[j], (n + l)/e) * Coefficient(evss0[j][i], (i - 1 + k - l)/e);
-                    gamma := MySum([ lin_termss[j][i][1, l + 1 - ind] * Coefficient(ts[j], (n + ind)/e) : ind in [1..Minimum(l, k - 1)] ]);
-                    diffsdiffed[i] -:= ((k + 1 - l)/e) * Coefficient(ts[j], (k + 1 - l)/e) * gamma;
-                end for;
-            end for;
-        end for;
-        v := Matrix([ [ (e/(i - 1 + n + k)) * diffsdiffed[i] ] : i in [1..g] ]);
-        w := A*v;
-        ts := [ ts[i] + w[i, 1] * t^((n + k)/e) : i in [1..g] ];
+
+    /* Calculate P to higher precision: */
+    P := [ LiftPuiseuxSeries(c, PR, 1) : c in P ];
+    P[index_unif] := Coefficient(P[index_unif], 0) + PR.1;
+    h := -Evaluate(f, P)/Evaluate(df, P);
+    P[index_other] +:= h;
+
+    /* Calculate LHS: */
+    dtjs := [ Derivative(Qj[index_unif]) : Qj in Qjs ];
+    BPijs := Matrix([ [ Evaluate(B[i], Qjs[j]) : j in [1..g] ] : i in [1..g] ]);
+    F_ev := Matrix([ [ Integral(&+[ BPijs[i,j] * dtjs[j] : j in [1..g] ]) : i in [1..g] ] ]);
+    DF_ev := Transpose(BPijs);
+
+    /* Calculate RHS: */
+    BQjs := [ Evaluate(B[j], P) : j in [1..g] ];
+    G_ev := Matrix(PR, [ [ Integral(&+[ M[i,j] * BQjs[j] : j in [1..g] ]) : i in [1..g] ] ]);
+
+    /* Calculate Hensel correction: */
+    H := -(F_ev - G_ev) * DF_ev^(-1);
+
+    /* Calculate Qjs to higher precision: */
+    for i in [1..g] do
+        Qjs[i][index_unif] +:= H[1,i];
+        h := -Evaluate(f, [Qjs[i][1], Qjs[i][2]])/Evaluate(df, [Qjs[i][1], Qjs[i][2]]);
+        Qjs[i][index_other] +:= h;
     end for;
-    n *:= 2;
-end while;
+    return P, Qjs;
 
-R<t> := PuiseuxSeriesRing(F, n + m + g - 1);
-return [ MyEvaluate(X, P, is_planar, R ! t) : t in ts ];
+    end function;
 
-end function;
-
-
-function NthApproxsOld(X, P, is_planar, B, M, N);
-/*
- * Input:   A curve X,
- *          a branch P,
- *          a basis of differentials B on X,
- *          a matrix representation M,
- *          and a precision N.
- * Output:  The Puiseux expansions of alpha (P) up to precision N.
- */
-
-/* Recovering old invariants: */
-g := #Rows(M);
-
-/* Initializing and recovering corresponding Vandermonde matrix: */
-ts0 := InitializeImageBranch(M);
-e := Denominator(Valuation(ts0[1]));
-A := Matrix([ [ Coefficient(ts0[j], 1/e)^(i - 1) : j in [1..g] ] : i in [1..g] ])^(-1);
-F := BaseRing(Parent(ts0[1]));
-
-/* Evaluating differentials to power series: */
-P0 := X ! [ Coefficient(c, 0) : c in P ];
-du := Differential(MyUniformizer(X, P0, is_planar));
-Q := FieldOfFractions(CoordinateRing(Ambient(X)));
-BP := [ Evaluate(Q ! (b / du), P) : b in B ];
-
-/* Lifting: */
-ts := ts0;
-n := 1;
-while n lt N do
-    n := n + 1;
-    // TODO: Check that this is enough precision in genus > 2.
-    // (Issue is whether precision gets pushed out properly.)
-    RP<tP> := PuiseuxSeriesRing(F, n);
-    wP := tP^(1/e);
-    ts := [ &+[ Coefficient(ts[i], j/e) * wP^j : j in [1..n-1] ] : i in [1..g] ];
-    ev_lhs := [ &+[ Evaluate(BP[i], ts[j]) * Derivative(ts[j]) : j in [1..g] ] : i in [1..g] ];
-    ev_rhs := [ &+[ M[i,j] * BP[j] : j in [1..g] ] : i in [1..g] ];
-    diffs := [ ev_rhs[i] - ev_lhs[i] : i in [1..g] ];
-    v := Matrix([ [ (e / (n + i - 1)) * Coefficient(diffs[i], (n + i - 1)/e - 1) ] : i in [1..g] ]);
-    w := A*v;
-    ts := [ ts[i] + w[i, 1] * tP^(n/e) : i in [1..g] ];
-end while;
-
-R<t> := PuiseuxSeriesRing(F, n + g - 1);
-return [ MyEvaluate(X, P, is_planar, R ! t) : t in ts ];
+return Iterate;
 
 end function;
 
 
-function MyTest();
+intrinsic ApproximationsFromTangentAction(X::Crv, M::AlgMatElt, n::RngIntElt) -> Tup, Tup
+{Given a curve X, a matrix M that gives the tangent representation of an
+endomorphism on the normalized basis of differentials, and an integer n,
+returns a development of the branches to precision at least O(n).}
 
-n := 4;
-m := 4;
-g := 3;
-// TODO: Clinch relative precision here.
-RP<x> := PowerSeriesRing(Rationals(), 2*n + g - 1);
-fi1 := &+[ l*x^(l-1) : l in [1..2*n] ];
-fi2 := &+[ l^2*x^(l-1) : l in [2..2*n] ];
-fi3 := &+[ l^3*x^(l-1) : l in [3..2*n] ];
-fis := [ fi1, fi2, fi3 ];
-K<a,b,c,d> := RationalFunctionField(Rationals(), n);
-RP<t> := PuiseuxSeriesRing(K, 2*n);
-tj := 111*t^(1/2) + 17*t^(2/2) - 11*t^(3/2) + 31*t^(4/2) + a*t^(5/2) + b*t^(6/2) + c*t^(7/2) + d*t^(8/2);
-ev0, M := EvaluateOldGuess(fis, tj, n, m);
+e := PuiseuxRamificationIndex(M);
+P, Qjs := InitializeLift(X, M);
+IterateLift := CreateLiftIterator(X, M);
+/* Next line avoids precision loss */
+/* TODO: Determine exact bound needed here */
+for i:= 1 to Ceiling(Log(2, n + e + 1)) do
+    P, Qjs := IterateLift(P, Qjs, n + e + 1);
+end for;
+return P, Qjs;
 
-return [* [ tj^k : k in [1..2*n] ], [ Evaluate(fi, tj) : fi in fis ], ev0, M *];
+end intrinsic;
 
-end function;

@@ -168,7 +168,7 @@ class EndomorphismData:
         self.prec = prec
         self._epscomp_ = 10^(-self.prec + 30)
         self._epsLLL_ = 5^(-self.prec + 7)
-        self._epsinv_ = 2^(-4)
+        self._epsinv_ = 2^(-10)
         self._Bound_ = Bound
         self._lat_ = None
 
@@ -204,29 +204,22 @@ class EndomorphismData:
         #return [ [ rep.sage() for rep in reps ] for reps in self._geo_reps_ ]
         return self._geo_reps_
 
-    def geometric_representations_check(self):
-        geo_reps = self.geometric_representations()
-        As = geo_reps[0]
+    def geometric_representations_check(self, bound = 2^10):
+        # TODO: Split case
+        X = magma.HyperellipticCurve(4*self.g + self.h^2)
+        As = self.geometric_representations()[0]
         K = magma.BaseRing(magma.Parent(As[1]))
-        # TODO: Remove this if possible
-        if magma.Degree(K) == 1:
-            K = magma.Rationals()
-        X = magma.ChangeRing(magma.HyperellipticCurve(4*self.g + self.h^2), K)
-        P0, As = magma.BasePointNonWeierstrassG2(X, As, nvals = 2)
-        L = magma.Parent(P0[1])
-        # TODO: Remove this if possible
-        if magma.Degree(L) == 1:
-            L = magma.Rationals()
-        X = magma.ChangeRing(magma.HyperellipticCurve(4*self.g + self.h^2), L)
-        EC = EndoChecker(X, P0)
+        X, P0, AsL = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 3)
         tests = [ ]
-        for A in As:
-            At = magma.Transpose(A)
+        for i in [1..len(AsL)]:
+            # TODO: Transposition for compatibility
+            At = magma.Transpose(As[i])
             if magma.IsScalar(At):
                 tests.append(True)
             else:
                 d = self.degree_estimate(At)
-                div = EC.divisor_from_matrix(A, degree_bound = 2*d + 2)
+                AtL = magma.Transpose(AsL[i])
+                div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, DegreeBound = 2*d + 2)
                 # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
                 tests.append(True)
         return all(tests)

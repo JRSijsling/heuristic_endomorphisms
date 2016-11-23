@@ -93,6 +93,7 @@ forward RosatiInvolution;
 forward ProjectionToEllipticFactorG2;
 
 // The actual loading
+AttachSpec("spec");
 load "heuristic/Linear.m";
 load "heuristic/Recognition.m";
 load "heuristic/Analytic.m";
@@ -102,5 +103,3 @@ load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
 load "polarization/Rosati.m";
 load "projection/Projection.m";
-load "puiseux/EndoChecker.m";
-load "puiseux/LocalInfo.m";
