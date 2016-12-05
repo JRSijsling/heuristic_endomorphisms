@@ -29,8 +29,6 @@ R.<x> = PolynomialRing(QQ)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 # Hyperelliptic:
-f = -4*x^8 + 105*x^6 - 945*x^4 + 2100*x^2 - 5895*x + 420
-h = x^4
 f = -15*x^8 + 420*x^6 - 3780*x^4 + 8400*x^2 - 23580*x + 1680
 h = 0
 

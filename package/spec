@@ -7,4 +7,12 @@
     Cantor.m
     FindPoint.m
   }
+  splitting
+  {
+    LocalInfo.m
+    FractionalCRT.m
+    Divisor.m
+    Cantor.m
+    FindPoint.m
+  }
 }

@@ -75,7 +75,7 @@ function LatticesFromIdempotents(idemsAn, P : epscomp := epscomp0, epsLLL :=
 //          matrix.
 // Output:  Lattices corresponding to the elliptic curve quotients.
 
-Ls := [];
+Ls := [ ]; col_numbers := [ ];
 for idem in idemsAn do
     // Create analytic idempotent and project:
     PEllHuge := P * idem;
@@ -95,9 +95,10 @@ for idem in idemsAn do
     M := Matrix(Basis(Lattice(LMat)));
     // Change to basis of lattice and return corresponding periods:
     Append(~Ls, Eltseq(CombinePeriodMatrix(M * PEllSplit)));
+    Append(~col_numbers, col_number);
 end for;
 
-return Ls, col_number;
+return Ls, col_numbers;
 
 end function;
 

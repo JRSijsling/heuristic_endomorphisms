@@ -102,4 +102,6 @@ load "heuristic/SatoTate.m";
 load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
 load "polarization/Rosati.m";
-load "projection/Projection.m";
+
+load "heuristic/AlgebraicOneOff.m";
+

@@ -158,7 +158,6 @@ else
     GensHp := Generators(Gp);
 end if;
 
-
 return EndomorphismData(GeoEndList, L, KL, Gp, GensHp, Gphi, GeoFactorsQQ,
     Shorthand : AddTensor := AddTensor, AddRing := AddRing, AddSatoTate :=
     AddSatoTate, AddDecomposition := AddDecomposition);
@@ -517,8 +516,6 @@ if not IsCommutative(FactorsQQ[1]) then
     if NDQ eq 1 then
         PrettyToC := Inverse(CToPretty);
         GensQ := [ CToPretty(gen) : gen in GensC ];
-        // FIXME: Debug line:
-        //return Q, Q, Q;
         idems := [ PrettyToC(SmallIdempotent(Q, GensQ)) ];
     end if;
 end if;

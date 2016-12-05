@@ -1,8 +1,11 @@
-declare attributes Crv : is_hyp, is_planar, is_smooth, is_plane_quartic;
-declare attributes Crv : unif, index;
-declare attributes Crv : g, U, Q0, A, R, F, rF, OF, BOF, K, DEs, OurB, NormB, T;
+declare attributes Crv : is_hyperelliptic, is_planar, is_smooth, is_plane_quartic;
+declare attributes Crv : unif, unif_index;
+declare attributes Crv : g, U, P0, A, DEs;
+declare attributes Crv : patch_index, R, x, y, K;
+declare attributes Crv : F, rF, OF, BOF;
+declare attributes Crv : OurB, NormB, T;
 declare attributes Crv : initialized;
-declare attributes Crv : cantor_eqs;
+declare attributes Crv : cantor_equations;
 
 declare verbose EndoCheck, 3;
 
@@ -10,6 +13,7 @@ declare verbose EndoCheck, 3;
 forward InitializeCurve;
 forward AlgebraicUniformizer;
 forward OurBasisOfDifferentials;
+forward ChangePatchBasisOfDifferentials;
 forward NormalizedBasisOfDifferentials;
 
 forward CandidateDivisors;
@@ -32,18 +36,23 @@ end if;
 if X`initialized then
     return 0;
 end if;
-X`is_hyp := IsHyperelliptic(X);
+X`is_hyperelliptic := IsHyperelliptic(X);
 X`is_planar := IsPlaneCurve(X);
 X`is_smooth := IsNonSingular(X);
 X`g := Genus(X);
 X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
 if IsAffine(X) then
-    X`U := X; X`Q0 := P0;
+    X`U := X; X`P0 := P0; X`patch_index := 1;
 else
-    X`U, X`Q0 := AffinePatch(X, P0);
+    X`U, X`P0, X`patch_index := AffinePatch(X, P0);
 end if;
 X`A := Ambient(X`U);
 X`R := CoordinateRing(X`A);
+if (X`is_hyperelliptic or X`g eq 1) and (X`patch_index eq 3) then
+    X`x := X`R.2; X`y := X`R.1;
+else
+    X`x := X`R.1; X`y := X`R.2;
+end if;
 X`F := BaseRing(X`R);
 if Type(X`F) eq FldRat then
     X`rF := 1;
@@ -55,11 +64,11 @@ end if;
 X`BOF := Basis(X`OF);
 X`K := FieldOfFractions(X`R);
 X`DEs := DefiningEquations(X`U);
-X`unif, X`index := AlgebraicUniformizer(X);
+X`unif, X`unif_index := AlgebraicUniformizer(X);
 X`OurB := OurBasisOfDifferentials(X);
 X`NormB, X`T := NormalizedBasisOfDifferentials(X);
 if X`is_planar then
-    X`cantor_eqs := CantorEquations(X`DEs[1], X`g);
+    X`cantor_equations := CantorEquations(X);
 end if;
 X`initialized := true;
 return 0;
@@ -75,7 +84,7 @@ function AlgebraicUniformizer(X)
  */
 
 Gens := GeneratorsSequence(X`R);
-M := Matrix([ [ Evaluate(Derivative(DE, gen), X`Q0) : gen in Gens ] : DE in X`DEs ]);
+M := Matrix([ [ Evaluate(Derivative(DE, gen), X`P0) : gen in Gens ] : DE in X`DEs ]);
 /* Default is the first coordinate: */
 i0 := 1;
 for i in [1..#Gens] do
@@ -96,25 +105,67 @@ function OurBasisOfDifferentials(X);
  */
 
 g := X`g;
-R := X`R;
-x := R.1; y := R.2;
-if X`is_hyp then
-    f := X`DEs[1];
-    c2 := MonomialCoefficient(f, y^2);
-    c1 := &+[ MonomialCoefficient(f, x^i*y) * x^i : i in [0..g] ];
-    return [ x^(i-1) / (y + c1/(2*c2)) : i in [1..g] ];
+R := X`R; x := X`x; y := X`y;
+f := X`DEs[1];
+s := MonomialCoefficient(f, y^2);
+if g eq 0 then
+    return [ ];
+elif X`is_hyperelliptic or (g eq 1) then
+    if g eq 1 then
+        if X`unif eq x then
+            return [ 2*s/Derivative(f, y) ];
+        else
+            return [ -2*s/Derivative(f, x) ];
+        end if;
+    end if;
+    return [ 2*s*x^(i-1) / Derivative(f, y) : i in [1..g] ];
 elif X`is_plane_quartic then
-    f := X`DEs[1];
-    if X`index eq 1 then
-        return [ X`K ! (n / Derivative(f, 2)) : n in [x,y,1] ];
+    /* TODO: Analyze sign */
+    if X`unif_index eq 1 then
+        return [ X`K ! (n / Derivative(f, 2)) : n in [R.1, R.2, 1] ];
     else
-        return [ X`K ! (n / Derivative(f, 1)) : n in [x,y,1] ];
+        return [ X`K ! (n / Derivative(f, 1)) : n in [R.1, R.2, 1] ];
     end if;
 else
+    /* TODO: Compatibility problems arise here */
     B := BasisOfDifferentialsFirstKind(X`U);
     du := Differential(AlgebraicUniformizer(X));
     return [ X`K ! (b / du) : b in B ];
 end if;
+
+end function;
+
+
+function ChangePatchBasisOfDifferentials(X, Y, M)
+
+/* TODO: Assumes that elliptic curve given as hyperelliptic curve */
+if X`g eq 1 or X`is_hyperelliptic then
+    if X`patch_index eq 3 then
+        M := Matrix(X`F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
+    end if;
+elif X`is_plane_quartic then
+    if X`patch_index eq 2 then
+        M := Matrix(X`F, [ [ row[1], row[3], row[2] ] : row in Rows(M) ]);
+    elif X`patch_index eq 3 then
+        M := Matrix(X`F, [ [ row[3], row[2], row[1] ] : row in Rows(M) ]);
+    end if;
+end if;
+
+M := Transpose(M);
+if Y`g eq 1 or Y`is_hyperelliptic then
+    if Y`patch_index eq 3 then
+        M := Matrix(Y`F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
+    end if;
+elif Y`is_plane_quartic then
+    if Y`patch_index eq 2 then
+        M := Matrix(Y`F, [ [ row[1], row[3], row[2] ] : row in Rows(M) ]);
+    elif Y`patch_index eq 3 then
+        M := Matrix(Y`F, [ [ row[3], row[2], row[1] ] : row in Rows(M) ]);
+    end if;
+end if;
+
+M := Transpose(M);
+return M;
 
 end function;
 
@@ -126,66 +177,59 @@ function NormalizedBasisOfDifferentials(X)
  *          and a matrix T such that multiplication by T sends B to Bnorm.
  */
 
-g := X`g;
-P := DevelopPoint(X, X`Q0, g);
+P := DevelopPoint(X, X`P0, X`g);
 BP := [ Evaluate(b, P) : b in X`OurB ];
-T := Matrix([ [ Coefficient(BP[i], j - 1) : j in [1..g] ] : i in [1..g] ])^(-1);
-NormB := [ &+[ T[i,j] * X`OurB[j] : j in [1..g] ] : i in [1..g] ];
+T := Matrix([ [ Coefficient(BP[i], j - 1) : j in [1..X`g] ] : i in [1..X`g] ])^(-1);
+NormB := [ &+[ T[i,j] * X`OurB[j] : j in [1..X`g] ] : i in [1..X`g] ];
 return NormB, T;
 
 end function;
 
 
-function CandidateDivisors(X, d)
+function CandidateDivisors(X, Y, d)
 /*
- * Input:   A curve X
+ * Input:   Two curves X and Y
  *          and a degree d.
  * Output:  Equations for divisors of degree d coming from the ambient of X.
  */
 
-g := X`g;
-R := X`R;
-F := X`F;
-dim := Rank(R);
+gX := X`g; fX := X`DEs[1]; RX := X`R; xX := X`x; yX := X`y;
+gY := Y`g; fY := Y`DEs[1]; RY := Y`R; xY := Y`x; yY := Y`y;
+R := PolynomialRing(X`F, 2);
+Rprod := PolynomialRing(X`F, 4);
 
-/* TODO: Asymmetry */
-f := X`DEs[1];
-x,y := Explode(GeneratorsSequence(R));
-Rprod := PolynomialRing(F, 2 * dim);
-if X`is_hyp then
-    Xdivs1 := [ x^i : i in [0..(d div 2)] ] cat [ x^i*y : i in [0..((d - g - 1) div 2)] ];
+if X`is_hyperelliptic then
+    divsX := [ xX^i : i in [0..(d div 2)] ] cat [ xX^i*yX : i in [0..((d - gX - 1) div 2)] ];
 elif X`is_planar then
-    f := DefiningEquations(X`U)[1];
-    //Xdivs1 := [ x^i*y^j : i in [0..d], j in [0..(Degree(f, 2) - 1)] | i + j le d ];
-    Xdivs1 := [ x^i*y^j : i in [0..d], j in [0..(Degree(f) - 1)] | i + j le d ];
+    divsX := [ xX^i*yX^j : i in [0..d], j in [0..(Degree(fX, yX) - 1)] | i + j le d ];
 end if;
-//Xdivs2 := [ x^i*y^j : i in [0..g], j in [0..2] | i + j le g ];
-//Xdivs2 := [ x^i : i in [0..g] ] cat [ y ];
-Xdivs2 := [ x^i*y^j : i in [0..g], j in [0..(Degree(f, 2) - 1)] ];
+divsY := [ xY^i*yY^j : i in [0..gY], j in [0..(Degree(fY, yY) - 1)] ];
 
-hs := [ hom<R -> Rprod | [ Rprod.j : j in [ ((i-1)*dim + 1)..i*dim ] ]> : i in [1..2] ];
-CP := CartesianProduct([Xdivs1, Xdivs2]);
+divsX := [ R ! d : d in divsX ]; divsY := [ R ! d : d in divsY ];
+hX := hom<RX -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<RY -> Rprod | [ Rprod.3, Rprod.4 ]>;
+hs := [ hX, hY ];
+CP := CartesianProduct([ divsX, divsY ]);
 return [ &*[ hs[i](tup[i]) : i in [1..2] ] : tup in CP ];
 
 end function;
 
 
-function IrreducibleComponentsFromBranches(X, fs, P, alphaP)
+function IrreducibleComponentsFromBranches(X, Y, fs, P, Qs)
 /*
- * Input:   A curve X,
+ * Input:   Two curves X and Y,
  *          a basis of divisor equations fs,
  *          the precision n used when determining these,
- *          and branch expansions P and alphaP.
+ *          and branch expansions P and Qs.
  * Output:  The irreducible components corresponding that fit the given data.
  */
 
 /* Recovering a linear system: */
-e := Maximum([ Maximum([ Denominator(Valuation(c - Coefficient(c, 0))) : c in Q ]) : Q in alphaP ]);
+e := Maximum([ Maximum([ Denominator(Valuation(c - Coefficient(c, 0))) : c in Q ]) : Q in Qs ]);
 prec := Precision(Parent(P[1]));
 M := [ ];
 for f in fs do
     r := [ ];
-    for Q in alphaP do
+    for Q in Qs do
         ev := Evaluate(f, P cat Q);
         r cat:= [ Coefficient(ev, i/e) : i in [0..prec - X`g] ];
     end for;
@@ -195,18 +239,13 @@ M := Matrix(M);
 B := Basis(Kernel(M));
 
 /* Coerce back to ground field (possible because of echelon form): */
-F := BaseRing(X`U);
-B := [ [ F ! c : c in Eltseq(b) ] : b in B ];
+B := [ [ X`F ! c : c in Eltseq(b) ] : b in B ];
 
 /* Corresponding equations: */
-DEs := X`DEs;
-R := X`R;
 Rprod := Parent(fs[1]);
-d := Rank(R);
-g := X`g;
-hs := [ hom<R -> Rprod | [ Rprod.j : j in [ ((i-1)*d + 1)..i*d ] ]> : i in [1..2] ];
+hX := hom<X`R -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<Y`R -> Rprod | [ Rprod.3, Rprod.4 ]>;
 eqs := [ &+[ b[i] * fs[i] : i in [1..#fs] ] : b in B ];
-eqs := eqs cat [ h(DE) : h in hs, DE in DEs ];
+eqs := eqs cat [ hX(DE) : DE in X`DEs ] cat [ hY(DE) : DE in Y`DEs ];
 
 /* Corresponding scheme: */
 A := AffineSpace(Rprod);
@@ -222,23 +261,21 @@ return [ ReducedSubscheme(I) : I in Is ];
 end function;
 
 
-function IrreducibleComponentCheck(X, I)
+function IrreducibleComponentCheck(X, Y, I)
 /*
- * Input:   An irreducible scheme I in X x X.
+ * Input:   An irreducible scheme I in X x Y.
  * Output:  Whether or not I intersects P0 x X with the correct multiplicity at
  *          P0 and nowhere else.
  */
 
-A4 := Ambient(I);
-R4 := CoordinateRing(A4);
-R2 := PolynomialRing(BaseRing(R4), 2);
-A2 := AffineSpace(R2);
-h := hom< R4 -> R2 | [ X`Q0[i] : i in [1..2] ] cat [ R2.i : i in [1..2] ] >;
+A4 := Ambient(I); R4 := CoordinateRing(A4);
+R2 := PolynomialRing(X`F, 2); A2 := AffineSpace(R2);
+h := hom< R4 -> R2 | [ X`P0[i] : i in [1..2] ] cat [ R2.i : i in [1..2] ] >;
 eqs2 := [ h(eq4) : eq4 in DefiningEquations(I) ];
 S := Scheme(A2, eqs2);
 if Dimension(S) eq 0 then
     if Degree(ReducedSubscheme(S)) eq 1 then
-        if Degree(S) eq X`g then
+        if Degree(S) eq Y`g then
             /* TODO: This is potentially slightly unsafe but delivers a big speedup */
             //if Dimension(I) eq 1 then
                 return true;
@@ -251,45 +288,45 @@ return false;
 end function;
 
 
-intrinsic DivisorFromMatrix(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, DegreeBound := 1) -> Sch
-{Given a curve X, a point P0 of X, and a matrix M that gives the tangent
-representation of an endomorphism on the standard basis of differentials,
-returns a corresponding divisor (if it exists). The parameter Margin indicates
+intrinsic DivisorFromMatrix(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::ModMatFldElt : Margin := 2^4, LowerBound := 1, UpperBound := Infinity()) -> Sch
+{Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
+representation of a projection morphism on the standard basis of differentials,
+returns a corresponding divisor (if it exists). The parameter Margin specifies
 how many potentially superfluous terms are used in the development of the
-branch, and the parameter DegreeBound specifies at which degree one starts to
-look for a divisor.}
+branch, the parameter LowerBound specifies at which degree one starts to look
+for a divisor, and the parameter UpperBound specifies where to stop.}
 
-/* We start at a suspected estimate and then increase degree until we find an
- * appropriate divisor: */
-output := InitializeCurve(X, P0);
-d := DegreeBound;
-NormM := X`T * M * (X`T)^(-1);
+output := InitializeCurve(X, P0); output := InitializeCurve(Y, Q0);
+NormM := ChangePatchBasisOfDifferentials(X, Y, M);
+NormM := Y`T * NormM * (X`T)^(-1);
+
+d := LowerBound;
 while true do
     vprintf EndoCheck : "Trying degree %o...\n", d;
-    fs := CandidateDivisors(X, d);
+    fs := CandidateDivisors(X, Y, d);
     n := #fs + Margin;
     vprintf EndoCheck : "Number of digits in expansion: %o.\n", n;
 
     /* Take non-zero image branch: */
     vprintf EndoCheck : "Expanding... ";
-    P, alphaP := ApproximationsFromTangentAction(X, NormM, n);
-    vprint EndoCheck, 3 : P, alphaP;
+    P, Qs := ApproximationsFromTangentAction(X, Y, NormM, n);
+    vprint EndoCheck, 3 : P, Qs;
     vprintf EndoCheck : "done.\n";
 
     /* Fit a divisor to it: */
     vprintf EndoCheck : "Solving linear system... ";
-    ICs := IrreducibleComponentsFromBranches(X, fs, P, alphaP);
+    ICs := IrreducibleComponentsFromBranches(X, Y, fs, P, Qs);
     vprintf EndoCheck : "done.\n";
 
     for S in ICs do
         DEs := DefiningEquations(S);
         vprintf EndoCheck : "Checking:\n";
         vprintf EndoCheck : "Step 1... ";
-        //test1 := &and[ &and[ IsWeaklyZero(Evaluate(DE, P cat Q)) : Q in alphaP ] : DE in DEs ];
+        //test1 := &and[ &and[ IsWeaklyZero(Evaluate(DE, P cat Q)) : Q in Qs ] : DE in DEs ];
         //vprintf EndoCheck : "done.\n";
         //if test1 then
             //vprintf EndoCheck : "Step 2... ";
-            test2 := IrreducibleComponentCheck(X, S);
+            test2 := IrreducibleComponentCheck(X, Y, S);
             vprintf EndoCheck : "done.\n";
             if test2 then
                 vprintf EndoCheck : "Divisor found!\n";
@@ -305,34 +342,28 @@ end while;
 end intrinsic;
 
 
-intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, DegreeBound := 1, B := 300) -> Sch
-{Given a curve X, a point P0 of X, and a matrix M that gives the tangent
-representation of an endomorphism on the standard basis of differentials,
-returns a corresponding divisor (if it exists). The parameter Margin indicates
+intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::ModMatFldElt : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 100) -> Sch
+{Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
+representation of a projection morphism on the standard basis of differentials,
+returns a corresponding divisor (if it exists). The parameter Margin specifies
 how many potentially superfluous terms are used in the development of the
-branch, and the parameter DegreeBound specifies at which degree one starts to
-look for a divisor.}
+branch, the parameter LowerBound specifies at which degree one starts to look
+for a divisor, and the parameter UpperBound specifies where to stop.}
 
 /* We start at a suspected estimate and then increase degree until we find an appropriate divisor: */
-output := InitializeCurve(X, P0);
-d := DegreeBound;
-M := X`T * M * (X`T)^(-1);
-tjs0, f := InitializeImageBranch(M);
+output := InitializeCurve(X, P0); output := InitializeCurve(Y, Q0);
+NormM := ChangePatchBasisOfDifferentials(X, Y, M);
+NormM := Y`T * NormM * (X`T)^(-1);
+tjs0, f := InitializeImageBranch(NormM);
+F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF;
+P, Qs := ApproximationsFromTangentAction(X, Y, NormM, X`g);
+Rprod := PolynomialRing(X`F, 4);
 
-/* Some global elements needed below: */
-F := X`F;
-rF := X`rF;
-OF := X`OF;
-BOF := X`BOF;
-/* TODO: Play with precision here */
-P, alphaP := ApproximationsFromTangentAction(X, M, X`g);
-Rprod := PolynomialRing(X`F, 2 * Rank(X`R));
-
-ps_rts := [ ];
-prs := [ ];
+ps_rts := [ ]; prs := [ ]; DEss_red := [* *];
 I := ideal<X`OF | 1>;
-DEss_red := [* *];
 have_to_check := true;
+
+d := LowerBound;
 while true do
     /* Find new prime */
     repeat
@@ -344,31 +375,30 @@ while true do
 
     /* Add corresponding data: */
     pr := ideal<X`OF | [ p, rF - rt ]>;
-    Append(~prs, pr);
-    I *:= pr;
-    X_red := ReduceCurveSplit(X, p, rt);
-    M_red := ReduceMatrixSplit(M, p, rt);
+    Append(~prs, pr); I *:= pr;
+    X_red := ReduceCurveSplit(X, p, rt); Y_red := ReduceCurveSplit(Y, p, rt);
+    NormM_red := ReduceMatrixSplit(NormM, p, rt);
     BI := Basis(I);
 
     /* Uncomment for check on compatibility with reduction */
-    //print DivisorFromMatrix(X_red`U, X_red`Q0, (X_red`T)^(-1) * M_red * X_red`T);
+    //print DivisorFromMatrix(X_red`U, X_red`P0, (X_red`T)^(-1) * NormM_red * X_red`T);
 
     done := false;
     while true do
         vprintf EndoCheck : "Trying degree %o...\n", d;
-        fs_red := CandidateDivisors(X_red, d);
+        fs_red := CandidateDivisors(X_red, Y_red, d);
         n := #fs_red + Margin;
         vprintf EndoCheck : "Number of digits in expansion: %o.\n", n;
 
         /* Take non-zero image branch: */
         vprintf EndoCheck, 2 : "Expanding... ";
-        P_red, alphaP_red := ApproximationsFromTangentAction(X_red, M_red, n);
-        vprint EndoCheck, 3 : P_red, alphaP_red;
+        P_red, Qs_red := ApproximationsFromTangentAction(X_red, Y_red, NormM_red, n);
+        vprint EndoCheck, 3 : P_red, Qs_red;
         vprintf EndoCheck, 2 : "done.\n";
 
         /* Fit a divisor to it: */
         vprintf EndoCheck, 2 : "Solving linear system... ";
-        ICs_red := IrreducibleComponentsFromBranches(X_red, fs_red, P_red, alphaP_red);
+        ICs_red := IrreducibleComponentsFromBranches(X_red, Y_red, fs_red, P_red, Qs_red);
         vprintf EndoCheck, 2 : "done.\n";
 
         for S_red_it in ICs_red do
@@ -381,7 +411,7 @@ while true do
                 S_red := S_red_it;
                 break;
             end if;
-            test := IrreducibleComponentCheck(X_red, S_red_it);
+            test := IrreducibleComponentCheck(X_red, Y_red, S_red_it);
             vprintf EndoCheck, 2 : "done.\n";
             if test then
                 vprintf EndoCheck, 2 : "Divisor found!\n";
@@ -425,7 +455,7 @@ while true do
     test1 := true;
     for DE in DEs do
         test1_int := true;
-        for Q in alphaP do
+        for Q in Qs do
             if not IsWeaklyZero(Evaluate(DE, P cat Q)) then
                 test1_int := false;
                 break;
@@ -440,10 +470,11 @@ while true do
 
     if test1 then
         S := Scheme(AffineSpace(Rprod), DEs);
-        vprintf EndoCheck : "Step 2...\n";
-        vprintf EndoCheck : "Candidate divisor:\n";
-        vprint EndoCheck : S;
-        test2 := IrreducibleComponentCheck(X, S);
+        vprintf EndoCheck : "Step 2... ";
+        //vprintf EndoCheck : "Step 2...\n";
+        //vprintf EndoCheck : "Candidate divisor:\n";
+        //vprint EndoCheck : S;
+        test2 := IrreducibleComponentCheck(X, Y, S);
         vprintf EndoCheck : "done.\n";
         if test2 then
             vprintf EndoCheck : "Divisor found!\n";

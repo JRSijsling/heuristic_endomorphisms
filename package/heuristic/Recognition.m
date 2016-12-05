@@ -47,7 +47,7 @@ end for;
 return SplittingField(fs);
 end function;
 
-function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epscomp0);
+function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epsLLL0);
 // Input:    An element of a complex field.
 // Output:   A minimal polynomial one of whose roots approximates a well.
 R<x> := PolynomialRing(Rationals());
@@ -90,7 +90,7 @@ end while;
 end function;
 
 
-function PolynomializeMatrix(A : epscomp := epscomp0, epsLLL := epscomp0);
+function PolynomializeMatrix(A : epscomp := epscomp0, epsLLL := epsLLL0);
 // Input:    A matrix over a complex field.
 // Output:   The same matrix with its entries replaced by the polynomials
 //           obtained by running the previous algorithm.

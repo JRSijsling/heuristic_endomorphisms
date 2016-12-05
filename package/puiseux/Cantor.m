@@ -142,31 +142,33 @@ while true do
 
     /* TODO: This does some work many times over.
      * On the other hand, an iterator also has its disadvantages because of superfluous coefficients. */
-    vprintf EndoCheck : "Expanding...\n";
+    vprintf EndoCheck : "Expanding... ";
     P, alphaP := ApproximationsFromTangentAction(X, NormM, n*e);
     vprint EndoCheck, 3 : P, alphaP;
     vprintf EndoCheck : "done.\n";
 
     /* Fit a Cantor morphism to it: */
-    vprintf EndoCheck : "Solving linear system...\n";
+    vprintf EndoCheck : "Solving linear system... ";
     test, fs := FunctionsFromApproximations(X, P, alphaP, d);
     vprintf EndoCheck : "done.\n";
 
     if test then
         as := fs[1..g];
         bs := fs[(g + 1)..(2*g)];
-        test1 := &and[ IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
-        test2 := &and[ IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
         vprintf EndoCheck : "Checking:\n";
-        vprintf EndoCheck : "Step 1...\n";
-        if test1 and test2 then
-            vprintf EndoCheck : "Step 2...\n";
-            if FunctionsCheck(X, fs) then
-                vprintf EndoCheck : "Divisor found!\n";
+        vprintf EndoCheck : "Step 1... ";
+        //test1 := &and[ IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
+        //test2 := &and[ IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
+        //vprintf EndoCheck : "done.\n";
+        //if test1 and test2 then
+            //vprintf EndoCheck : "Step 2...\n";
+            test := FunctionsCheck(X, fs);
+            vprintf EndoCheck : "done.\n";
+            if test then
+                vprintf EndoCheck : "Functions found!\n";
                 return fs;
             end if;
-            vprintf EndoCheck : "done.\n";
-        end if;
+        //end if;
     end if;
 
     /* If that does not work, give up and try one degree higher: */
@@ -207,6 +209,7 @@ ps_rts := [ ];
 prs := [ ];
 I := ideal<X`OF | 1>;
 fss_red := [* *];
+have_to_check := true;
 while true do
     /* Find new prime */
     repeat
@@ -231,34 +234,43 @@ while true do
         vprintf EndoCheck : "Trying degree %o...\n", d;
         dens_red, nums_red := CandidateFunctions(X_red, d);
         n := #dens_red + #nums_red + Margin;
-        vprintf EndoCheck, 2 : "Number of digits in expansion: %o.\n", n;
+        vprintf EndoCheck : "Number of digits in expansion: %o.\n", n*e;
 
         /* Take non-zero image branch: */
         /* TODO: This does some work many times over, but only the first time */
-        vprintf EndoCheck, 2 : "Expanding...\n";
+        vprintf EndoCheck, 2 : "Expanding... ";
         P_red, alphaP_red := ApproximationsFromTangentAction(X_red, NormM_red, n*e);
         vprint EndoCheck, 3 : P_red, alphaP_red;
         vprintf EndoCheck, 2 : "done.\n";
 
         /* Fit a Cantor morphism to it: */
-        vprintf EndoCheck, 2 : "Solving linear system...\n";
+        vprintf EndoCheck, 2 : "Solving linear system... ";
         test_red, fs_red := FunctionsFromApproximations(X_red, P_red, alphaP_red, d);
         vprintf EndoCheck, 2 : "done.\n";
 
         if test_red then
             vprintf EndoCheck, 2 : "Checking:\n";
-            vprintf EndoCheck, 2 : "Step 1...\n";
-            if FunctionsCheck(X_red, fs_red) then
-                vprintf EndoCheck, 2 : "Divisor found!\n";
+            vprintf EndoCheck, 2 : "Step 1: ";
+            if not have_to_check then
+                vprintf EndoCheck, 2 : "done.\n";
+                vprintf EndoCheck, 2 : "Functions found!\n";
                 break;
             end if;
+            test := FunctionsCheck(X_red, fs_red);
             vprintf EndoCheck, 2 : "done.\n";
+            if test then
+                vprintf EndoCheck, 2 : "Functions found!\n";
+                have_to_check := false;
+                break;
+            end if;
         end if;
+
+        /* If that does not work, give up and try one degree higher. */
         d +:= 1;
     end while;
     Append(~fss_red, fs_red);
 
-    vprintf EndoCheck, 2 : "Fractional CRT...\n";
+    vprintf EndoCheck : "Fractional CRT... ";
     fs := [ ];
     for i:=1 to #fss_red[1] do
         num := R ! 0;
@@ -275,21 +287,35 @@ while true do
         end for;
         Append(~fs, K ! (num / den));
     end for;
-    vprintf EndoCheck, 2 : "done.\n";
+    vprintf EndoCheck : "done.\n";
 
     vprintf EndoCheck : "Checking:\n";
-    vprintf EndoCheck : "Step 1...\n";
+    vprintf EndoCheck : "Step 1... ";
     as := fs[1..g];
     bs := fs[(g + 1)..(2*g)];
-    test1 := &and[ IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
-    test2 := &and[ IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
-    if test1 and test2 then
+    test1 := true;
+    for Q in alphaP do
+        if not IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) then
+            test1 := false;
+            break;
+        end if;
+        if not IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) then
+            test1 := false;
+            break;
+        end if;
+    end for;
+    vprintf EndoCheck : "done.\n";
+
+    if test1 then
         vprintf EndoCheck : "Step 2...\n";
-        if FunctionsCheck(X, fs) then
-            vprintf EndoCheck : "Divisor found!\n";
+        vprintf EndoCheck : "Candidate functions:\n";
+        vprint EndoCheck : fs;
+        test2 := FunctionsCheck(X, fs);
+        vprintf EndoCheck : "done.\n";
+        if test2 then
+            vprintf EndoCheck : "Functions found!\n";
             return fs;
         end if;
-        vprintf EndoCheck : "done.\n";
     end if;
 end while;
 

@@ -136,29 +136,29 @@ class Decomposition:
         if not hasattr(self, "_ECs_"):
             Lats = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_)
             self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
-        # TODO: Doing this directly (instead of using the detour through Magma) gives an incomprehensible error
         return [ magma.EllipticCurve([ -K(EC_rep[0])/48, -K(EC_rep[1])/864]).sage() for EC_rep in self._ECs_rep_ ]
 
     def certificate_g2(self):
-        # TODO: Think about this and integrate it better
         spl_fod_data = Canonize_Subfield_And_Idempotents(self._fsubgen_.sage(), self._frep_, self._idems_)
         self._spl_fod_ = spl_fod_data
         self._fsubrep_opt_ = spl_fod_data[0]
         self._fsubgen_opt_ = spl_fod_data[1]
         self._fsubhom_opt_ = magma.InducedEmbedding(self._fsubgen_opt_, self._fhom_, self._frep_).sage()
         K = self.field_of_definition()
-        Lats, col_number = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
+        Lats, col_numbers = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
         self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
         # Convert everything and pass to Magma
         R.<x> = PolynomialRing(K.sage())
         fX = magma(R(4*self.g + self.h^2))
-        # NOTE: This will give a rational point in the upcoming algorithm
-        fEs = magma([ x + (-K(EC_rep[0])/48)*x^3 + (-K(EC_rep[1])/864)*x^4 for EC_rep in self._ECs_rep_ ])
+        X = magma.HyperellipticCurve(fX)
         As = magma(spl_fod_data[2])
+        As = magma.ProjectFromColumnNumbers(As, col_numbers)
+        XL, P0L, AsL, L = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 4)
+        EsL, Q0sL = magma.EllipticCurvesFromRepresentations(magma(self._ECs_rep_), K, L, nvals = 2)
+        # TODO: Next line not used yet, should be upper bound
         degs = magma([ magma.DecompositionDegree(idem) for idem in self._idems_[3] ])
-        # TODO: Check factor
-        As = magma([ magma.Eltseq( -2 * magma.Rows(magma.Transpose(As[i]))[col_number]) for i in [1..len(As)] ])
-        return [ magma.ProjectionToEllipticFactorG2(fX, fEs[i], As[i], degs[i]) for i in [1..len(As)] ]
+        zipped_list = zip(EsL, Q0sL, AsL)
+        return [ magma.CantorMorphismFromMatrixSplit(XL, P0L, entry[0], entry[1], entry[2]) for entry in zipped_list ]
 
 class EndomorphismData:
     def __init__(self, g, h = 0, prec = prec):

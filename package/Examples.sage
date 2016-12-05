@@ -67,6 +67,10 @@ h = x^3 + x + 1
 # Potential RM:
 f = x^6 + 2*x^3 - x
 h = x^3 + 1
+# Debugging the splitting functionality:
+f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
+h = x
+
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
@@ -98,18 +102,18 @@ print End.geometric().description()
 #print End.over_field(K)
 #print End.over_field(K).representations()
 #print End.over_field(K).description()
-#print End.lattice()
+print End.lattice()
 
 # NEW! Verifying decomposition data:
-#Dec = End.decomposition()
-#print Dec
-#print Dec.field_of_definition()
-#print Dec.factors()
-#print Dec._idems_[1]
-#print Dec.certificate_g2()
+Dec = End.decomposition()
+print Dec
+print Dec.field_of_definition()
+print Dec._idems_[1]
+print Dec.factors()
+print Dec.certificate_g2()
 
 # Verification of geometric endomorphisms:
-print End.geometric_representations_check()
+#print End.geometric_representations_check()
 
 #exit()
 
