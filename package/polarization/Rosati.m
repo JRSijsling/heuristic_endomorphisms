@@ -55,7 +55,7 @@ end function;
 
 function DegreeEstimate(AsAlg, As, Rs, A);
 // Round because of non-exact case
-// Alternatively, could use Rdagger instead of Addager
+// Alternatively, could use Rdagger instead of Adagger
 
 Adagger := RosatiInvolution(AsAlg, As, Rs, A);
 tr := Trace(A * Adagger) * Factorial(#Rows(A) - 1);

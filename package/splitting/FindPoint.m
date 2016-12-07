@@ -1,6 +1,9 @@
 intrinsic ProjectFromColumnNumbers(As::SeqEnum, col_numbers::SeqEnum) -> SeqEnum
 {bla}
 
+if #As eq 0 then
+    return [ ];
+end if;
 K := Parent(As[1][1,1]);
 projs := [ ];
 for i in [1..#As] do

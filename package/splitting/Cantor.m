@@ -14,6 +14,7 @@ forward RelativeToAbsolute;
 import "Divisor.m": InitializeCurve, ChangePatchBasisOfDifferentials;
 import "LocalInfo.m": PuiseuxRamificationIndex, InitializeImageBranch;
 import "FractionalCRT.m": RandomSplitPrime, FractionalCRTSplit, ReduceMatrixSplit, ReduceCurveSplit;
+import "FractionalCRT.m": FractionalCRTQQ;
 
 
 function CantorEquations(X);
@@ -73,8 +74,27 @@ end function;
 
 function FunctionsFromApproximations(X, Y, P, Qs, d)
 
-//print Evaluate(X`DEs[1], P);
-//print Evaluate(Y`DEs[1], Qs[1]);
+/*
+// For debugging:
+K<y,x> := X`K; R<y,x> := X`R;
+fX := R ! X`DEs[1]; fY := R ! Y`DEs[1];
+IX := ideal<R | fX>;
+fs := [ y / (1 + x + 3*x^2)^2, x^2 / (1 + x + 3*x^2) ];
+print "Well-defined?", R ! Numerator(K ! Evaluate(R ! fY, fs)) in IX;
+dx := K ! 1;
+dy := K ! -Derivative(fX, 2)/Derivative(fX, 1);
+ev := ((K ! Derivative(fs[2], 2))*dx + (K ! Derivative(fs[2], 1))*dy) / (K ! -Evaluate(Derivative(fY, 1)/2, fs));
+M := Matrix(X`F, [[1,2,0]]);
+print "Correct pullback?", R ! Numerator(K ! (ev + (M[1,3] + M[1,2]*x + M[1,1]*x^2)/y)) in IX;
+Q := Qs[1];
+ev := [ Evaluate(f, P) : f in fs ];
+print Evaluate(Y`DEs[1], Q); print Evaluate(Y`DEs[1], [ Evaluate(f, P) : f in fs ]);
+print Valuation(Q[1] - ev[1]); print Valuation(Q[2] - ev[2]);
+print FractionalCRTQQ([Coefficient(Q[1], 2)], [Characteristic(X`F)]); print FractionalCRTQQ([Coefficient(ev[1], 2)], [Characteristic(X`F)]);
+print FractionalCRTQQ([Coefficient(Q[1], 3)], [Characteristic(X`F)]); print FractionalCRTQQ([Coefficient(ev[1], 3)], [Characteristic(X`F)]);
+*/
+
+//print Evaluate(X`DEs[1], P); print Evaluate(Y`DEs[1], Qs[1]);
 I := ideal<X`R | X`DEs[1]>;
 dens, nums := CandidateFunctions(X, d);
 fs_approx := FunctionValuesFromApproximations(Y, Qs);
@@ -198,14 +218,30 @@ the branch, the parameter LowerBound specifies at which degree one starts to
 look for a divisor, and the parameter UpperBound specifies where to stop.}
 
 output := InitializeCurve(X, P0); output := InitializeCurve(Y, Q0);
+
+/*
+// For debugging:
+K<y,x> := X`K; R<y,x> := X`R;
+fX := R ! X`DEs[1]; fY := R ! Y`DEs[1];
+print fX;
+print M;
+IX := ideal<R | fX>;
+fs := [ y / (1 + x + 3*x^2)^2, x^2 / (1 + x + 3*x^2) ];
+print "Well-defined?", R ! Numerator(K ! Evaluate(R ! fY, fs)) in IX;
+dx := K ! 1;
+dy := K ! -Derivative(fX, 2)/Derivative(fX, 1);
+ev := ((K ! Derivative(fs[2], 2))*dx + (K ! Derivative(fs[2], 1))*dy) / (K ! -Evaluate(Derivative(fY, 1)/2, fs));
+print "Correct pullback?", R ! Numerator(K ! (ev + (M[1,3] + M[1,2]*x + M[1,1]*x^2)/y)) in IX;
+*/
+
 NormM := ChangePatchBasisOfDifferentials(X, Y, M);
 NormM := Y`T * NormM * (X`T)^(-1);
-tjs0, f := InitializeImageBranch(M);
+tjs0, f := InitializeImageBranch(NormM);
 e := PuiseuxRamificationIndex(NormM);
 
 /* Some global elements needed below: */
 gY := Y`g; F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF; RX := X`R; KX := X`K;
-P, Qs := ApproximationsFromTangentAction(X, Y, NormM, gY);
+P, Qs := ApproximationsFromTangentAction(X, Y, NormM, gY + 1);
 /* TODO: This is for the test approximation test later on. It makes things a
  * bit less elegant. */
 if (Y`is_hyperelliptic or Y`g eq 1) and Y`patch_index eq 3 then

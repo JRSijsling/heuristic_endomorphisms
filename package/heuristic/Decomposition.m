@@ -79,13 +79,11 @@ Ls := [ ]; col_numbers := [ ];
 for idem in idemsAn do
     // Create analytic idempotent and project:
     PEllHuge := P * idem;
-    PEllBig := Transpose(Matrix([ [ row[1] : row in Rows(PEllHuge) ] ]));
-    col_number := 1;
-    // Change column if the result is too small (this happens!):
-    if &and([ Abs(c) lt epscomp : c in Eltseq(PEllBig) ]) then
-        PEllBig := Transpose(Matrix([ [ row[2] : row in Rows(PEllHuge) ] ]));
-        col_number := 2;
-    end if;
+    col_number := 0;
+    repeat
+        col_number +:= 1;
+        PEllBig := Transpose(Matrix([ [ row[col_number] : row in Rows(PEllHuge) ] ]));
+    until not &and([ Abs(c) lt epscomp : c in Eltseq(PEllBig) ]);
     PEllBigSplit := SplitPeriodMatrix(PEllBig);
     PEllSplit := InvertibleSubmatrix(PEllBigSplit : epsinv := epsinv);
     // We create an approximately integral matrix from this; instead of

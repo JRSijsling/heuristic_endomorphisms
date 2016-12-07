@@ -61,13 +61,11 @@ F := Parent(M[1,1]);
 g := #Rows(M);
 e := PuiseuxRamificationIndex(M);
 
-/* TODO: Generalize this genus 1 ramification workaround */
 if g eq 1 then
     r := Eltseq(Rows(M)[1]);
-    e := Minimum([ i : i in [1..#r] | r[i] ne 0 ]);
     RF := PolynomialRing(F); xF := RF.1;
-    PF := PowerSeriesRing(F, e + 1); tF := PF.1;
-    return [ r[e] * tF^e + O(tF^(e + 1)) ], xF - 1;
+    PF := PowerSeriesRing(F, #r + 1); tF := PF.1;
+    return [ &+[ (r[n] / n) * tF^n : n in [1..#r] ] + O(tF^(#r + 1)) ], xF - 1;
 end if;
 
 /* Normalized equations (depend only on the matrix): */
@@ -196,14 +194,14 @@ PR := Parent(tjs0[1]);
 /* Creating P */
 P := [ PR ! P0[1], PR ! P0[2] ];
 P[X`unif_index] +:= PR.1;
-P := [ PR ! c : c in DevelopPoint(X, P, 2) ];
+P := [ PR ! c : c in DevelopPoint(X, P, X`g + 1) ];
 
 /* Creating Qs */
 Qs := [ [ PR ! Q0[1], PR ! Q0[2] ] : i in [1..Y`g] ];
 for i in [1..Y`g] do
     Qs[i][Y`unif_index] +:= tjs0[i];
 end for;
-Qs := [ [ PR ! c : c in DevelopPoint(Y, Qj, 2) ] : Qj in Qs ];
+Qs := [ [ PR ! c : c in DevelopPoint(Y, Qj, X`g + 1) ] : Qj in Qs ];
 return P, Qs;
 
 end function;

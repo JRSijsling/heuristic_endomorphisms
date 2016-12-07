@@ -1,4 +1,4 @@
-function SplittingInfoOneOff(Rs)
+function SplittingInfoOneOff(AsAlg, As, Rs)
 
 // Creation of relevant algebras:
 g := #Rows(Rs[1]) div 2;
@@ -13,7 +13,15 @@ C := AssociativeAlgebra(B);
 GensC := [C ! gen : gen in GensB];
 
 Ds, idemsC := DirectSumDecomposition(C);
-return Ds;
+idemsC := [ [ Rationals() ! c : c in Eltseq(idem) ] : idem in idemsC ];
+GensC := [ [ Rationals() ! c : c in Eltseq(gen) ] : gen in GensC ];
+idemsRep := [ Eltseq(MatrixInBasis(idem, GensC)) : idem in idemsC ];
+N := #AsAlg;
+idemsAlg := [ &+[ idem[n] * AsAlg[n] : n in [1..N] ] : idem in idemsRep ];
+idemsAn := [ &+[ idem[n] * As[n] : n in [1..N] ] : idem in idemsRep ];
+idemsRat := [ &+[ idem[n] * Rs[n] : n in [1..N] ] : idem in idemsRep ];
+
+return Ds, idemsAlg, idemsAn;
 
 end function;
 

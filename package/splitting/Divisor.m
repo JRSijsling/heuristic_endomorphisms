@@ -83,6 +83,21 @@ function AlgebraicUniformizer(X)
  *          and the corresponding index.
  */
 
+fX := X`DEs[1]; x := X`x; y := X`y;
+if Evaluate(Derivative(fX, y), X`P0) ne 0 then
+    if X`R.1 eq x then
+        return x, 1;
+    else
+        return x, 2;
+    end if;
+end if;
+if X`R.1 eq y then
+    return y, 1;
+else
+    return y, 2;
+end if;
+
+/* TODO: Previous functionality */
 Gens := GeneratorsSequence(X`R);
 M := Matrix([ [ Evaluate(Derivative(DE, gen), X`P0) : gen in Gens ] : DE in X`DEs ]);
 /* Default is the first coordinate: */
@@ -118,6 +133,7 @@ elif X`is_hyperelliptic or (g eq 1) then
             return [ -2*s/Derivative(f, x) ];
         end if;
     end if;
+    /* Otherwise the uniformizer will always be x */
     return [ 2*s*x^(i-1) / Derivative(f, y) : i in [1..g] ];
 elif X`is_plane_quartic then
     /* TODO: Analyze sign */
@@ -178,6 +194,8 @@ function NormalizedBasisOfDifferentials(X)
  */
 
 P := DevelopPoint(X, X`P0, X`g);
+print X`U;
+print X`unif;
 BP := [ Evaluate(b, P) : b in X`OurB ];
 T := Matrix([ [ Coefficient(BP[i], j - 1) : j in [1..X`g] ] : i in [1..X`g] ])^(-1);
 NormB := [ &+[ T[i,j] * X`OurB[j] : j in [1..X`g] ] : i in [1..X`g] ];

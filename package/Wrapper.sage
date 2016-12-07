@@ -148,8 +148,7 @@ class Decomposition:
         Lats, col_numbers = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
         self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
         # Convert everything and pass to Magma
-        R.<x> = PolynomialRing(K.sage())
-        fX = magma(R(4*self.g + self.h^2))
+        fX = magma(4*self.g + self.h^2)
         X = magma.HyperellipticCurve(fX)
         As = magma(spl_fod_data[2])
         As = magma.ProjectFromColumnNumbers(As, col_numbers)
@@ -212,12 +211,11 @@ class EndomorphismData:
         X, P0, AsL = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 3)
         tests = [ ]
         for i in [1..len(AsL)]:
-            # TODO: Transposition for compatibility
-            At = magma.Transpose(As[i])
-            if magma.IsScalar(At):
+            if magma.IsScalar(As[i]):
                 tests.append(True)
             else:
-                d = self.degree_estimate(At)
+                d = self.degree_estimate(As[i])
+                tests.append(d)
                 AtL = magma.Transpose(AsL[i])
                 div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, DegreeBound = 2*d + 2)
                 # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
