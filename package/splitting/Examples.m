@@ -1,4 +1,4 @@
-AttachSpec("spec");
+AttachSpec("../spec");
 SetVerbose("EndoCheck", 1);
 
 /* PLEASE NOTE: Give your elliptic curve as a HyperellipticCurve for now */
