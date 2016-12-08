@@ -217,7 +217,7 @@ class EndomorphismData:
                 d = self.degree_estimate(As[i])
                 tests.append(d)
                 AtL = magma.Transpose(AsL[i])
-                div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, DegreeBound = 2*d + 2)
+                div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, LowerBound = 2*d + 2)
                 # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
                 tests.append(True)
         return all(tests)

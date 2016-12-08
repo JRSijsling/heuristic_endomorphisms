@@ -42,15 +42,15 @@ return dens, nums;
 end function;
 
 
-function FunctionValuesFromApproximations(X, alphaP)
+function FunctionValuesFromApproximations(X, Qs)
 
-PR := Parent(alphaP[1][1]);
+PR := Parent(Qs[1][1]);
 R<t> := PolynomialRing(PR);
-pol_approx := &*[ t - Q[1] : Q in alphaP ];
+pol_approx := &*[ t - Q[1] : Q in Qs ];
 /* Start with trace and end with norm: */
 as_approx := Reverse(Coefficients(pol_approx)[1..X`g]);
-v := Matrix([ [ Q[2] : Q in alphaP ] ]);
-M := Transpose(Matrix([ [ Q[1]^i : i in [0..(X`g - 1)] ] : Q in alphaP ]));
+v := Matrix([ [ Q[2] : Q in Qs ] ]);
+M := Transpose(Matrix([ [ Q[1]^i : i in [0..(X`g - 1)] ] : Q in Qs ]));
 w := v*M^(-1);
 bs_approx := Reverse(Eltseq(w));
 return as_approx cat bs_approx;
@@ -58,11 +58,14 @@ return as_approx cat bs_approx;
 end function;
 
 
-function FunctionsFromApproximations(X, P, alphaP, d)
+function FunctionsFromApproximations(X, P, Qs, d)
+
+/* Check for debugging: */
+//print Valuation(Evaluate(X`DEs[1], P)); print [ Valuation(Evaluate(X`DEs[1], Q)) : Q in Qs ];
 
 I := ideal<X`R | X`DEs[1]>;
 dens, nums := CandidateFunctions(X, d);
-fs_approx := FunctionValuesFromApproximations(X, alphaP);
+fs_approx := FunctionValuesFromApproximations(X, Qs);
 fs := [ ];
 test := true;
 for f_approx in fs_approx do
@@ -84,6 +87,7 @@ for f_approx in fs_approx do
             v := Eltseq(b);
             /* In general some cancellation takes place here: */
             f := &+[ v[i + #dens]*nums[i] : i in [1..#nums] ] / &+[ v[i]*dens[i] : i in [1..#dens] ];
+            //print f;
             //if not (X`R ! Numerator(X`K ! f)) in I then
                 Append(~fs, X`K ! f);
                 found := true;
@@ -116,19 +120,19 @@ return true;
 end function;
 
 
-intrinsic CantorMorphismFromMatrix(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, DegreeBound := 1) -> Sch
+intrinsic CantorMorphismFromMatrix(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, LowerBound := 1) -> Sch
 {Given a curve X, a point P0 of X, and a matrix M that gives the tangent
 representation of an endomorphism on the standard basis of differentials,
 returns a corresponding Cantor morphism (if it exists). The parameter Margin
 indicates how many potentially superfluous terms are used in the development of
-the branch, and the parameter DegreeBound specifies at which degree one starts
+the branch, and the parameter LowerBound specifies at which degree one starts
 to look for a divisor.}
 
 /* We start at a suspected estimate and then increase degree until we find an
  * appropriate divisor: */
 e := PuiseuxRamificationIndex(M);
 output := InitializeCurve(X, P0);
-d := DegreeBound;
+d := LowerBound;
 
 /* Some global elements needed below: */
 g := X`g;
@@ -143,13 +147,13 @@ while true do
     /* TODO: This does some work many times over.
      * On the other hand, an iterator also has its disadvantages because of superfluous coefficients. */
     vprintf EndoCheck : "Expanding... ";
-    P, alphaP := ApproximationsFromTangentAction(X, NormM, n*e);
-    vprint EndoCheck, 3 : P, alphaP;
+    P, Qs := ApproximationsFromTangentAction(X, NormM, n*e);
+    vprint EndoCheck, 3 : P, Qs;
     vprintf EndoCheck : "done.\n";
 
     /* Fit a Cantor morphism to it: */
     vprintf EndoCheck : "Solving linear system... ";
-    test, fs := FunctionsFromApproximations(X, P, alphaP, d);
+    test, fs := FunctionsFromApproximations(X, P, Qs, d);
     vprintf EndoCheck : "done.\n";
 
     if test then
@@ -157,8 +161,8 @@ while true do
         bs := fs[(g + 1)..(2*g)];
         vprintf EndoCheck : "Checking:\n";
         vprintf EndoCheck : "Step 1... ";
-        //test1 := &and[ IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
-        //test2 := &and[ IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in alphaP ];
+        //test1 := &and[ IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in Qs ];
+        //test2 := &and[ IsWeaklyZero(Q[2]   - &+[ Evaluate(bs[i], P) * Q[1]^(g - i) : i in [1..g] ]) : Q in Qs ];
         //vprintf EndoCheck : "done.\n";
         //if test1 and test2 then
             //vprintf EndoCheck : "Step 2...\n";
@@ -178,19 +182,19 @@ end while;
 end intrinsic;
 
 
-intrinsic CantorMorphismFromMatrixSplit(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, DegreeBound := 1, B := 300) -> Sch
+intrinsic CantorMorphismFromMatrixSplit(X::Crv, P0::Pt, M::AlgMatElt : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 300) -> Sch
 {Given a curve X, a point P0 of X, and a matrix M that gives the tangent
 representation of an endomorphism on the standard basis of differentials,
 returns a corresponding Cantor morphism (if it exists). The parameter Margin
 indicates how many potentially superfluous terms are used in the development of
-the branch, and the parameter DegreeBound specifies at which degree one starts
+the branch, and the parameter LowerBound specifies at which degree one starts
 to look for a divisor.}
 
 /* We start at a suspected estimate and then increase degree until we find an
  * appropriate divisor: */
 e := PuiseuxRamificationIndex(M);
 output := InitializeCurve(X, P0);
-d := DegreeBound;
+d := LowerBound;
 NormM := X`T * M * (X`T)^(-1);
 tjs0, f := InitializeImageBranch(M);
 
@@ -203,7 +207,7 @@ BOF := X`BOF;
 R := X`R;
 K := X`K;
 /* TODO: Play with precision here */
-P, alphaP := ApproximationsFromTangentAction(X, NormM, g);
+P, Qs := ApproximationsFromTangentAction(X, NormM, g);
 
 ps_rts := [ ];
 prs := [ ];
@@ -228,9 +232,9 @@ while true do
     BI := Basis(I);
 
     /* Uncomment for check on compatibility with reduction */
-    //print CantorMorphismFromMatrix(X_red`U, X_red`Q0, (X_red`T)^(-1) * M_red * X_red`T);
+    //print CantorMorphismFromMatrix(X_red`U, X_red`P0, (X_red`T)^(-1) * M_red * X_red`T);
 
-    while true do
+    while d le UpperBound do
         vprintf EndoCheck : "Trying degree %o...\n", d;
         dens_red, nums_red := CandidateFunctions(X_red, d);
         n := #dens_red + #nums_red + Margin;
@@ -239,13 +243,13 @@ while true do
         /* Take non-zero image branch: */
         /* TODO: This does some work many times over, but only the first time */
         vprintf EndoCheck, 2 : "Expanding... ";
-        P_red, alphaP_red := ApproximationsFromTangentAction(X_red, NormM_red, n*e);
-        vprint EndoCheck, 3 : P_red, alphaP_red;
+        P_red, Qs_red := ApproximationsFromTangentAction(X_red, NormM_red, n*e);
+        vprint EndoCheck, 3 : P_red, Qs_red;
         vprintf EndoCheck, 2 : "done.\n";
 
         /* Fit a Cantor morphism to it: */
         vprintf EndoCheck, 2 : "Solving linear system... ";
-        test_red, fs_red := FunctionsFromApproximations(X_red, P_red, alphaP_red, d);
+        test_red, fs_red := FunctionsFromApproximations(X_red, P_red, Qs_red, d);
         vprintf EndoCheck, 2 : "done.\n";
 
         if test_red then
@@ -289,12 +293,16 @@ while true do
     end for;
     vprintf EndoCheck : "done.\n";
 
+    if #fs ne 2*g then
+        print "Algorithm failed to find a Cantor morphism";
+        return [ ];
+    end if;
     vprintf EndoCheck : "Checking:\n";
     vprintf EndoCheck : "Step 1... ";
     as := fs[1..g];
     bs := fs[(g + 1)..(2*g)];
     test1 := true;
-    for Q in alphaP do
+    for Q in Qs do
         if not IsWeaklyZero(Q[1]^g + &+[ Evaluate(as[i], P) * Q[1]^(g - i) : i in [1..g] ]) then
             test1 := false;
             break;

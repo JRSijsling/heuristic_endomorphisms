@@ -58,8 +58,8 @@ h = x
 f = -2*x^4 + 4*x^2 - 9*x - 14
 h = x^3 + 1
 # LMFDB example 2:
-#f = 6*x^5 + 9*x^4 - x^3 - 3*x^2
-#h = 1
+f = 6*x^5 + 9*x^4 - x^3 - 3*x^2
+h = 1
 
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
@@ -103,7 +103,7 @@ print Dec.factors()
 print Dec.certificate_g2()
 
 # Verification of geometric endomorphisms:
-#print End.geometric_representations_check()
+print End.geometric_representations_check()
 
 #exit()
 

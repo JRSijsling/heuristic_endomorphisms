@@ -39,6 +39,10 @@ while true do
         return e;
     end if;
     e := e - 1;
+    /* Stopping criterion in case of ramification: */
+    if e eq 0 then
+        return 1;
+    end if;
 end while;
 
 end function;
@@ -56,6 +60,13 @@ function InitializeImageBranch(M)
 F := Parent(M[1,1]);
 g := #Rows(M);
 e := PuiseuxRamificationIndex(M);
+
+if g eq 1 then
+    r := Eltseq(Rows(M)[1]);
+    RF := PolynomialRing(F); xF := RF.1;
+    PF := PowerSeriesRing(F, #r + 1); tF := PF.1;
+    return [ &+[ (r[n] / n) * tF^n : n in [1..#r] ] + O(tF^(#r + 1)) ], xF - 1;
+end if;
 
 /* Normalized equations (depend only on the matrix): */
 A := AffineSpace(F, g);
@@ -76,26 +87,32 @@ RF := PolynomialRing(F);
 hc := [ RF!0 : i in [1..g] ];
 hc[#hc] := RF.1;
 h := hom<RA -> RF | hc>;
-
 /* By symmetry, this extension always suffices */
 G := GroebnerBasis(ideal<RA | eqs>);
+f := h(G[#G]);
+
 if not IsFinite(F) then
-    K := GaloisSplittingField(h(G[#G]));
+    if Degree(f) eq #Roots(f) then
+        K := F; f := RF.1;
+    else
+        K := GaloisSplittingField(f);
+    end if;
 else
-    K := SplittingField(h(G[#G]));
+    K := SplittingField(f);
 end if;
 
 /* Extending and evaluating: */
 SK := BaseExtend(S, K);
 P := Eltseq(Points(SK)[1]);
+/* Power series ring is used if possible for efficiency: */
 if e eq 1 then
-    RK := PowerSeriesRing(K, 2);
-    wK := RK.1;
+    PK := PowerSeriesRing(K, 2);
+    wK := PK.1;
 else
-    RK := PuiseuxSeriesRing(K, 2);
-    wK := RK.1^(1/e);
+    PK := PuiseuxSeriesRing(K, 2);
+    wK := PK.1^(1/e);
 end if;
-return [ P[i] * wK + O(wK^2) : i in [1..g] ], h(G[#G]);
+return [ P[i] * wK + O(wK^2) : i in [1..g] ], f;
 
 end function;
 
@@ -132,14 +149,11 @@ while log le Ceiling(Log(2, n)) - 1 do
         e := 1;
         x := x0 + PR.1;
     else
-        /* TODO: We further assume a somewhat special kind of series here,
-         *       which we encounter in our applications. */
-        e := Integers() ! (1/Valuation(x0 - Coefficient(x0, 0)));
+        e := ExponentDenominator(x0);
         x := LiftPuiseuxSeries(x0, PR, e);
     end if;
     y := LiftPuiseuxSeries(y, PR, e);
-    h := -Evaluate(f, [x, y])/Evaluate(df, [x, y]);
-    y +:= h;
+    y +:= -Evaluate(f, [x, y])/Evaluate(df, [x, y]);
     log +:= 1;
 end while;
 return [x, y];
@@ -160,10 +174,10 @@ function DevelopPoint(X, P0, n)
 if not X`is_planar then
     /* Here only for constant points, in which case we fall back to the given
      * base point. We do get an expansion that may not be in our uniformizer. */
-    return [ Expand(X`K ! c, Place(X`Q0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
+    return [ Expand(X`K ! c, Place(X`P0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
 end if;
 f := X`DEs[1];
-if X`index eq 1 then
+if X`unif_index eq 1 then
     return RootWithHensel(f, P0, n);
 else
     f_swap := Evaluate(f, [(X`R).2, (X`R).1]);
@@ -175,81 +189,87 @@ end if;
 end function;
 
 
-function InitializeLift(X, M)
+function InitializeLift(X, Y, M)
 
-P0 := X`Q0;
+P0 := X`P0; Q0 := Y`P0;
 e := PuiseuxRamificationIndex(M);
 tjs0 := InitializeImageBranch(M);
 PR := Parent(tjs0[1]);
 
 /* Creating P */
 P := [ PR ! P0[1], PR ! P0[2] ];
-P[X`index] +:= PR.1;
-Pnew := [ PR ! c : c in DevelopPoint(X, P, 2) ];
-P := [ PR ! c : c in DevelopPoint(X, P, 2) ];
+P[X`unif_index] +:= PR.1;
+P := [ PR ! c : c in DevelopPoint(X, P, X`g + 1) ];
 
-/* Creating Qjs */
-Qjs := [ [ PR ! P0[1], PR ! P0[2] ] : i in [1..X`g] ];
-for i in [1..X`g] do
-    Qjs[i][X`index] +:= tjs0[i];
+/* Creating Qs */
+Qs := [ [ PR ! Q0[1], PR ! Q0[2] ] : i in [1..Y`g] ];
+for i in [1..Y`g] do
+    Qs[i][Y`unif_index] +:= tjs0[i];
 end for;
-Qjs := [ [ PR ! c : c in DevelopPoint(X, Qj, 2) ] : Qj in Qjs ];
-return P, Qjs;
+Qs := [ [ PR ! c : c in DevelopPoint(Y, Qj, X`g + 1) ] : Qj in Qs ];
+return P, Qs;
 
 end function;
 
 
-function CreateLiftIterator(X, M)
+function CreateLiftIterator(X, Y, M)
 
-index_unif := X`index;
-index_other := (index_unif mod 2) + 1;
-f := X`DEs[1];
-df := Derivative(f, index_other);
-B := X`NormB;
-g := X`g;
+X_unif_index := X`unif_index;
+X_other_index := (X_unif_index mod 2) + 1;
+fX := X`DEs[1];
+dfX := Derivative(fX, X_other_index);
+BX := X`NormB;
+gX := X`g;
+
+Y_unif_index := Y`unif_index;
+Y_other_index := (Y_unif_index mod 2) + 1;
+fY := Y`DEs[1];
+dfY := Derivative(fY, Y_other_index);
+BY := Y`NormB;
+gY := Y`g;
 
 e := PuiseuxRamificationIndex(M);
 
-    function Iterate(P, Qjs, n);
+    function Iterate(P, Qs, n);
 
     /* Create ring of higher precision: */
     K := BaseRing(Parent(P[1]));
     prec := Minimum(2*Precision(Parent(P[1])), n);
     PR := PuiseuxSeriesRing(K, prec);
 
-    /* Lift Qjs: */
-    Qjs := [ [ LiftPuiseuxSeries(c, PR, e) : c in Qj ] : Qj in Qjs ];
-    for i in [1..g] do
-        h := -Evaluate(f, Qjs[i])/Evaluate(df, Qjs[i]);
-        Qjs[i][index_other] +:= h;
+    /* Lift Qs: */
+    Qs := [ [ LiftPuiseuxSeries(c, PR, e) : c in Qj ] : Qj in Qs ];
+    for i in [1..gY] do
+        h := -Evaluate(fY, Qs[i])/Evaluate(dfY, Qs[i]);
+        Qs[i][Y_other_index] +:= h;
     end for;
 
     /* Calculate P to higher precision: */
     P := [ LiftPuiseuxSeries(c, PR, 1) : c in P ];
-    P[index_unif] := Coefficient(P[index_unif], 0) + PR.1;
-    h := -Evaluate(f, P)/Evaluate(df, P);
-    P[index_other] +:= h;
+    P[X_unif_index] := Coefficient(P[X_unif_index], 0) + PR.1;
+    h := -Evaluate(fX, P)/Evaluate(dfX, P);
+    P[X_other_index] +:= h;
 
     /* Calculate LHS: */
-    dtjs := [ Derivative(Qj[index_unif]) : Qj in Qjs ];
-    BPijs := Matrix([ [ Evaluate(B[i], Qjs[j]) : j in [1..g] ] : i in [1..g] ]);
-    F_ev := Matrix([ [ Integral(&+[ BPijs[i,j] * dtjs[j] : j in [1..g] ]) : i in [1..g] ] ]);
-    DF_ev := Transpose(BPijs);
+    dtjs := [ Derivative(Qj[Y_unif_index]) : Qj in Qs ];
+    BQs := Matrix([ [ Evaluate(BY[i], Qs[j]) : j in [1..gY] ] : i in [1..gY] ]);
+    F_ev := Matrix([ [ Integral(&+[ BQs[i,j] * dtjs[j] : j in [1..gY] ]) : i in [1..gY] ] ]);
+    DF_ev := Transpose(BQs);
 
     /* Calculate RHS: */
-    BQjs := [ Evaluate(B[j], P) : j in [1..g] ];
-    G_ev := Matrix(PR, [ [ Integral(&+[ M[i,j] * BQjs[j] : j in [1..g] ]) : i in [1..g] ] ]);
+    BP := [ Evaluate(BX[j], P) : j in [1..gX] ];
+    G_ev := Matrix(PR, [ [ Integral(&+[ M[i,j] * BP[j] : j in [1..gX] ]) : i in [1..gY] ] ]);
 
     /* Calculate Hensel correction: */
     H := -(F_ev - G_ev) * DF_ev^(-1);
 
-    /* Calculate Qjs to higher precision: */
-    for i in [1..g] do
-        Qjs[i][index_unif] +:= H[1,i];
-        h := -Evaluate(f, [Qjs[i][1], Qjs[i][2]])/Evaluate(df, [Qjs[i][1], Qjs[i][2]]);
-        Qjs[i][index_other] +:= h;
+    /* Calculate Qs to higher precision: */
+    for i in [1..gY] do
+        Qs[i][Y_unif_index] +:= H[1,i];
+        h := -Evaluate(fY, [Qs[i][1], Qs[i][2]])/Evaluate(dfY, [Qs[i][1], Qs[i][2]]);
+        Qs[i][Y_other_index] +:= h;
     end for;
-    return P, Qjs;
+    return P, Qs;
 
     end function;
 
@@ -259,19 +279,18 @@ end function;
 
 
 intrinsic ApproximationsFromTangentAction(X::Crv, M::AlgMatElt, n::RngIntElt) -> Tup, Tup
-{Given a curve X, a matrix M that gives the tangent representation of an
-endomorphism on the normalized basis of differentials, and an integer n,
-returns a development of the branches to precision at least O(n).}
+{Given curves X and Y, a matrix M that gives the tangent representation of a
+homomorphism of Jacobians on the normalized basis of differentials, and an
+integer n, returns a development of the branches to precision at least O(n).}
 
 e := PuiseuxRamificationIndex(M);
-P, Qjs := InitializeLift(X, M);
-IterateLift := CreateLiftIterator(X, M);
-/* Next line avoids precision loss */
+P, Qs := InitializeLift(X, X, M);
+IterateLift := CreateLiftIterator(X, X, M);
 /* TODO: Determine exact bound needed here */
-for i:= 1 to Ceiling(Log(2, n + e + 1)) do
-    P, Qjs := IterateLift(P, Qjs, n + e + 1);
+for i:=1 to Ceiling(Log(2, n + e + 1)) + 1 do
+    P, Qs := IterateLift(P, Qs, n + e + 1);
 end for;
-return P, Qjs;
+return P, Qs;
 
 end intrinsic;
 
