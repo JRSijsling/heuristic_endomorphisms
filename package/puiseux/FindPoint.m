@@ -1,35 +1,3 @@
-intrinsic ProjectFromColumnNumbers(As::SeqEnum, col_numbers::SeqEnum) -> SeqEnum
-{bla}
-
-K := Parent(As[1][1,1]);
-projs := [ ];
-for i in [1..#As] do
-    Append(~projs, Matrix(K, [ Eltseq( -2 * Rows(Transpose(As[i]))[col_numbers[i]]) ]));
-end for;
-return projs;
-
-end intrinsic;
-
-
-intrinsic EllipticCurvesFromRepresentations(ECs_rep::SeqEnum, K::Fld, L::Fld) -> SeqEnum
-{bla}
-
-R := PolynomialRing(K);
-ECs := [ ]; Q0s := [ ];
-for EC_rep in ECs_rep do
-    fE := R.1^3 + (-K ! EC_rep[1]/48)*R.1 + (-K ! EC_rep[2]/864);
-    E := EllipticCurve(fE);
-    f, h := HyperellipticPolynomials(E);
-    Y := HyperellipticCurve(f, h);
-    Y := ChangeRing(Y, L);
-    Q0 := Y ! [1, 0, 0];
-    Append(~ECs, Y); Append(~Q0s, Q0);
-end for;
-return ECs, Q0s;
-
-end intrinsic;
-
-
 intrinsic NonWeierstrassBasePointHyp(X::Crv, K::Fld, As::SeqEnum : B := 2^10) -> Crv, Pt, SeqEnum
 {Given a hyperelliptic curve X, a field extension K, and a set of matrices As
 over K, returns a base change of X, a point on that base change, and the base

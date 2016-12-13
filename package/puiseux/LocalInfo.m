@@ -13,6 +13,11 @@ forward ApproximationsFromTangentAction;
 
 
 function LiftPuiseuxSeries(f, PR, e)
+/*
+ * Input:   A Puiseux series f, its ramification index e, and a Puiseux series
+ *          ring PR.
+ * Output:  The lift of f to an element of PR (typically of higher precision).
+ */
 
 L := [ Coefficient(f, i/e)*PR.1^(i/e) : i in [0..e*AbsolutePrecision(f) - 1] ];
 if #L eq 0 then
@@ -61,6 +66,7 @@ F := Parent(M[1,1]);
 g := #Rows(M);
 e := PuiseuxRamificationIndex(M);
 
+/* In the genus 1 case we get some higher order terms for free: */
 if g eq 1 then
     r := Eltseq(Rows(M)[1]);
     RF := PolynomialRing(F); xF := RF.1;
@@ -68,7 +74,7 @@ if g eq 1 then
     return [ &+[ (r[n] / n) * tF^n : n in [1..#r] ] + O(tF^(#r + 1)) ], xF - 1;
 end if;
 
-/* Normalized equations (depend only on the matrix): */
+/* Equations for the leading coefficients: */
 A := AffineSpace(F, g);
 RA := CoordinateRing(A);
 eqs := [ ];
@@ -91,11 +97,14 @@ h := hom<RA -> RF | hc>;
 G := GroebnerBasis(ideal<RA | eqs>);
 f := h(G[#G]);
 
+/* Determining the splitting field as a relative extension: */
+/* TODO: Because of issues with GaloisSplittingField this step is still buggy */
 if not IsFinite(F) then
     if Degree(f) eq #Roots(f) then
         K := F; f := RF.1;
     else
-        K := GaloisSplittingField(f);
+        //K := GaloisSplittingField(f);
+        K := SplittingField(f);
     end if;
 else
     K := SplittingField(f);
@@ -125,8 +134,11 @@ function RootWithHensel(f, P0, n)
  * Output:  A corresponding development of both components.
  *
  * The relation f has to be non-singular when developing in y,
- * and the x-coordinate can be specified as a Puiseux series. */
+ * and the x-coordinate can be specified as a Puiseux series.
+ * If it is not, then it will be set equal to a constant plus x.
+ */
 
+/* Recovering base ring and base point: */
 if Type(P0[1]) in [ RngSerPuisElt, RngSerPowElt ] then
     F := BaseRing(Parent(P0[1]));
 else
@@ -135,12 +147,14 @@ end if;
 df := Derivative(f, 2);
 x0 := P0[1]; y0 := P0[2];
 
+/* Trivial case: */
 PR := PuiseuxSeriesRing(F, 1);
 x := PR ! Coefficient(PR ! x0, 0); y := PR ! Coefficient(PR ! y0, 0);
 if n eq 0 then
     return [x, y];
 end if;
 
+/* Otherwise use Hensel lifting: */
 log := 0;
 while log le Ceiling(Log(2, n)) - 1 do
     prec := Minimum(2^(log + 1), n);
@@ -167,19 +181,20 @@ function DevelopPoint(X, P0, n)
  *          a point P0 on it (may be over a series ring),
  *          and a precision n.
  * Output:  A development to precision n of P in a uniformizing parameter.
- *          The correct branch at P0 is chosen,
- *          and a coordinate is used in the case of a plane curve.
  */
 
 if not X`is_planar then
     /* Here only for constant points, in which case we fall back to the given
      * base point. We do get an expansion that may not be in our uniformizer. */
+    /* TODO: By now this case is probably no longer compatible. But we should
+     * only work with planar models anyway. */
     return [ Expand(X`K ! c, Place(X`P0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
 end if;
 f := X`DEs[1];
 if X`unif_index eq 1 then
     return RootWithHensel(f, P0, n);
 else
+    /* Swap coordinates if needed to apply the previous function: */
     f_swap := Evaluate(f, [(X`R).2, (X`R).1]);
     P0_swap := [ P0[2], P0[1] ];
     P := RootWithHensel(f_swap, P0_swap, n);
@@ -190,18 +205,23 @@ end function;
 
 
 function InitializeLift(X, Y, M)
+/*
+ * Input:   Two curves X and Y
+ *          and matrix M that represents an homomorphism between their Jacobians.
+ * Output:  The leading terms of the corresponding Puiseux expansions.
+ */
 
 P0 := X`P0; Q0 := Y`P0;
 e := PuiseuxRamificationIndex(M);
 tjs0 := InitializeImageBranch(M);
 PR := Parent(tjs0[1]);
 
-/* Creating P */
+/* Creating deformed base point P on X: */
 P := [ PR ! P0[1], PR ! P0[2] ];
 P[X`unif_index] +:= PR.1;
 P := [ PR ! c : c in DevelopPoint(X, P, X`g + 1) ];
 
-/* Creating Qs */
+/* Creating corresponding image points Qs on Y: */
 Qs := [ [ PR ! Q0[1], PR ! Q0[2] ] : i in [1..Y`g] ];
 for i in [1..Y`g] do
     Qs[i][Y`unif_index] +:= tjs0[i];
@@ -213,6 +233,11 @@ end function;
 
 
 function CreateLiftIterator(X, Y, M)
+/*
+ * Input:   Two curves X and Y
+ *          and matrix M that represents an homomorphism between their Jacobians.
+ * Output:  An iterator that refines the tangent approximation of M to higher order.
+ */
 
 X_unif_index := X`unif_index;
 X_other_index := (X_unif_index mod 2) + 1;

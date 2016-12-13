@@ -21,7 +21,7 @@
  *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-function CanonizeMatrix(grep, frep, idem);
+function CanonizeMatrices(grep, frep, idems);
 
 R<x> := PolynomialRing(Rationals());
 f := R ! frep;
@@ -34,6 +34,6 @@ else
     K := sub< L | L ! grep >;
 end if;
 
-return Matrix(K, [ [ K ! c : c in Eltseq(row) ] : row in Rows(idem) ]);
+return [ Matrix(K, [ [ K ! Eltseq(c) : c in Eltseq(row) ] : row in Rows(idem) ]) : idem in idems ];
 
 end function;

@@ -139,19 +139,19 @@ class Decomposition:
         return [ magma.EllipticCurve([ -K(EC_rep[0])/48, -K(EC_rep[1])/864]).sage() for EC_rep in self._ECs_rep_ ]
 
     def certificate_g2(self):
+        if len(self._idems_[1]) == 0:
+            return [ ]
         spl_fod_data = Canonize_Subfield_And_Idempotents(self._fsubgen_.sage(), self._frep_, self._idems_)
         self._spl_fod_ = spl_fod_data
         self._fsubrep_opt_ = spl_fod_data[0]
         self._fsubgen_opt_ = spl_fod_data[1]
         self._fsubhom_opt_ = magma.InducedEmbedding(self._fsubgen_opt_, self._fhom_, self._frep_).sage()
-        K = self.field_of_definition()
         Lats, col_numbers = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
         self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
-        # Convert everything and pass to Magma
         fX = magma(4*self.g + self.h^2)
         X = magma.HyperellipticCurve(fX)
-        As = magma(spl_fod_data[2])
-        As = magma.ProjectFromColumnNumbers(As, col_numbers)
+        As = magma.ProjectFromColumnNumbers(spl_fod_data[2], col_numbers)
+        K = magma.BaseRing(As[1])
         XL, P0L, AsL, L = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 4)
         EsL, Q0sL = magma.EllipticCurvesFromRepresentations(magma(self._ECs_rep_), K, L, nvals = 2)
         # TODO: Next line not used yet, should be upper bound

@@ -40,7 +40,7 @@ changes of the matrices in As.}
 
 /* We could look for points in the extension, but that is laborious */
 Pts := RationalPoints(X : Bound := B);
-Pts_nW := [ P : P in RationalPoints(X : Bound := B) | P[2]*P[3] ne 0 ];
+Pts_nW := [ P : P in RationalPoints(X : Bound := B) | P[2] ne 0 ];
 if #Pts_nW ne 0 then
     Hts := [ Maximum([ Height(c) : c in Eltseq(P) ]) : P in Pts ];
     min, ind := Minimum(Hts);
@@ -49,7 +49,7 @@ if #Pts_nW ne 0 then
     end if;
     XK := ChangeRing(X, K);
     PK := XK ! Pts_nW[ind];
-    AsK := As;
+    AsK := [ ChangeRing(A, K) : A in As ];
     return XK, PK, AsK, K;
 end if;
 

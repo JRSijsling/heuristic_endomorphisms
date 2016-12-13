@@ -36,6 +36,7 @@ End = EndomorphismData(f, h, prec = 200)
 AsAlg, As, Rs = End.geometric_representations()
 print AsAlg
 print Rs
+print magma.SplittingInfoOneOff(AsAlg, As, Rs)
 
 Ds, idemsAlg, idemsAn = magma.SplittingInfoOneOff(AsAlg, As, Rs, nvals = 3)
 Lats, col_number = magma.LatticesFromIdempotents([ idemsAn[1] ], End.period_matrix(), nvals = 2)

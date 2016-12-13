@@ -115,7 +115,6 @@ End = EndomorphismData(g, prec = prec)
 End._P_ = magma.Transpose(P)
 
 AsAlg, As, Rs = End.geometric_representations()
-
 print AsAlg
 print Rs
 print magma.SplittingInfoOneOff(AsAlg, As, Rs)

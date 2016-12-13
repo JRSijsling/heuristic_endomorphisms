@@ -91,7 +91,8 @@ h := hom<RA -> RF | hc>;
 /* By symmetry, this extension always suffices */
 G := GroebnerBasis(ideal<RA | eqs>);
 if not IsFinite(F) then
-    K := GaloisSplittingField(h(G[#G]));
+    //K := GaloisSplittingField(h(G[#G]));
+    K := SplittingField(h(G[#G]));
 else
     K := SplittingField(h(G[#G]));
 end if;

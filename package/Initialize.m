@@ -78,7 +78,7 @@ forward GeoEndRRShorthand;
 forward SatoTateGroupG2;
 
 // Subfield canonization
-forward CanonizeMatrix;
+forward CanonizeMatrices;
 
 // Elliptic curves from decompositions
 forward DecompositionDegree;

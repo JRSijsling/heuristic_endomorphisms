@@ -72,7 +72,7 @@ def Canonize_Subfield_And_Idempotents(grep, frep, idems):
     L.<r> = NumberField(f)
     # TODO: Sage sometimes bugs here when 1 is given, so we do that by hand:
     if L(grep) == L(1):
-        return [ [0, 1], L(0).list(), [ magma.CanonizeMatrix(grep, frep, idem) for idem in idems[1] ] ]
+        return [ [0, 1], L(0).list(), magma.CanonizeMatrices(grep, frep, idems[1]) ]
     tup = L.subfield(L(grep))
     K = tup[0]
     phi = tup[1]
@@ -80,4 +80,4 @@ def Canonize_Subfield_And_Idempotents(grep, frep, idems):
     Kcan = can[0]
     rtreps = [ phi(K(rt)).list() for rt in can[1] ]
     rt = Minimal_Sequence(rtreps)[0]
-    return [ Kcan, rt, [ magma.CanonizeMatrix(rt, frep, idem) for idem in idems[1] ] ]
+    return [ Kcan, rt, magma.CanonizeMatrices(rt, frep, idems[1]) ]
