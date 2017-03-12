@@ -41,8 +41,8 @@ load('Initialize.sage')
 ### 3.Loaded at startup 
 If you prefer, you can have Sage to load every time you start Sage by adding the following lines to the Sage initialization file (typically found in ~/.sage/init.sage):
 ```
-\_\_endodir\_\_ = '[PATH]/heuristic_endomorphisms'  
-load(\_\_endodir\_\_ + 'Initialize.sage')
+__endodir__ = '[PATH]/heuristic_endomorphisms'  
+load(__endodir__ + 'Initialize.sage')
 ```
 
 alternatively
