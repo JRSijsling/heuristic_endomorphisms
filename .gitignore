@@ -4,3 +4,5 @@
 *.sig
 package/database/Add_To_Database*
 package/database/gce*
+#python generated files
+__init__.pyc
