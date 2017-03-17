@@ -31,10 +31,13 @@ R.<x> = PolynomialRing(QQ)
 # Hyperelliptic:
 f = -15*x^8 + 420*x^6 - 3780*x^4 + 8400*x^2 - 23580*x + 1680
 h = 0
+f = x^7 - 14*x^6 + 210*x^5 - 658*x^4 + 245*x^3 + 588*x^2 + 637*x - 686
+h = 0
 
 End = EndomorphismData(f, h, prec = 200)
 AsAlg, As, Rs = End.geometric_representations()
 print AsAlg
+print [ magma.Discriminant(magma.MinimalPolynomial(A)) for A in AsAlg ]
 
 dim = len(AsAlg)
 B = 1

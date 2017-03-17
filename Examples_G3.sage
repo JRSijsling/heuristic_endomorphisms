@@ -29,6 +29,7 @@ load('Initialize.sage')
 #with(algcurves):
 #f := y^3 - x^4 - x^2 - 1:
 #f := x^4 + 8*x^3*1 + 2*x^2*y*1 + 25*x^2*1^2 - x*y^3 + 2*x*y^2*1 + 8*x*y*1^2 + 36*x*1^3 + y^4 - 2*y^3*1 + 5*y^2*1^2 + 9*y*1^3 + 20*1^4:
+#f := 3278898472*x^4 + 35774613556*x^3*y - 172165788624*x^3*1 - 42633841878*x^2*y^2 + 224611458828*x^2*y*1 + 362086824567*x^2*1^2 + 6739276447*x*y^3 + 195387780024*x*y^2*1 + 1153791743988*x*y*1^2 - 3461357269578*x*1^3 - 18110161476*y^4 - 549025255626*y^3*1 - 482663555556*y^2*1^2 + 15534718882176*y*1^3 - 61875497274721*1^4:
 #pm := periodmatrix(f,x,y):
 #evalf(pm, 100);
 
@@ -110,9 +111,14 @@ P = magma.Matrix(
 2.815510942014972776441162125173991650658950093289974490638087759321318517913131050002236974831082619*I]
 ]);
 
+print P
+
 g = 0
 End = EndomorphismData(g, prec = prec)
 End._P_ = magma.Transpose(P)
+
+g = x^7 - 14*x^6 + 210*x^5 - 658*x^4 + 245*x^3 + 588*x^2 + 637*x - 686
+End = EndomorphismData(g, prec = prec)
 
 AsAlg, As, Rs = End.geometric_representations()
 print AsAlg
@@ -120,7 +126,7 @@ print Rs
 print magma.SplittingInfoOneOff(AsAlg, As, Rs)
 
 dim = len(AsAlg)
-B = 1
+B = 3
 D = [-B..B]
 CP = cartesian_product([ D for i in range(dim) ])
 deg_min = 10^6
@@ -139,9 +145,4 @@ print deg_min
 print R_min
 print A_min
 print magma.Parent(A_min[1,1])
-
-#[   -r^2 + r + 1               0 2*r^2 - 4*r - 2]
-#[              0         r^2 - 2               0]
-#[              0               0              -r]
-#Number Field with defining polynomial x^3 - x^2 - 2*x + 1 over the Rational Field
 

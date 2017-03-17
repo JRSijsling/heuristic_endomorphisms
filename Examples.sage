@@ -69,6 +69,9 @@ h = x^3 + x
 # Debug (TODO: Subfield):
 f = x^4 + x^3 + 2*x^2 + x + 1
 h = x^3 + x^2 + x + 1
+# Debug:
+f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
+h = 0
 
 # Apply a substition if necessary to get around Magma bugs (commented out for now)
 #f = R(f)
@@ -103,15 +106,15 @@ print End.geometric().description()
 print End.lattice()
 
 # Verification of decomposition data:
-Dec = End.decomposition()
-print Dec
-print Dec.field_of_definition()
-print Dec._idems_[1]
-print Dec.factors()
-print Dec.certificate_g2()
+#Dec = End.decomposition()
+#print Dec
+#print Dec.field_of_definition()
+#print Dec._idems_[1]
+#print Dec.factors()
+#print Dec.certificate_g2()
 
 # Verification of geometric endomorphisms:
-#print End.geometric_representations_check()
+print End.geometric_representations_check()
 
 #exit()
 
