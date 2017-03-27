@@ -49,9 +49,9 @@ while true do
     h *:= h0;
     Append(~powers, powers[#powers] * a);
     M := Transpose(Matrix([powers]));
-    // Now split and take an IntegralKernel:
+    // Now split and take an IntegralLeftKernel:
     MSplit := SplitPeriodMatrix(M);
-    Ker := IntegralKernel(MSplit : epsLLL := epsLLL);
+    Ker := IntegralLeftKernel(MSplit : epsLLL := epsLLL);
     for row in Rows(Ker) do
         // Height condition:
         if &and[ Abs(c) le h : c in Eltseq(row) ] then
@@ -91,7 +91,7 @@ function FractionalApproximation(a : epscomp := epscomp0, epsLLL := epsLLL0);
     //           (using continued fractions is likely much better).
     M := Matrix([[1], [-Real(a)]]);
     // A loop should follow, but not for now:
-    K := IntegralKernel(M : epsLLL := epsLLL);
+    K := IntegralLeftKernel(M : epsLLL := epsLLL);
     q := K[1,1] / K[1,2];
     if Abs(q - a) lt epscomp then
         return q;
@@ -126,9 +126,9 @@ powers := [ r^n : n in [0..d-1] ];
 powersan := [ ran^n : n in [0..d-1] ];
 // Column matrix of embedding of basis elements plus (minus) a:
 Man := VerticalJoin(Transpose(Matrix([powersan])), Matrix([[-a]]));
-// Now split and take an IntegralKernel:
+// Now split and take an IntegralLeftKernel:
 ManSplit := SplitPeriodMatrix(Man);
-Ker := IntegralKernel(ManSplit : epsLLL := epsLLL);
+Ker := IntegralLeftKernel(ManSplit : epsLLL := epsLLL);
 for R in Rows(Ker) do
     den := R[d + 1];
     if den ne 0 then
@@ -244,23 +244,6 @@ else
     L := OptimizedRepresentation(NumberField(g));
     test, h := IsIsomorphic(K, L);
     return L, h;
-end if;
-
-end function;
-
-
-// Deprecated:
-function PartialLMFDBLabel(K);
-// Input:   A number field.
-// Output:  The first three entries of its LMFDB label.
-
-d := Degree(K);
-if Degree(K) eq 1 then
-    return [1, 1, 1];
-else
-    r := #[ v : v in InfinitePlaces(K) | IsReal(v) ];
-    D := Abs(Discriminant(Integers(K)));
-    return [d, r, D];
 end if;
 
 end function;

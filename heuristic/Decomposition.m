@@ -71,8 +71,8 @@ for idem in idemsAn do
     PEllBigSplit := SplitPeriodMatrix(PEllBig);
     PEllSplit := InvertibleSubmatrix(PEllBigSplit : epsinv := epsinv);
     // We create an approximately integral matrix from this; instead of
-    // inverting we use NumericalSolve.
-    LMatAn := Matrix([ NumericalSolve(PEllSplit, Matrix(row)) : row in Rows(PEllBigSplit) ]);
+    // inverting we use NumericalLeftSolve.
+    LMatAn := Matrix([ NumericalLeftSolve(PEllSplit, Matrix(row)) : row in Rows(PEllBigSplit) ]);
     LMat := Matrix([ [ FractionalApproximation(c : epscomp := epscomp, epsLLL := epsLLL) : c in Eltseq(row) ] : row in Rows(LMatAn) ]);
     M := Matrix(Basis(Lattice(LMat)));
     // Change to basis of lattice and return corresponding periods:

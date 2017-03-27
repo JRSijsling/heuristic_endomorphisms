@@ -145,15 +145,15 @@ class Decomposition:
         return [ magma.CantorMorphismFromMatrixSplit(XL, P0L, entry[0], entry[1], entry[2]) for entry in zipped_list ]
 
 class EndomorphismData:
-    def __init__(self, g, h = 0, prec = prec):
+    def __init__(self, g, h = 0, prec = prec, Bound = Bound):
         RQQ.<x> = PolynomialRing(QQ)
         self.g = RQQ(g)
         self.h = RQQ(h)
         self.prec = prec
         self._epscomp_ = 10^(-self.prec + 30)
         self._epsLLL_ = 5^(-self.prec + 7)
-        self._epsinv_ = 2^(-10)
-        self._Bound_ = Bound
+        self._epsinv_ = 2^(-self.prec + 30)
+        self.Bound = Bound
         self._lat_ = None
 
     def __repr__(self):
@@ -179,7 +179,7 @@ class EndomorphismData:
             P = self.period_matrix()
             self._geo_reps_app_ = magma.GeometricEndomorphismBasisFromPeriodMatrix(self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
             self._geo_reps_pol_ = [ magma.PolynomializeMatrix(A, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for A in self._geo_reps_app_[0] ]
-            self._frep_ = Common_Splitting_Field(self._geo_reps_pol_, Bound = self._Bound_)
+            self._frep_ = Common_Splitting_Field(self._geo_reps_pol_, Bound = self.Bound)
             L = magma.AlgebraizeMatricesInField(self._geo_reps_app_[0], self._geo_reps_pol_, self._frep_, epscomp = self._epscomp_, nvals = 2)
             self._geo_reps_alg_ = L[0]
             self._fhom_ = L[1]

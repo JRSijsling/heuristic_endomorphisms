@@ -6,7 +6,7 @@
  *  See LICENSE.txt for license details.
  */
 
-function NumericalSolve(A, B);
+function NumericalLeftSolve(A, B);
 // Input:   An invertible matrix A and a matrix B of compatible dimensions.
 // Output:  An approximation of the matrix X such that X * A = B.
 
@@ -96,7 +96,7 @@ return P;
 end function;
 
 
-function IntegralKernel(M : epsLLL := epsLLL0);
+function IntegralLeftKernel(M : epsLLL := epsLLL0);
 // Input:   A real matrix whose rows are to be cancelled by integral
 //          combinations and an LLL parameter epsLLL.
 // Output:  The corresponding LLL approximation of the integral left kernel.
@@ -107,24 +107,6 @@ Ma := HorizontalJoin(MI, (1 / epsLLL) * M);
 L, K := LLL(Ma);
 
 return K;
-
-end function;
-
-
-// TODO: The following function has not been useful so far. To be rewritten.
-function OptimizedPeriodMatrix(P);
-// Input:   A period matrix.
-// Output:  A GL-equivalent matrix such that the split period matrix is
-//          LLL-reduced, along with a matrix effecting the transformation.
-//          Optional PEL-arguments are also transformed.
-
-// Splitting the matrix and applying LLL.
-PSplit := SplitPeriodMatrix(P);
-QSplit, T := LLL(PSplit);
-
-// Determining new period matrix and transformed PEL structure.
-Q := CombinePeriodMatrix(QSplit);
-return Q, T;
 
 end function;
 

@@ -6,19 +6,18 @@
  *  See LICENSE.txt for license details.
  */
 
-// Global constants; should perhaps just copy these
-prec0 := 200;
+// NOTE: The end user should only overwrite these options in Wrapper.sage
+prec0 := 300;
 epscomp0 := 10^(-prec0 + 30);
 epsLLL0 := 5^(-prec0 + 7);
-epsinv0 := 2^(-4);
+epsinv0 := 2^(-prec0 + 30);
 
 // Linear algebra routines
-forward NumericalSolve;
+forward NumericalLeftSolve;
 forward InvertibleSubmatrix;
 forward SplitPeriodMatrix;
 forward CombinePeriodMatrix;
 forward IntegralKernel;
-//forward OptimizedPeriodMatrix;
 forward ConjugateMatrix;
 forward MatrixInBasis;
 forward MatrixRatInBasisOverNF;
@@ -34,7 +33,6 @@ forward AlgebraizeElementInField;
 forward NearbyRoot;
 forward AlgebraizeMatricesInField;
 forward IntegralRepresentationNF;
-//forward PartialLMFDBLabel;
 
 // Finding an approximate basis for the geometric endomorphism ring through LLL
 forward ComplexStructure;
@@ -77,16 +75,15 @@ forward RosatiInvolution;
 // Explicit projection morphisms
 forward ProjectionToEllipticFactorG2;
 
-// The actual loading
+// Heuristic part
 AttachSpec("spec");
 load "heuristic/Linear.m";
-load "heuristic/Recognition.m";
 load "heuristic/Analytic.m";
+load "heuristic/Recognition.m";
 load "heuristic/Algebraic.m";
 load "heuristic/SatoTate.m";
 load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
+
+// Verification part
 load "polarization/Rosati.m";
-
-load "heuristic/AlgebraicOneOff.m";
-

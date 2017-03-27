@@ -14,11 +14,11 @@ if not '__endodir__' in globals():
 magma.chdir(__endodir__)
 magma.load('Initialize.m')
 
-# This has to be hidden better to prevent accidental overwriting:
+# NOTE: The end user should only overwrite these options in Wrapper.sage
 prec = 300
 epscomp = 10^(-prec + 30)
 epsLLL = 5^(-prec + 7)
-epsinv = 2^(-4)
+epsinv = 2^(-prec + 30)
 Bound = 48
 
 load(__endodir__ + 'heuristic/Recognition.sage')
