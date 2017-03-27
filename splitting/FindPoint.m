@@ -1,3 +1,11 @@
+/***
+ *  Finding a suitable point on a curve
+ *
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
+ */
+
 intrinsic ProjectFromColumnNumbers(As::SeqEnum, col_numbers::SeqEnum) -> SeqEnum
 {bla}
 

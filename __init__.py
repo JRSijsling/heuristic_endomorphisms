@@ -1,5 +1,14 @@
-# Copyright (C) 2017 Edgar Costa, Jeroen Sijsling
-# See LICENSE file for license details.
+"""
+ *  Main initialization file
+ *
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
+"""
+
+# Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+#                                      (jeroen.sijsling@uni-ulm.de)
+# See LICENSE.txt for license details.
 
 from sage.all import load
 
@@ -12,3 +21,4 @@ if not '__endodir__' in globals():
 
 from sage.all import *
 load(__endodir__ + "Initialize.sage");
+
