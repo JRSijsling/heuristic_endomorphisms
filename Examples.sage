@@ -57,14 +57,17 @@ h = x^3 + 1
 # Debug (TODO: Point returned is wrong):
 #f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 #h = 0
+# Case where [RR, CC] occurs:
+f = x^5 + x^4 + 2*x^3 + x^2 + x
+h = x^2 + x
 
 # The main functionality:
 End = EndomorphismData(f, h, prec = 200)
 AsAlg, As, Rs = End.geometric_representations()
-M = AsAlg[len(AsAlg)]
 print End.field_of_definition()
-print End.geometric().description()
 print End.lattice()
+print End.geometric().description()
+print End.over_base().description()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

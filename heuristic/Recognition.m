@@ -17,10 +17,11 @@ else
 end if;
 end function;
 
+
 function MySplittingField(fs);
 // Input:   A list of polynomials.
 // Output:  A corresponding splitting field.
-//          Default functionality was slow so this one tries a compositum
+//          NOTE: Default functionality was slow so this one tries a compositum
 //          first.
 Ks := [ NumberField(f) : f in fs ];
 Ls := [ IntegralRepresentationNF(L : iso := false) : L in CompositeReduce(Ks) ];
@@ -32,6 +33,7 @@ end for;
 return SplittingField(fs);
 end function;
 
+
 function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epsLLL0);
 // Input:    An element of a complex field.
 // Output:   A minimal polynomial one of whose roots approximates a well.
@@ -41,6 +43,7 @@ Ra := RealField(Precision(Ca));
 // d is redundant but useful for clarity
 d := 0;
 h := 1;
+// NOTE: Play with the next parameter if (when) the algorithm fails
 h0 := 10;
 powers := [ Ca ! 1 ];
 while true do
@@ -79,8 +82,8 @@ function PolynomializeMatrix(A : epscomp := epscomp0, epsLLL := epsLLL0);
 // Input:    A matrix over a complex field.
 // Output:   The same matrix with its entries replaced by the polynomials
 //           obtained by running the previous algorithm.
-    return Matrix([[ PolynomializeElement(a : epscomp := epscomp, epsLLL :=
-        epsLLL) : a in Eltseq(r) ] : r in Rows(A) ]);
+return Matrix([[ PolynomializeElement(a : epscomp := epscomp, epsLLL :=
+    epsLLL) : a in Eltseq(r) ] : r in Rows(A) ]);
 end function;
 
 
@@ -90,7 +93,7 @@ function FractionalApproximation(a : epscomp := epscomp0, epsLLL := epsLLL0);
     // Output:   A fraction that approximates to the given precision
     //           (using continued fractions is likely much better).
     M := Matrix([[1], [-Real(a)]]);
-    // A loop should follow, but not for now:
+    // FIXME: A loop should follow if this algorithm ever fails
     K := IntegralLeftKernel(M : epsLLL := epsLLL);
     q := K[1,1] / K[1,2];
     if Abs(q - a) lt epscomp then
@@ -178,9 +181,10 @@ function AlgebraizeMatricesInField(As, AsPol, frep : epscomp := epscomp0);
 f := Polynomial(frep);
 prec := Precision(BaseRing(As[1]));
 if Degree(f) eq 1 then
-    // FIXME: Get rid of RationalsAsNumberField():
     K<r> := RationalsAsNumberField();
     h := hom<K -> ComplexField(prec) | 1>;
+    //K := Rationals();
+    //h := hom<K -> ComplexField(prec) | >;
     fhom := h(0);
 else
     K<r> := NumberField(f);
@@ -194,7 +198,7 @@ end if;
 L := #As;
 M := #Rows(As[1]);
 N := #Rows(Transpose(As[1]));
-// TODO: This step may be too expensive, and we should use
+// FIXME: This step may be too expensive, and we should use
 // AlgebraizeElementInField
 AsAlg := [Matrix(K, [[ NearbyRoot(As[l][m][n], AsPol[l][m][n], h : epscomp :=
     epscomp) : n in [1..N]] : m in [1..M] ]) : l in [1..L]];
@@ -215,8 +219,7 @@ if d eq 1 then
     // In the case of degree 1 we use the rationals as a number field for
     // reasons of uniformity:
     L := RationalsAsNumberField();
-    // FIXME: We skip the above:
-    L := Rationals();
+    //L := Rationals();
     if K eq Rationals() then
         return L, hom<K -> L | >;
     else
@@ -237,11 +240,10 @@ else
         common_den := &*[ p^Maximum([ Ceiling(Valuation(dens[k], p)/k) : k in [1..#dens] | dens[k] ne 0 ]) : p in primes ];
     end if;
     g := MinimalPolynomial(common_den*r);
-    L := NumberField(g);
+    L := OptimizedRepresentation(NumberField(g));
     if not iso then
         return L;
     end if;
-    L := OptimizedRepresentation(NumberField(g));
     test, h := IsIsomorphic(K, L);
     return L, h;
 end if;

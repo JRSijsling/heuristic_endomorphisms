@@ -80,13 +80,12 @@ return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
 end function;
 
 
-function PeriodMatrix(h, g : prec := prec0)
-// Input:   Two polynomials h and g over the rationals, reals or CC.
+function PeriodMatrix(f, h)
+// Input:   Two polynomials f and h over the rationals, reals or CC.
 // Output:  The corresponding period matrix.
 
-R := PolynomialRing(ComplexField(prec));
-f := 4*(R!g) + (R!h)^2;
-J := AnalyticJacobian(f);
+g := 4*f + h^2;
+J := AnalyticJacobian(g);
 return Transpose(BigPeriodMatrix(J));
 
 end function;

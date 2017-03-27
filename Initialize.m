@@ -77,6 +77,7 @@ forward ProjectionToEllipticFactorG2;
 
 // Heuristic part
 AttachSpec("spec");
+load "heuristic/Relative.m";
 load "heuristic/Linear.m";
 load "heuristic/Analytic.m";
 load "heuristic/Recognition.m";
