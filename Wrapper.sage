@@ -8,36 +8,50 @@
 
 def TypeTest(X):
     str0 = str(X.__class__)
-    if str0 eq "<class 'sage.schemes.curves.projective_curve.ProjectivePlaneCurve_with_category'>":
+    if str0 == "<class 'sage.schemes.curves.projective_curve.ProjectivePlaneCurve_with_category'>":
         return "plane"
-    elif str0 eq "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_rational_field.HyperellipticCurve_g2_rational_field_with_category'>":
+    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_rational_field.HyperellipticCurve_g2_rational_field_with_category'>":
         return "hyperelliptic"
-    elif str0 eq "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_generic.HyperellipticCurve_g2_generic_with_category'>":
+    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_generic.HyperellipticCurve_g2_generic_with_category'>":
         return "hyperelliptic"
     else:
         return "generic"
 
 class EndomorphismData:
-    def __init__(self, f, h = 0, prec = prec, Bound = Bound):
+    def __init__(self, X, prec = prec, Bound = Bound):
         self.prec = prec
         self._epscomp_ = 10^(-self.prec + 30)
         self._epsLLL_ = 5^(-self.prec + 7)
         self._epsinv_ = 2^(-self.prec + 30)
         self.Bound = Bound
-        self.f = magma(f)
-        self.h = magma(h)
-        self.fCC, self.hCC, self.iota = magma.EmbedAsComplexPolynomials(self.f, self.h, prec = prec, nvals = 3)
+        self.type = TypeTest(X)
+        if self.type == "hyperelliptic":
+            f, h = X.hyperelliptic_polynomials()
+            self.f = magma(f)
+            self.h = magma(h)
+            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.f, self.h], prec = prec, nvals = 2)
+            self.fCC, self.hCC = embedded_list
+        elif self.type == "plane":
+            self.F = magma(X.defining_polynomial())
+            embedded_list, self.iota = magma.EmbedAsComplexPolynomials(self.F, prec = prec, nvals = 2)
+            self.FCC = embedded_list[0]
         self._lat_ = None
 
     def __repr__(self):
-        if self.h == 0:
-            return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
-        else:
-            return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
+        if self.type == "hyperelliptic":
+            if self.h == 0:
+                return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
+            else:
+                return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
+        elif self.type == "plane":
+            return "The endomorphism data of the plane curve over QQ defined by {}".format(str(self.F))
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            self._P_ = magma.PeriodMatrix(self.fCC, self.hCC)
+            if self.type == "hyperelliptic":
+                self._P_ = magma.PeriodMatrixHyperelliptic(self.fCC, self.hCC)
+            elif self.type == "plane":
+                self._P_ = magma.PeriodMatrixPlane(self.FCC)
         return self._P_
 
     def geometric_representations(self):

@@ -6,22 +6,34 @@
  *  See LICENSE.txt for license details.
  */
 
-function EmbedAsComplexPolynomials(f, h : prec := prec0);
+function EmbedAsComplexPolynomials(fs : prec := prec0);
 
+R := Parent(fs[1]); F := BaseRing(R); infs := InfinitePlaces(F);
 CC<I> := ComplexField(prec);
-RCC<xCC> := PolynomialRing(CC);
-R<x> := Parent(f);
-F := BaseRing(R);
-infs := InfinitePlaces(F);
-fCC := &+[ Evaluate(Coefficient(f, i), infs[1] : Precision := prec) * xCC^i : i in [0..Degree(f)] ];
-if IsZero(h) then
-    hCC := RCC ! 0;
-else
-    hCC := &+[ Evaluate(Coefficient(h, i), infs[1] : Precision := prec) * xCC^i : i in [0..Degree(h)] ];
-end if;
 iota := Evaluate(F.1, infs[1] : Precision := prec);
 
-return fCC, hCC, iota;
+gens := GeneratorsSequence(R); d := #gens;
+RCC := PolynomialRing(CC, d); gensCC := GeneratorsSequence(RCC);
+fsCC := [ EmbedAsComplexPolynomial(f, infs[1], R, RCC) : f in fs ];
+// FIXME: Coerce to univariate because Magma is idiotic
+if d eq 1 then
+    RCC := PolynomialRing(CC);
+end if;
+
+return [ RCC ! f : f in fs ], iota;
+
+end function;
+
+
+function EmbedAsComplexPolynomial(f, inf, R, RCC);
+
+if IsZero(f) then
+    return RCC ! 0;
+else
+    prec := Precision(BaseRing(RCC));
+    mons := Monomials(f);
+    return &+[ Evaluate(MonomialCoefficient(f, mon), inf : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];
+end if;
 
 end function;
 

@@ -12,6 +12,10 @@ epscomp0 := 10^(-prec0 + 30);
 epsLLL0 := 5^(-prec0 + 7);
 epsinv0 := 2^(-prec0 + 30);
 
+// Relative number fields
+forward EmbedAsComplexPolynomials;
+forward EmbedAsComplexPolynomial;
+
 // Linear algebra routines
 forward NumericalLeftSolve;
 forward InvertibleSubmatrix;
@@ -38,7 +42,8 @@ forward IntegralRepresentationNF;
 forward ComplexStructure;
 forward RationalEndomorphismEquations;
 forward AnalyticRepresentation;
-forward PeriodMatrix;
+forward PeriodMatrixHyperelliptic;
+forward PeriodMatrixPlane;
 forward GeometricEndomorphismBasisFromPeriodMatrix;
 
 // Algebraizing the basis

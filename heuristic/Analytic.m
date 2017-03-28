@@ -80,7 +80,7 @@ return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
 end function;
 
 
-function PeriodMatrix(f, h)
+function PeriodMatrixHyperelliptic(f, h)
 // Input:   Two polynomials f and h over the rationals, reals or CC.
 // Output:  The corresponding period matrix.
 
