@@ -80,17 +80,6 @@ return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
 end function;
 
 
-function PeriodMatrixHyperelliptic(f, h)
-// Input:   Two polynomials f and h over the rationals, reals or CC.
-// Output:  The corresponding period matrix.
-
-g := 4*f + h^2;
-J := AnalyticJacobian(g);
-return Transpose(BigPeriodMatrix(J));
-
-end function;
-
-
 function GeometricEndomorphismBasisFromPeriodMatrix(P : epscomp := epscomp0,
     epsLLL := epsLLL0, epsinv := epsinv0)
 // Input:   A period matrix of dimension 2g x g.

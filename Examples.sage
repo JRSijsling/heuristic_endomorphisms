@@ -63,11 +63,11 @@ h = x^3 + 1
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 
-X = HyperellipticCurve(f, h)
 # The main functionality:
+X = HyperellipticCurve(f, h)
 End = EndomorphismData(X, prec = 200)
 print End.fCC
-AsAlg, As, Rs = End.geometric_representations()
+print End.period_matrix()
 print End.field_of_definition()
 print End.lattice()
 print End.geometric().description()

@@ -16,6 +16,10 @@ epsinv0 := 2^(-prec0 + 30);
 forward EmbedAsComplexPolynomials;
 forward EmbedAsComplexPolynomial;
 
+// Periods
+forward PeriodMatrixHyperelliptic;
+forward PeriodMatrixPlane;
+
 // Linear algebra routines
 forward NumericalLeftSolve;
 forward InvertibleSubmatrix;
@@ -42,8 +46,6 @@ forward IntegralRepresentationNF;
 forward ComplexStructure;
 forward RationalEndomorphismEquations;
 forward AnalyticRepresentation;
-forward PeriodMatrixHyperelliptic;
-forward PeriodMatrixPlane;
 forward GeometricEndomorphismBasisFromPeriodMatrix;
 
 // Algebraizing the basis
@@ -83,6 +85,7 @@ forward ProjectionToEllipticFactorG2;
 // Heuristic part
 AttachSpec("spec");
 load "heuristic/Relative.m";
+load "heuristic/Periods.m";
 load "heuristic/Linear.m";
 load "heuristic/Analytic.m";
 load "heuristic/Recognition.m";

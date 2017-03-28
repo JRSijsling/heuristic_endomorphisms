@@ -15,4 +15,42 @@
     Cantor.m
     FindPoint.m
   }
+  RieSrf
+  {
+    abeljacobi.m
+    analyticcontinuation.m
+    comparefunctions.m
+    complexgeo.m
+    cvector.m
+    fundamentalgroup.m
+    globalsettings.m
+    homology.m
+    integration.m
+    k2regulator.m
+    monodromy.m
+    pathmethods.m
+    periodmatrix.m
+    planequartics.m
+    polynomialtools.m
+    printpath.m
+    puiseuxseries.m
+    riesrfclass.m
+    rootapproximation.m
+    rserror.m
+    rspath.m
+    rspathed/rspathed.m
+    superelliptic/intersection.m
+    superelliptic/securveclass.m
+    superelliptic/spanning_tree.m
+    superelliptic/superelliptic.m
+    superelliptic/superelliptictests.m
+    superelliptic/se_gc_int.m
+    thetafunctions.m
+    tretkoff.m
+  }
+  extra
+  {
+    Ring/FldNum/Splitting.m
+    Ring/Subfields/Subfields.m
+  }
 }
