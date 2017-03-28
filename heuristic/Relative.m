@@ -13,14 +13,15 @@ RCC<xCC> := PolynomialRing(CC);
 R<x> := Parent(f);
 F := BaseRing(R);
 infs := InfinitePlaces(F);
-fCC := &+[ Evaluate(Coefficient(f, i), infs[1] : Precision := prec0) * xCC^i : i in [0..Degree(f)] ];
+fCC := &+[ Evaluate(Coefficient(f, i), infs[1] : Precision := prec) * xCC^i : i in [0..Degree(f)] ];
 if IsZero(h) then
     hCC := RCC ! 0;
 else
-    hCC := &+[ Evaluate(Coefficient(h, i), infs[1] : Precision := prec0) * xCC^i : i in [0..Degree(h)] ];
+    hCC := &+[ Evaluate(Coefficient(h, i), infs[1] : Precision := prec) * xCC^i : i in [0..Degree(h)] ];
 end if;
+iota := Evaluate(F.1, infs[1] : Precision := prec);
 
-return fCC, hCC;
+return fCC, hCC, iota;
 
 end function;
 

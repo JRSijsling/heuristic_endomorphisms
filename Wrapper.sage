@@ -6,6 +6,17 @@
  *  See LICENSE.txt for license details.
 """
 
+def TypeTest(X):
+    str0 = str(X.__class__)
+    if str0 eq "<class 'sage.schemes.curves.projective_curve.ProjectivePlaneCurve_with_category'>":
+        return "plane"
+    elif str0 eq "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_rational_field.HyperellipticCurve_g2_rational_field_with_category'>":
+        return "hyperelliptic"
+    elif str0 eq "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_generic.HyperellipticCurve_g2_generic_with_category'>":
+        return "hyperelliptic"
+    else:
+        return "generic"
+
 class EndomorphismData:
     def __init__(self, f, h = 0, prec = prec, Bound = Bound):
         self.prec = prec
@@ -15,7 +26,7 @@ class EndomorphismData:
         self.Bound = Bound
         self.f = magma(f)
         self.h = magma(h)
-        self.fCC, self.hCC = magma.EmbedAsComplexPolynomials(self.f, self.h, prec = prec, nvals = 2)
+        self.fCC, self.hCC, self.iota = magma.EmbedAsComplexPolynomials(self.f, self.h, prec = prec, nvals = 3)
         self._lat_ = None
 
     def __repr__(self):
@@ -27,7 +38,7 @@ class EndomorphismData:
     def period_matrix(self):
         if not hasattr(self, "_P_"):
             self._P_ = magma.PeriodMatrix(self.fCC, self.hCC)
-        return self._P_.sage()
+        return self._P_
 
     def geometric_representations(self):
         if not hasattr(self, "_geo_reps_"):
@@ -44,9 +55,7 @@ class EndomorphismData:
     def field_of_definition(self):
         if not hasattr(self, "_frep_"):
             geo_reps = self.geometric_representations()
-        RQQ.<x> = PolynomialRing(QQ)
-        K.<r> = NumberField(RQQ(self._frep_))
-        return K
+        return magma.BaseRing(magma.Parent(self._geo_reps_alg_[1][1]))
 
     def geometric_representations_check(self, bound = 2^10):
         # TODO: Split case

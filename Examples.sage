@@ -11,6 +11,8 @@ load('Initialize.sage')
 
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
+#F.<r> = NumberField(x^2 - 2)
+#R.<x> = PolynomialRing(F)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 
@@ -62,12 +64,15 @@ f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 
 # The main functionality:
-End = EndomorphismData(f, h, prec = 200)
+End = EndomorphismData(f, h, prec = 300)
+print End.fCC
 AsAlg, As, Rs = End.geometric_representations()
 print End.field_of_definition()
 print End.lattice()
 print End.geometric().description()
 print End.over_base().description()
+print End.field_of_definition()
+print magma.BaseRing(magma.Parent(End.over_field(QQ).representations()[1][1]))
 
 # Verification of decomposition data:
 #Dec = End.decomposition()
