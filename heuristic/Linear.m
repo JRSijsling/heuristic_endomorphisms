@@ -17,7 +17,7 @@ function NumericalLeftSolve(A, B);
 // matrices on top of the stack above and using the echelonized return form of
 // the kernel. This does not work well with NumericalKernel though.
 
-// TODO: It seems that this causes instabilities sometimes; I therefore revert
+// FIXME: It seems that this causes instabilities sometimes; I therefore revert
 // to naive inversion.
 
 return B * A^(-1);

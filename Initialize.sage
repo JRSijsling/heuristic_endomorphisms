@@ -19,7 +19,7 @@ prec = 300
 epscomp = 10^(-prec + 30)
 epsLLL = 5^(-prec + 7)
 epsinv = 2^(-prec + 30)
-Bound = 48
+Bound = 336
 
 load(__endodir__ + 'heuristic/Recognition.sage')
 load(__endodir__ + 'heuristic/Canonize.sage')

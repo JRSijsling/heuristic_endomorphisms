@@ -62,17 +62,20 @@ h = x^3 + 1
 # Case where [RR, CC] occurs:
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
+# Genus 3:
+f = x^7 + x^6 + x^5 + x^3 + x^2 + x
+h = x^4 + x^2 + 1
 
 # The main functionality:
 X = HyperellipticCurve(f, h)
-End = EndomorphismData(X, prec = 200)
-print End.fCC
+End = EndomorphismData(X, prec = 300)
 print End.period_matrix()
+print End.geometric_representations()
 print End.field_of_definition()
 print End.lattice()
-print End.geometric().description()
-print End.over_base().description()
-print End.field_of_definition()
+#print End.geometric().description()
+#print End.over_base().description()
+#print End.field_of_definition()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

@@ -12,6 +12,8 @@ def TypeTest(X):
         return "plane"
     elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_rational_field.HyperellipticCurve_g2_rational_field_with_category'>":
         return "hyperelliptic"
+    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_rational_field.HyperellipticCurve_rational_field_with_category'>":
+        return "hyperelliptic"
     elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_generic.HyperellipticCurve_g2_generic_with_category'>":
         return "hyperelliptic"
     else:
@@ -24,33 +26,33 @@ class EndomorphismData:
         self._epsLLL_ = 5^(-self.prec + 7)
         self._epsinv_ = 2^(-self.prec + 30)
         self.Bound = Bound
-        self.type = TypeTest(X)
-        if self.type == "hyperelliptic":
+        self.curve_type = TypeTest(X)
+        if self.curve_type == "hyperelliptic":
             f, h = X.hyperelliptic_polynomials()
             self.f = magma(f)
             self.h = magma(h)
             embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.f, self.h], prec = prec, nvals = 2)
             self.fCC, self.hCC = embedded_list
-        elif self.type == "plane":
+        elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
-            embedded_list, self.iota = magma.EmbedAsComplexPolynomials(self.F, prec = prec, nvals = 2)
-            self.FCC = embedded_list[0]
+            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.F], prec = prec, nvals = 2)
+            self.FCC = embedded_list[1]
         self._lat_ = None
 
     def __repr__(self):
-        if self.type == "hyperelliptic":
+        if self.curve_type == "hyperelliptic":
             if self.h == 0:
                 return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
             else:
                 return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
-        elif self.type == "plane":
+        elif self.curve_type == "plane":
             return "The endomorphism data of the plane curve over QQ defined by {}".format(str(self.F))
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            if self.type == "hyperelliptic":
+            if self.curve_type == "hyperelliptic":
                 self._P_ = magma.PeriodMatrixHyperelliptic(self.fCC, self.hCC)
-            elif self.type == "plane":
+            elif self.curve_type == "plane":
                 self._P_ = magma.PeriodMatrixPlane(self.FCC)
         return self._P_
 
@@ -70,6 +72,16 @@ class EndomorphismData:
         if not hasattr(self, "_frep_"):
             geo_reps = self.geometric_representations()
         return magma.BaseRing(magma.Parent(self._geo_reps_alg_[1][1]))
+
+    def lattice(self):
+        if not self._lat_:
+            AsAlg, As, Rs = self.geometric_representations()
+            L = magma.EndomorphismLatticeG3(AsAlg, As, Rs)
+            self._lat_ = L
+            #self._lat_ = EDs_sagified(L, self._frep_)
+            #self._fsubgen_ = L[1]
+            #self._idems_ = L[2]
+        return Lattice(self)
 
     def geometric_representations_check(self, bound = 2^10):
         # TODO: Split case
@@ -110,19 +122,27 @@ class EndomorphismData:
         geo_reps = self.geometric_representations()
         return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
 
-    def lattice(self):
-        if not self._lat_:
-            AsAlg, As, Rs = self.geometric_representations()
-            L = magma.EndomorphismLatticeG2(AsAlg, As, Rs, Geometric = false, AddTensor = true, AddRing = true, AddSatoTate = true, AddDecomposition = true, nvals = 3)
-            self._lat_ = EDs_sagified(L[0], self._frep_)
-            self._fsubgen_ = L[1]
-            self._idems_ = L[2]
-        return Lattice(self)
-
     def decomposition(self):
         P = self.period_matrix()
         lat = self.lattice()
         return Decomposition(self)
+
+class Lattice:
+    def __init__(self, EndJac):
+        self._frep_ = EndJac._frep_
+        self._lat_ = EndJac._lat_
+
+    def __repr__(self):
+        # TODO: Better represetation postponed
+        return str(self._lat_[1])
+        statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
+        for ED in self._lat_:
+            statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))
+            statement += endo_statement(ED[1], ED[2], ED[3], r'F')
+            #statement += st_group_statement(ED[4])
+            #statement += gl2_simple_statement(ED[1], ED[2])
+            statement += '\n'
+        return statement
 
 class OverField:
     def __init__(self, EndJac, K = "geometric"):
@@ -182,28 +202,6 @@ class OverField:
                 ED = ED_sagified(ED)
                 self._desc_ = endo_statement(ED[0], ED[1], ED[2], r'F') + st_group_statement(ED[3]) + gl2_simple_statement(ED[0], ED[1])
         return self._desc_
-
-class Lattice:
-    def __init__(self, EndJac):
-        self.f = EndJac.f
-        self.h = EndJac.h
-        self._frep_ = EndJac._frep_
-        self._lat_ = EndJac._lat_
-
-    def __repr__(self):
-        statement = ''
-        #if self.h == 0:
-        #    statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 = {}\n\n".format(str(self.f))
-        #else:
-        #    statement += "The endomorphism lattice of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}\n\n".format(str(self.h), str(self.f))
-        statement += """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
-        for ED in self._lat_:
-            statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))
-            statement += endo_statement(ED[1], ED[2], ED[3], r'F')
-            statement += st_group_statement(ED[4])
-            statement += gl2_simple_statement(ED[1], ED[2])
-            statement += '\n'
-        return statement
 
 class Decomposition:
     def __init__(self, EndJac):

@@ -83,7 +83,3 @@ end for;
 return Ls, col_numbers;
 
 end function;
-
-// TODO: Recover certain invariants like field of definition without having to
-// go through the whole EndomorphismLattice business, and make this a function
-// in its own right.

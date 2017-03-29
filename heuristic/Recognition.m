@@ -93,7 +93,7 @@ function FractionalApproximation(a : epscomp := epscomp0, epsLLL := epsLLL0);
     // Output:   A fraction that approximates to the given precision
     //           (using continued fractions is likely much better).
     M := Matrix([[1], [-Real(a)]]);
-    // FIXME: A loop should follow if this algorithm ever fails
+    // TODO: A loop should follow if this algorithm ever fails
     K := IntegralLeftKernel(M : epsLLL := epsLLL);
     q := K[1,1] / K[1,2];
     if Abs(q - a) lt epscomp then
@@ -124,7 +124,6 @@ else
     r := K ! 0;
 end if;
 // Creating algebraic and analytic powers:
-// FIXME: Relies on 0^0 = 1.
 powers := [ r^n : n in [0..d-1] ];
 powersan := [ ran^n : n in [0..d-1] ];
 // Column matrix of embedding of basis elements plus (minus) a:
@@ -198,7 +197,7 @@ end if;
 L := #As;
 M := #Rows(As[1]);
 N := #Rows(Transpose(As[1]));
-// FIXME: This step may be too expensive, and we should use
+// TODO: This step may be too expensive, and we should use
 // AlgebraizeElementInField
 AsAlg := [Matrix(K, [[ NearbyRoot(As[l][m][n], AsPol[l][m][n], h : epscomp :=
     epscomp) : n in [1..N]] : m in [1..M] ]) : l in [1..L]];

@@ -10,6 +10,7 @@ function SatoTateGroupG2(Shorthand, FactorsRR, L, K, Gp, GensHp, Gphi,
     GeoFactorsQQ, GeoEndList);
 // Returns the Sato-Tate group by an enormous case distinction. The amount of
 // variables that this needs is outrageous, but I cannot do better for now.
+
 // TODO: Make Gp, Hp, Gphi keyword arguments, calculate if not set.
 
 if Shorthand eq "A" then

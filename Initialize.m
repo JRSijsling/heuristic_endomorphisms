@@ -32,6 +32,7 @@ forward MatrixRatInBasisOverNF;
 
 // Functionality for recognizing complex numbers as algebraic numbers and
 // related optimizations
+// TODO: Quite ugly right now
 forward CompositeReduce;
 forward MySplittingField;
 forward PolynomializeElement;
@@ -48,24 +49,34 @@ forward RationalEndomorphismEquations;
 forward AnalyticRepresentation;
 forward GeometricEndomorphismBasisFromPeriodMatrix;
 
-// Algebraizing the basis
+// TODO: Generalize and modularize
 forward EndomorphismBasisOverSubfield;
 forward CompareSubfield;
 forward EndomorphismBasisOverField;
+
 forward EndomorphismLatticeG2SingleElement;
 forward EndomorphismLatticeG2;
+
 forward EndomorphismData;
 forward EndomorphismAlgebraFactorsGeneric;
 forward EndomorphismRingGeneric;
 forward EndomorphismAlgebraFactorsQQG2;
 forward EndomorphismAlgebraFactorsRRG2;
 forward EndomorphismRingG2;
-forward SatoTateGroupG2;
 forward DecompositionIdempotentsG2;
 forward GeoEndRRShorthand;
 
-// Determining the Sato-Tate group
+// Determining the Sato-Tate group in genus 2
 forward SatoTateGroupG2;
+
+// To genus 3
+forward EndomorphismLatticeG3SingleElement;
+forward EndomorphismLatticeG3;
+
+forward EndomorphismDataG3;
+forward EndomorphismAlgebraFactorsQQG3;
+forward EndomorphismAlgebraFactorsRRG3;
+forward EndomorphismRingG3;
 
 // Subfield canonization
 forward CanonizeMatrices;
@@ -89,8 +100,12 @@ load "heuristic/Periods.m";
 load "heuristic/Linear.m";
 load "heuristic/Analytic.m";
 load "heuristic/Recognition.m";
-load "heuristic/Algebraic.m";
+load "heuristic/OverField.m";
+load "heuristic/Lattice.m";
+load "heuristic/Data.m";
 load "heuristic/SatoTate.m";
+load "heuristic/LatticeG3.m";
+load "heuristic/DataG3.m";
 load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
 

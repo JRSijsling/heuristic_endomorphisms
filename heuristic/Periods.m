@@ -15,7 +15,11 @@ function PeriodMatrixPlane(F)
 // Input:   A polynomials over the rationals, reals or CC.
 // Output:  The corresponding period matrix.
 
-CC := BaseRing(Parent(F));
-return Transpose(PeriodMatrix(F));
+SCC<x0,x1,x2> := Parent(F);
+CC := BaseRing(SCC);
+RCC<x,y> := PolynomialRing(CC, 2);
+h := hom<SCC -> RCC | [x,y,1]>;
+f := h(F);
+return Transpose(PeriodMatrix(f));
 
 end function;

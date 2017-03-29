@@ -10,7 +10,7 @@ function CanonizeMatrices(grep, frep, idems);
 
 R<x> := PolynomialRing(Rationals());
 f := R ! frep;
-// TODO: Magma greatly loses here since the rationals do not admit a subfield constructor
+// FIXME: Magma greatly loses here since the rationals do not admit a subfield constructor
 if frep eq [0, 1] then
     L := Rationals();
     K := Rationals();

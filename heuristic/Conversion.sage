@@ -23,8 +23,8 @@ def EDs_sagified(EDs, frep):
                 factorsQQ in ED[2] ]
         ED3 = [ repr(factorRR) for factorRR in ED[3] ]
         ED4 = ED[4].sage()
-        ED5 = repr(ED[5])
-        EDs_sage.append([ED1, ED2, ED3, ED4, ED5])
+        #ED5 = repr(ED[5])
+        EDs_sage.append([ED1, ED2, ED3, ED4])
     EDs_sage = sorted(EDs_sage, key = lambda t : len(t[0][0]))
     EDs_sage.reverse()
     return EDs_sage
