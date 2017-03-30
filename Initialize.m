@@ -1,39 +1,27 @@
 /***
  *  Initialization of the Magma part of the package
  *
- *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
- *
- *  Distributed under the terms of the GNU General License (GPL)
- *                  http://www.gnu.org/licenses/
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc., 51
- *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
  */
 
-// Global constants; should perhaps just copy these
-prec0 := 200;
+// NOTE: The end user should only overwrite these options in Wrapper.sage
+prec0 := 300;
 epscomp0 := 10^(-prec0 + 30);
 epsLLL0 := 5^(-prec0 + 7);
-epsinv0 := 2^(-4);
+epsinv0 := 2^(-prec0 + 30);
+
+// Relative number fields
+forward EmbedAsComplexPolynomials;
+forward EmbedAsComplexPolynomial;
 
 // Linear algebra routines
-forward NumericalSolve;
+forward NumericalLeftSolve;
 forward InvertibleSubmatrix;
 forward SplitPeriodMatrix;
 forward CombinePeriodMatrix;
 forward IntegralKernel;
-//forward OptimizedPeriodMatrix;
 forward ConjugateMatrix;
 forward MatrixInBasis;
 forward MatrixRatInBasisOverNF;
@@ -49,13 +37,13 @@ forward AlgebraizeElementInField;
 forward NearbyRoot;
 forward AlgebraizeMatricesInField;
 forward IntegralRepresentationNF;
-//forward PartialLMFDBLabel;
 
 // Finding an approximate basis for the geometric endomorphism ring through LLL
 forward ComplexStructure;
 forward RationalEndomorphismEquations;
 forward AnalyticRepresentation;
-forward PeriodMatrix;
+forward PeriodMatrixHyperelliptic;
+forward PeriodMatrixPlane;
 forward GeometricEndomorphismBasisFromPeriodMatrix;
 
 // Algebraizing the basis
@@ -92,16 +80,16 @@ forward RosatiInvolution;
 // Explicit projection morphisms
 forward ProjectionToEllipticFactorG2;
 
-// The actual loading
+// Heuristic part
 AttachSpec("spec");
+load "heuristic/Relative.m";
 load "heuristic/Linear.m";
-load "heuristic/Recognition.m";
 load "heuristic/Analytic.m";
+load "heuristic/Recognition.m";
 load "heuristic/Algebraic.m";
 load "heuristic/SatoTate.m";
 load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
+
+// Verification part
 load "polarization/Rosati.m";
-
-load "heuristic/AlgebraicOneOff.m";
-

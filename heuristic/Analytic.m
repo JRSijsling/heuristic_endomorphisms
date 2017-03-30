@@ -1,24 +1,9 @@
 /***
  *  Finding an approximate basis for the geometric endomorphism ring through LLL
  *
- *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
- *
- *  Distributed under the terms of the GNU General License (GPL)
- *                  http://www.gnu.org/licenses/
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc., 51
- *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
  */
 
 function ComplexStructure(P);
@@ -33,7 +18,7 @@ i := k.1;
 // Splitting both P and i*P
 PSplit := SplitPeriodMatrix(P);
 iPSplit := SplitPeriodMatrix(i * Matrix(k, P));
-J := NumericalSolve(PSplit, iPSplit);
+J := NumericalLeftSolve(PSplit, iPSplit);
 
 return J;
 
@@ -62,17 +47,8 @@ Ma := Matrix(R, 2 * g, 2 * g, vars);
 // Condition that integral transformation preserve the complex structure
 Comm := Eltseq(J * Ma - Ma * J);
 
-// Integration of PEL algorithms; forget about this for now
-//if not IsZero(E) then
-//    Comm := Comm cat Eltseq(Transpose(Ma) * E - E * Ma);
-//end if;
-
 // Splitting previous linear equations by formal variable
 M := Matrix([[MonomialCoefficient(c, var) : c in Comm] : var in vars]);
-
-// Order: in the end, we want solutions (a, b, c, d) (or larger) in a left
-// kernel. For this to make sense the first rows has to correspond with a, et
-// cetera.
 
 return M;
 
@@ -99,18 +75,17 @@ RowsRP := Rows(R * P);
 RP0 := Matrix([RowsRP[i] : i in s0]);
 
 // Invert and return; transposes intervene because of right action
-return Transpose(NumericalSolve(Transpose(P0), Transpose(RP0)));
+return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
 
 end function;
 
 
-function PeriodMatrix(h, g : prec := prec0)
-// Input:   Two polynomials h and g over the rationals, reals or CC.
+function PeriodMatrixHyperelliptic(f, h)
+// Input:   Two polynomials f and h over the rationals, reals or CC.
 // Output:  The corresponding period matrix.
 
-R := PolynomialRing(ComplexField(prec));
-f := 4*(R!g) + (R!h)^2;
-J := AnalyticJacobian(f);
+g := 4*f + h^2;
+J := AnalyticJacobian(g);
 return Transpose(BigPeriodMatrix(J));
 
 end function;
@@ -133,19 +108,12 @@ P0, s0 := InvertibleSubmatrix(P : epsinv := epsinv);
 M := RationalEndomorphismEquations(J);
 
 // Determination of approximate endomorphisms by LLL
-K := IntegralKernel(M : epsLLL := epsLLL);
+K := IntegralLeftKernel(M : epsLLL := epsLLL);
 
 // Deciding which rows to keep
 Rs := [];
 for r in Rows(K) do
-    //alpha := Matrix(Integers(), 2*g, 2*g, Eltseq(r));
     alpha := Matrix(Rationals(), 2*g, 2*g, Eltseq(r));
-
-    // Another PEL point
-    //if not IsZero(E) then
-    //    D2 := Transpose(alpha)*E - E*alpha;
-    //    C := C cat Eltseq(D2);
-    //end if;
 
     // Culling the correct transformations from holomorphy condition
     Comm := alpha * J - J * alpha;
@@ -154,15 +122,15 @@ for r in Rows(K) do
     end if;
 end for;
 
-// PEL: Transform back from optimization
-//Rs := [T^(-1)*R*T : R in Rs];
-// The following line is a sanity check and should cause an incorrect response
-// for the first entry in the LMFDB, causing the algebraization of the matrices
-// to take too long.
-//Rs := [Transpose(R) : R in Rs];
 As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
     epsinv := epsinv) : R in Rs];
 
+// The end result is the actions As on the tangent space,
+// which are the duals of the actions on the differentials.
+// These are represented as a right multiplication because I see vectors as
+// rows, just like Magma and Sage.
+// The action the Rs is on the right, and in the end we always have
+// R * P = P * A .
 return As, Rs;
 
 end function;

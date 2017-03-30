@@ -1,24 +1,9 @@
 """
  *  Initialization of the Sage part of the package
  *
- *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
- *
- *  Distributed under the terms of the GNU General License (GPL)
- *                  http://www.gnu.org/licenses/
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc., 51
- *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
 """
 
 import os
@@ -29,11 +14,11 @@ if not '__endodir__' in globals():
 magma.chdir(__endodir__)
 magma.load('Initialize.m')
 
-# This has to be hidden better to prevent accidental overwriting:
+# NOTE: The end user should only overwrite these options in Wrapper.sage
 prec = 300
 epscomp = 10^(-prec + 30)
 epsLLL = 5^(-prec + 7)
-epsinv = 2^(-4)
+epsinv = 2^(-prec + 30)
 Bound = 48
 
 load(__endodir__ + 'heuristic/Recognition.sage')

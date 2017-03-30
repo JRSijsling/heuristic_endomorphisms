@@ -1,3 +1,11 @@
+/***
+ *  Finding a suitable point on a curve
+ *
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
+ */
+
 intrinsic NonWeierstrassBasePointHyp(X::Crv, K::Fld, As::SeqEnum : B := 2^10) -> Crv, Pt, SeqEnum
 {Given a hyperelliptic curve X, a field extension K, and a set of matrices As
 over K, returns a base change of X, a point on that base change, and the base

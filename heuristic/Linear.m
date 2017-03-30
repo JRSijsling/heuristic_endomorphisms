@@ -1,27 +1,12 @@
 /***
  *  Linear algebra routines
  *
- *  Copyright (C) 2016  J.R. Sijsling (sijsling@gmail.com)
- *
- *  Distributed under the terms of the GNU General License (GPL)
- *                  http://www.gnu.org/licenses/
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc., 51
- *  Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
  */
 
-function NumericalSolve(A, B);
+function NumericalLeftSolve(A, B);
 // Input:   An invertible matrix A and a matrix B of compatible dimensions.
 // Output:  An approximation of the matrix X such that X * A = B.
 
@@ -111,7 +96,7 @@ return P;
 end function;
 
 
-function IntegralKernel(M : epsLLL := epsLLL0);
+function IntegralLeftKernel(M : epsLLL := epsLLL0);
 // Input:   A real matrix whose rows are to be cancelled by integral
 //          combinations and an LLL parameter epsLLL.
 // Output:  The corresponding LLL approximation of the integral left kernel.
@@ -122,24 +107,6 @@ Ma := HorizontalJoin(MI, (1 / epsLLL) * M);
 L, K := LLL(Ma);
 
 return K;
-
-end function;
-
-
-// TODO: The following function has not been useful so far. To be rewritten.
-function OptimizedPeriodMatrix(P);
-// Input:   A period matrix.
-// Output:  A GL-equivalent matrix such that the split period matrix is
-//          LLL-reduced, along with a matrix effecting the transformation.
-//          Optional PEL-arguments are also transformed.
-
-// Splitting the matrix and applying LLL.
-PSplit := SplitPeriodMatrix(P);
-QSplit, T := LLL(PSplit);
-
-// Determining new period matrix and transformed PEL structure.
-Q := CombinePeriodMatrix(QSplit);
-return Q, T;
 
 end function;
 

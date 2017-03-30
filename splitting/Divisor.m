@@ -1,3 +1,11 @@
+/***
+ *  Divisor functionality
+ *
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
+ */
+
 declare attributes Crv : is_hyperelliptic, is_planar, is_smooth, is_plane_quartic;
 declare attributes Crv : unif, unif_index;
 declare attributes Crv : g, U, P0, A, DEs;
