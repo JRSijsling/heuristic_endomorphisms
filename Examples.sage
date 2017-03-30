@@ -68,9 +68,6 @@ h = x^4 + x^2 + 1
 # RR times CC:
 f = x^6 - x^5 + x^4 - x^3 + x^2
 h = x^4 + 1
-# JH:
-f = x^5 + (1/2)*x^4 + x^2 - (121/16)*x - 209/32
-h = 0
 
 # The main functionality:
 X = HyperellipticCurve(f, h)

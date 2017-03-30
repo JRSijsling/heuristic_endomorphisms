@@ -52,6 +52,46 @@ return subhom;
 end function;
 
 
+
+
+
+function LatticeFromIdempotent(idem, P : epscomp := epscomp0, epsLLL :=
+    epsLLL0, epsinv := epsinv0);
+// Input:   Representations of a single idempotent in terms of an endomorphism basis,
+//          that basis in its analytic representation, and the corresponding period
+//          matrix.
+// Output:  A lattice corresponding to the quotient abelian variety, the numbers of the
+//          rows that span its period lattice (over QQ)
+
+
+    // Extract the complex field
+    C := BaseRing(P);
+
+    // Create analytic idempotent and project:
+    PEllHuge := P * idem;
+
+    // Compute rank of projection
+    gQuotient := NumericalRank(PEllHuge : Epsilon := RealField(100)!(epsinv) );
+
+
+    PEllHugeSplit := SplitPeriodMatrix(PEllHuge);
+
+    PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient, "Rows"); // extract 2g independent rows
+    PEllBigSplit := SaturateLattice(PEllHugeSplit, PEllBigSplit : epscomp := epscomp, epsLLL := epsLLL); // ensure that these rows generate the full lattice
+
+    PEllBig := CombinePeriodMatrix(PEllBigSplit); // go back to the complex representation
+
+    PreliminaryLatticeMatrix := SubmatrixOfRank(PEllBig, gQuotient, "Columns" : epsinv := epsinv); // extract g columns (i.e. decide which projection to use)
+
+    PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary before calling SaturateLattice
+    PEllBig := Transpose(PEllBig);
+    LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix : epscomp := epscomp, epsLLL := epsLLL));
+
+    return LatticeMatrix, col_numbers;
+
+end function;
+
+
 function LatticesFromIdempotents(idemsAn, P : epscomp := epscomp0, epsLLL :=
     epsLLL0, epsinv := epsinv0);
 // Input:   Representations of idempotents terms of an endomorphism basis, that

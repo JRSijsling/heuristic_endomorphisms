@@ -50,7 +50,6 @@ if BaseRing(X) eq Rationals() then
     f /:= LeadingCoefficient(f);
     X := HyperellipticCurve(f);
     d := TwistingFactor(PBig, X);
-    return d;
     X := HyperellipticCurve(d*f);
 end if;
 

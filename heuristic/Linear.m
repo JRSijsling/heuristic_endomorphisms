@@ -63,6 +63,45 @@ error Error("Failed to find an invertible submatrix");
 end function;
 
 
+
+function SubmatrixOfRank(P, TargetRank, ColumnsOrRows : epsinv := epsinv0);
+// Input:   A period matrix P of dimension r x c along with a tolerance epsinv
+//          for testing triviality of subdeterminants.
+//          The number of rows/columns to extract, whether to extract rows or
+//		 columns.
+// Output:  A TargetRank x #columns submatrix M and the corresponding subset 
+//          of {1..#rows/#columns}. The matrix M should have rank TargetRank
+//          We do not attempt to find the best one.
+
+
+Flipped := false;
+if ColumnsOrRows eq "Columns" then
+    Flipped := true;
+    P := Transpose(P);
+end if;
+
+r := #Rows(P);
+c := #Rows(Transpose(P));
+
+
+RP := Rows(P);
+for s in Subsets({1..r}, TargetRank) do
+    s0 := s;
+    P0 := Matrix([RP[i] : i in s]);
+    if NumericalRank(P0 : Epsilon:=RealField(100)!epsinv) eq TargetRank then 
+        if not Flipped then
+            return P0, s0;
+        else
+            return Transpose(P0), s0;
+        end if;
+    end if;
+end for;
+
+error Error("Failed to find submatrix with the desired rank");
+
+end function;
+
+
 function SplitPeriodMatrix(P);
 // Input:   A period matrix P of dimension 2g x g.
 // Output:  Its real and imaginary parts stacked on top of each other in a 2g x
@@ -82,13 +121,15 @@ function CombinePeriodMatrix(PSplit);
 // Output:  The corresponding original period matrix.
 
 // Basic invariants
-g := #Rows(PSplit) div 2;
+c := #Rows(Transpose(PSplit));
+r := #Rows(PSplit);
+
 k0 := BaseRing(PSplit);
 k<i> := ComplexField(k0);
 
 // Combining parts
-PRe := Matrix(k, Submatrix(PSplit, [1..2*g], [1..g]));
-PIm := Matrix(k, Submatrix(PSplit, [1..2*g], [g+1..2*g]));
+PRe := Matrix(k, Submatrix(PSplit, [1..r], [1..(c div 2)]));
+PIm := Matrix(k, Submatrix(PSplit, [1..r], [(c div 2)+1..c]));
 P := PRe + i*PIm;
 
 return P;
@@ -143,4 +184,24 @@ V := Solution(MBs, MM);
 
 return Matrix(V);
 
+end function;
+
+
+function SaturateLattice(FullLattice, SubLattice : epscomp := epscomp, epsLLL := epsLLL)
+// Input:   Matrices FullLattice, SubLattice whose rows generate lattices
+//		 such that the latter has finite index in the former
+// Output:  A matrix of the same size as SubLattice whose rows generate the
+//		 same lattice as FullLattice
+    MatrixSize := Min(#Rows(SubLattice), #Rows(Transpose(FullLattice)));
+    
+    SaturationMatrix, SatColumns := SubmatrixOfRank(SubLattice, MatrixSize, "Columns");
+    LMat := Matrix(Rationals(), 0,MatrixSize, []);
+    for row in Rows(FullLattice) do
+        linearDependence := NumericalLeftSolve(SaturationMatrix, Matrix([[row[j] : j in SatColumns]]) );
+        linearDependence := Matrix([ [ FractionalApproximation(c : epscomp := epscomp, epsLLL := epsLLL) : c in Eltseq(row) ] : row in Rows(linearDependence) ]);
+        LMat := VerticalJoin(LMat, linearDependence);
+    end for;
+    
+    M := Matrix(Basis(Lattice(LMat)));
+    return Matrix(BaseRing(FullLattice),M)*SubLattice;
 end function;
