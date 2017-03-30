@@ -23,7 +23,7 @@ function MySplittingField(fs);
 // Output:  A corresponding splitting field.
 //          NOTE: Default functionality was slow so this one tries a compositum
 //          first.
-Ks := [ NumberField(f) : f in fs ];
+Ks := [* NumberField(f) : f in fs *];
 Ls := [ IntegralRepresentationNF(L : iso := false) : L in CompositeReduce(Ks) ];
 for L in Ls do
     if IsNormal(L) then

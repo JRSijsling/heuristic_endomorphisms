@@ -108,6 +108,7 @@ load "heuristic/LatticeG3.m";
 load "heuristic/DataG3.m";
 load "heuristic/Canonize.m";
 load "heuristic/Decomposition.m";
+load "heuristic/FromBig.m";
 
 // Verification part
 load "polarization/Rosati.m";

@@ -13,14 +13,12 @@ function EndomorphismLatticeG3SingleElement(K, AsAlg, As, Rs)
 //          by the corresponding subgroup and subfield, along with non-trivial
 //          idempotents.
 
+// TODO: Make relative
+
 GeoEndList := [* AsAlg, As, Rs *];
 L := BaseRing(AsAlg[1]);
-EndRep := EndomorphismDataG3(GeoEndList, L, L, 0, 0, 0);
-if Degree(K) eq 1 then
-    Gp, Gf, Gphi := AutomorphismGroup(L);
-    GensHp := Generators(Gp);
-    KL := sub<L | 1>;
-    return EndomorphismDataG3(GeoEndList, L, KL, Gp, GensHp, Gphi);
+if Degree(L) eq 1 then
+    return EndomorphismDataG3(GeoEndList, L, L);
 end if;
 // Take smallest subfield of K that fits inside L and take corresponding fixed
 // group
@@ -33,15 +31,12 @@ for M in S do
         break;
     end if;
 end for;
-Gp, Gf, Gphi := AutomorphismGroup(L);
-if test then
-    GensHp := Generators(FixedGroup(L, KL));
-else
+if not test then
+    // Trivial subextension:
     KL := sub<L | 1>;
-    GensHp := Generators(Gp);
 end if;
 
-return EndomorphismDataG3(GeoEndList, L, KL, Gp, GensHp, Gphi);
+return EndomorphismDataG3(GeoEndList, L, KL);
 
 end function;
 
@@ -57,8 +52,8 @@ GeoEndList := [* AsAlg, As, Rs *];
 L := BaseRing(AsAlg[1]);
 // Simplest case (we get around the lacking string because it gets calculated
 // during the run) over the field of definition of the endomorphism ring:
-EndRep := EndomorphismDataG3(GeoEndList, L, L, 0, 0, 0);
 if Degree(L) eq 1 then
+    EndRep := EndomorphismDataG3(GeoEndList, L, L);
     return [* [* Eltseq(L.1) *] cat EndRep *];
 end if;
 // Two heavy operations follow:
@@ -66,19 +61,17 @@ Gp, Gf, Gphi := AutomorphismGroup(L);
 Ktups := Seqlist(Subfields(L));
 // Have to add in the rationals manually
 // FIXME: Magma should really add it...
-QQ := RationalsAsNumberField();
-iotaQQ := EmbeddingMap(QQ, L);
+QQ := RationalsAsNumberField(); iotaQQ := EmbeddingMap(QQ, L);
 Append(~Ktups, <QQ, iotaQQ>);
-EndReps := [* [* Eltseq(L.1) *] cat EndRep *];
 // We construct a list of lists EndReps. Its entries should be thought of as the
 // subfields of the field of definition L of the full endomorphism ring,
 // along with all the endomorphisms defined over those subfields.
+EndRep := EndomorphismDataG3(GeoEndList, L, L);
+EndReps := [* [* Eltseq(L.1) *] cat EndRep *];
 for tup in Ktups do
     K := tup[1];
     if K ne L then
-        Hp := FixedGroup(L, K);
-        GensHp := Generators(Hp);
-        EndRep := EndomorphismDataG3(GeoEndList, L, K, Gp, GensHp, Gphi);
+        EndRep := EndomorphismDataG3(GeoEndList, L, K);
         Append(~EndReps, [* Eltseq(L ! K.1) *] cat EndRep);
     end if;
 end for;
