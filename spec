@@ -39,6 +39,7 @@
   }
   heuristic
   {
+    Precision.m
     Relative.m
     Periods.m
   }

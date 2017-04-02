@@ -8,35 +8,37 @@
  */
 
 
-intrinsic RelativeMinimalPolynomial(a::FldComElt, F::FldNum, iota::PlcNumElt) -> RngUPolElt
-{Determines a relative minimal polynomial of the element a with respected to the number field F and the embedding iota of F.}
-// TODO: Keep track of loop by a verbose flag
+intrinsic RelativeMinimalPolynomial(a::FldComElt, F::FldNum) -> RngUPolElt
+{Determines a relative minimal polynomial of the element a with respect to the first infinite embedding of the number field F.}
+// TODO: Keep track of loop by a verbose flag, and may want to indicate infinite place.
 
+degF := Degree(F); R<x> := PolynomialRing(F); iota := InfinitePlaces(F)[1];
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
-epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
-R<x> := PolynomialRing(F);
+epscomp := 10^(-prec + 30);
 
-// NOTE: h0 is a parameter to play with
-d := 0; h := 1; h0 := 10;
-powers := [ CC ! 1 ];
+// NOTE: height is a parameter to play with
+degf := 0; height := 1; height0 := 100;
+gen := CC ! Evaluate(iota, F.1 : Precision := prec);
+powersgen := [ gen^i : i in [0..(degF - 1)] ];
+powersa := [ CC ! 1 ];
 while true do
-    // Increase height:
-    d +:= 1; h *:= h0;
-    Append(~powers, powers[#powers] * a);
+    // Increase height and number of possible relations
+    degf +:= 1; height *:= height0;
+    Append(~powersa, powersa[#powersa] * a);
     M := Transpose(Matrix([powers]));
-    // Now split and take an IntegralLeftKernel:
+    // Now split and take an IntegralLeftKernel
     MSplit := SplitPeriodMatrix(M);
-    Ker := IntegralLeftKernel(MSplit : epsLLL := epsLLL);
+    Ker := IntegralLeftKernel(MSplit);
     for row in Rows(Ker) do
-        // Height condition:
-        if &and[ Abs(c) le h : c in Eltseq(row) ] then
-            pa := &+ [ row[i + 1] * x^i : i in [0..d] ];
-            // Factor (to eliminate redundancy) and check:
-            Fac := Factorization(pa);
+        // Height condition
+        if &and[ Abs(c) le height : c in Eltseq(row) ] then
+            f := &+ [ row[i + 1] * x^i : i in [0..degf] ];
+            // Factor (to eliminate redundancy) and check
+            Fac := Factorization(f);
             for tup in Fac do
-                fa := tup[1];
-                if Abs(Evaluate(fa, a)) lt epscomp then
-                    return fa;
+                g := tup[1];
+                if Abs(Evaluate(g, a)) lt epscomp then
+                    return g;
                 end if;
             end for;
         end if;
@@ -99,12 +101,12 @@ if d ne 1 then
 else
     r := K ! 0;
 end if;
-// Creating algebraic and analytic powers:
+// Creating algebraic and analytic powers
 powers := [ r^n : n in [0..d-1] ];
 powersan := [ ran^n : n in [0..d-1] ];
-// Column matrix of embedding of basis elements plus (minus) a:
+// Column matrix of embedding of basis elements plus (minus) a
 Man := VerticalJoin(Transpose(Matrix([powersan])), Matrix([[-a]]));
-// Now split and take an IntegralLeftKernel:
+// Now split and take an IntegralLeftKernel
 ManSplit := SplitPeriodMatrix(Man);
 Ker := IntegralLeftKernel(ManSplit : epsLLL := epsLLL);
 for R in Rows(Ker) do
@@ -112,7 +114,7 @@ for R in Rows(Ker) do
     if den ne 0 then
         s := (&+[ R[i] * powers[i] : i in [1..d] ])/ den;
         san := (&+[ R[i] * powersan[i] : i in [1..d] ]) / den;
-        // Check correct to given precision:
+        // Check correct to given precision
         if Abs(san - a) lt epscomp then
             return Eltseq(s);
         end if;

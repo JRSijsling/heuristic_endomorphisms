@@ -6,6 +6,7 @@
  *  See LICENSE.txt for license details.
  */
 
+
 function NumericalLeftSolve(A, B);
 // Input:   An invertible matrix A and a matrix B of compatible dimensions.
 // Output:  An approximation of the matrix X such that X * A = B.

@@ -27,12 +27,12 @@ class EndomorphismData:
             self.f = magma(f)
             self.h = magma(h)
             self._fod_ = magma.BaseRing(f)
-            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.f, self.h], prec, nvals = 2)
+            embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
             self.fCC, self.hCC = embedded_list
         elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
             self._fod_ = magma.BaseRing(F)
-            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.F], prec, nvals = 2)
+            embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
             self.FCC = embedded_list[1]
         self.prec = prec
         self.bound = bound
@@ -60,16 +60,11 @@ class EndomorphismData:
         if not hasattr(self, "_geo_reps_"):
             P = self.period_matrix()
             self._As_, self._Rs_ = magma.GeometricEndomorphismApproximations(P, nvals = 2)
-            self._AsPol_ = magma.PolynomializeMatrices(self._As_)
-            self._fod_ = Relative_Splitting_Field(self.As, bound = self.bound)
-            # TODO: CreateGeometricEndList
-            #L = magma.AlgebraizeMatricesInField(self._geo_reps_app_[0], self._geo_reps_pol_, self._frep_, epscomp = self._epscomp_, nvals = 2)
-            #self._geo_reps_alg_ = L[0]
-            #self._fhom_ = L[1]
-            #self._L_ = magma.BaseRing(magma.Parent(self._geo_reps_alg_[1][1]))
-            #self._geo_reps_ = [ self._geo_reps_alg_, self._geo_reps_app_[0], self._geo_reps_app_[1] ]
-            self._geo_reps_ = 0
-        return self._geo_reps_
+            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._As_, self.base_field, self._iotaF_)
+            self._fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
+            self._iotaL_ = magma.ExtendInfinitePlace(self._iotaF_, self._fod_)
+            self._AsAlg_ = magma.GeometricEndomorphismRepresentations(self._As_, self._Rs_, self._fod_, self._iotaL_)
+        return [ self._As_, self._Rs_, self._AsAlg_ ]
 
     def base_field(self):
         if not hasattr(self, "_fod_"):

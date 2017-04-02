@@ -7,28 +7,72 @@
  */
 
 
-forward EmbedAtInfinitePlace;
+declare attributes FldNum : iota;
+declare attributes FldRat : iota;
+
+
+intrinsic SetInfinitePlace(K::FldNum, iota::.)
+{Creates a complex field with some extra needed parameters.}
+
+K`iota := iota;
+F := BaseRing(K);
+if Type(F) eq FldNum then
+    for iotaF in InfinitePlaces(F) do
+        if Extends(iota, iotaF) then
+            SetInfinitePlace(F, iotaF);
+        end if;
+    end for;
+end if;
+
+end intrinsic;
+
+
+intrinsic SetInfinitePlace(K::FldRat, iota::.)
+{Creates a complex field with some extra needed parameters.}
+
+K`iota := iota;
+
+end intrinsic;
 
 
 intrinsic EmbedAsComplexPolynomials(fs::SeqEnum, prec::RngIntElt) -> SeqEnum
 {Embeds a list of polynomials fs as complex polynomials to precision prec.}
 
 R := Parent(fs[1]); d := #GeneratorsSequence(R);
-F := BaseRing(R); iota := InfinitePlaces(F)[1];
-CC<I> := ComplexField(prec); RCC := PolynomialRing(CC, d);
-
-fsCC := [ EmbedAtInfinitePlace(f, iota, R, RCC) : f in fs ];
-if d eq 1 then
-    RCC := PolynomialRing(CC); fsCC := [ RCC ! fCC : fCC in fsCC ];
+F := BaseRing(R);
+if not assigned F`iota then
+    SetInfinitePlace(F, InfinitePlaces(F)[1]);
 end if;
 
-return fsCC, iota;
+CC<I> := ComplexField(prec);
+if d eq 1 then
+    RCC := PolynomialRing(CC);
+else
+    RCC := PolynomialRing(CC, d);
+end if;
+fsCC := [ EmbedAtInfinitePlace(f, F`iota, R, RCC) : f in fs ];
+
+return fsCC;
 
 end intrinsic;
 
 
-// FIXME: It is difficult to give a signature to this function.
-function EmbedAtInfinitePlace(f, iota, R, RCC)
+intrinsic EmbedAtInfinitePlace(f::RngUPolElt, iota::., R::RngUPol, RCC::RngUPol) -> RngUPolElt
+{Embeds the polynomial f in R into RCC via the infinite place iota.}
+
+if IsZero(f) then
+    return RCC ! 0;
+else
+    prec := Precision(BaseRing(RCC));
+    mons := Monomials(f);
+    return &+[ Evaluate(MonomialCoefficient(f, mon), iota : Precision := prec) * RCC.1^Degree(mon) : mon in mons ];
+end if;
+
+end intrinsic;
+
+
+intrinsic EmbedAtInfinitePlace(f::RngMPolElt, iota::., R::RngMPol, RCC::RngMPol) -> RngMPolElt
+{Embeds the polynomial f in R into RCC via the infinite place iota.}
 
 if IsZero(f) then
     return RCC ! 0;
@@ -38,7 +82,7 @@ else
     return &+[ Evaluate(MonomialCoefficient(f, mon), iota : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];
 end if;
 
-end function;
+end intrinsic;
 
 
 function CompareFields(K1, K2);
@@ -142,6 +186,3 @@ for iotaK in InfinitePlaces(K) do
 end for;
 
 end intrinsic;
-
-
-// recognition, overfield, lattice, data
