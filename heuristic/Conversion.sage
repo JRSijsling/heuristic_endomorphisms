@@ -168,10 +168,12 @@ def st_group_statement(group):
     return """Sato-Tate group: %s\n""" % group
 
 def gl2_simple_statement(factorsQQ, factorsRR):
+    # TODO: Make this a summation over the RR-type
     if factorsRR in [ ['RR', 'RR'], ['CC'] ]:
         gl2 = "of GL_2-type"
     else:
         gl2 = "not of GL_2-type"
+    # One element in endomorphism algebra, not matrix ring:
     if len(factorsQQ) == 1 and factorsQQ[0][1] != 1:
         simple = "simple"
     else:

@@ -134,7 +134,7 @@ class Lattice:
 
     def __repr__(self):
         # TODO: Better represetation postponed
-        return str(self._lat_[1])
+        return str(self._lat_)
         statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
         for ED in self._lat_:
             statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))

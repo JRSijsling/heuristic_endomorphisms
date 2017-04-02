@@ -25,7 +25,7 @@ forward NumericalLeftSolve;
 forward InvertibleSubmatrix;
 forward SplitPeriodMatrix;
 forward CombinePeriodMatrix;
-forward IntegralKernel;
+forward IntegralLeftKernel;
 forward ConjugateMatrix;
 forward MatrixInBasis;
 forward MatrixRatInBasisOverNF;

@@ -4,7 +4,7 @@ function PeriodMatrixHyperelliptic(f, h)
 
 g := 4*f + h^2;
 // NOTE: Comment out next line if you do not have the Oldenburg functionality
-return Transpose(PeriodMatrix(g));
+//return Transpose(PeriodMatrix(g));
 J := AnalyticJacobian(g);
 return Transpose(BigPeriodMatrix(J));
 
