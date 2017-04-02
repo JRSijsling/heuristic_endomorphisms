@@ -1,20 +1,4 @@
 {
-  puiseux
-  {
-    LocalInfo.m
-    FractionalCRT.m
-    Divisor.m
-    Cantor.m
-    FindPoint.m
-  }
-  splitting
-  {
-    LocalInfo.m
-    FractionalCRT.m
-    Divisor.m
-    Cantor.m
-    FindPoint.m
-  }
   RieSrf
   {
     abeljacobi.m
@@ -52,5 +36,26 @@
   {
     Ring/FldNum/Splitting.m
     Ring/Subfields/Subfields.m
+  }
+  heuristic
+  {
+    Relative.m
+    Periods.m
+  }
+  puiseux
+  {
+    LocalInfo.m
+    FractionalCRT.m
+    Divisor.m
+    Cantor.m
+    FindPoint.m
+  }
+  splitting
+  {
+    LocalInfo.m
+    FractionalCRT.m
+    Divisor.m
+    Cantor.m
+    FindPoint.m
   }
 }

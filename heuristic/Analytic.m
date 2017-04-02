@@ -80,8 +80,7 @@ return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
 end function;
 
 
-function GeometricEndomorphismBasisFromPeriodMatrix(P : epscomp := epscomp0,
-    epsLLL := epsLLL0, epsinv := epsinv0)
+function GeometricEndomorphismApproximations(P);
 // Input:   A period matrix of dimension 2g x g.
 // Output:  An approximate basis of the corresponding endomorphism ring,
 //          returned in both analytic and rational representations.
@@ -107,7 +106,7 @@ for r in Rows(K) do
     end if;
 end for;
 
-As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
+As := [ AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
     epsinv := epsinv) : R in Rs];
 
 // The end result is the actions As on the tangent space,
@@ -116,6 +115,9 @@ As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
 // rows, just like Magma and Sage.
 // The action the Rs is on the right, and in the end we always have
 // R * P = P * A .
+
+// FIXME: It would be easier to return this as a list, zipped moreover, but
+// this leads to trouble when interacting with Sage.
 return As, Rs;
 
 end function;
@@ -183,7 +185,7 @@ for r in Rows(K) do
     end if;
 end for;
 
-As := [AnalyticRepresentationIsogeny(R, P, Q) : R in Rs];
+As := [ AnalyticRepresentationIsogeny(R, P, Q) : R in Rs ];
 return As, Rs;
 
 end function;

@@ -6,29 +6,23 @@
  *  See LICENSE.txt for license details.
 """
 
-def Common_Splitting_Field(AsPol, Bound = 0):
-    # Input:   A collection of matrices AsPol with polynomial entries.
-    # Output:  A common splitting field, represented by a tuple, in optimized
-    #          form.
-    # An optional bound makes this considerably faster to use in genus 2.
-    R.<x> = PolynomialRing(QQ)
-    Pols = reduce(lambda x,y: x + y, [A.sage().list() for A in AsPol])
-    Pols = [ R(pol) for pol in Pols ]
-    Pols_used = []
-    f = x
-    K = magma.RationalsAsNumberField()
+def Relative_Splitting_Field(fs, bound = 0):
+    overQQ = (magma.Degree(F) == 1)
+    if overQQ:
+        R.<x> = PolynomialRing(QQ)
+    F = magma.BaseRing(fs[1])
     Bound_Set = (Bound != 0)
-    # Sort by degree to find one likely to give a generator of the splitting
-    # field:
-    Pols = sorted(Pols, key = lambda pol : -pol.degree())
-    for pol in Pols:
-        if not magma.HasRoot(pol, K):
-            Pols_used.append(pol)
-            K = magma.MySplittingField(Pols_used)
-            f = magma.DefiningPolynomial(K)
-            cs = magma.Eltseq(f)
-            f = R(str(gp.polredabs(R(cs))))
-            K = magma.NumberField(f)
-            if Bound_Set and magma.Degree(f) >= Bound:
-                break
-    return f.list()
+    fs = sorted(fs, key = lambda f : -magma.Degree(f))
+    for f in fs:
+        if not magma.HasRoot(f, K):
+            for tup in magma.Factorization(f):
+                K = magma.ExtendRelativeSplittingField(K, tup[1])
+                if overQQ:
+                    g = magma.DefiningPolynomial(K)
+                    g = R(str(gp.polredabs(R(magma.Eltseq(g)))))
+                    K = magma.NumberField(g)
+                else:
+                    K = magma.ClearFieldDenominator(K)
+                if Bound_Set and magma.Degree(K) >= Bound:
+                    return K
+    return K

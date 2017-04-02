@@ -11,18 +11,10 @@ import os
 if not '__endodir__' in globals():
     __endodir__ = os.getenv("PWD") + "/"
 # The following line is a lazy solution:
-magma.chdir(__endodir__)
-magma.load('Initialize.m')
-
-# NOTE: The end user should only overwrite these options in Wrapper.sage
-prec = 300
-epscomp = 10^(-prec + 30)
-epsLLL = 5^(-prec + 7)
-epsinv = 2^(-prec + 30)
-Bound = 336
+magma.AttachSpec('spec');
 
 load(__endodir__ + 'heuristic/Recognition.sage')
-load(__endodir__ + 'heuristic/Canonize.sage')
-load(__endodir__ + 'heuristic/Decomposition.sage')
-load(__endodir__ + 'heuristic/Conversion.sage')
+#load(__endodir__ + 'heuristic/Canonize.sage')
+#load(__endodir__ + 'heuristic/Decomposition.sage')
+#load(__endodir__ + 'heuristic/Conversion.sage')
 load(__endodir__ + 'Wrapper.sage')

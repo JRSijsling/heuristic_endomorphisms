@@ -27,7 +27,6 @@ return fsCC, iota;
 end intrinsic;
 
 
-// FIXME: It is difficult to give a signature to this function.
 function EmbedAtInfinitePlace(f, iota, R, RCC)
 
 if IsZero(f) then
@@ -80,9 +79,11 @@ return K;
 end intrinsic;
 
 
-intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt) -> Fld
+intrinsic ExtendRelativeSplittingField(K::FldNum, f::RngUPolElt) -> FldNum
 {Extension step for relative splitting fields.}
 
+print "Extending relative spl for", K, f;
+F := BaseField(K);
 if Degree(F) eq 1 then
     return SplittingField(f);
 end if;
@@ -91,34 +92,34 @@ while true do
     if #factors eq 0 then
         return K;
     end if;
-    if K eq F then
-        K := NumberField(factors[1]);
-    else
-        K := RelativeField(F, NumberField(factors[1]));
-    end if;
+    print "Current F:", F, BaseRing(F);
+    print "Current K:", K, BaseRing(K);
+    print IsSubfield(F, NumberField(factors[1]));
+    print MinimalPolynomial(K.1, F);
+    print NumberField(factors[1]);
+    K := RelativeField(F, NumberField(factors[1]));
+    print "After RelativeField:", K;
 end while;
 
 end intrinsic;
 
 
-intrinsic RelativeSplittingField(fs::SeqEnum) -> Fld
+intrinsic RelativeSplittingField(fs::SeqEnum) -> FldNum
 {Determines a relative splitting field of the polynomials in fs.}
 
-// FIXME: This code below is relatively bad; I would prefer to first define K
-// as a linear extension and then to update it. This removes certain
-// dichotomies. However, Magma is not happy with it.
-F := BaseRing(fs[1]); K := F;
+F := BaseRing(fs[1]);
+R<x> := PolynomialRing(F);
+K := NumberField(x : DoLinearExtension := true);
 fs := Reverse(Sort(fs, CompareFields));
 for f in fs do
-    // Note that the K in the next condition is updated as we proceed
     if not HasRoot(f, K) then
         for tup in Factorization(f, K) do
-            K := ExtendRelativeSplittingField(K, F, tup[1]);
+            K := ExtendRelativeSplittingField(K, tup[1]);
+            return K;
             K := ClearFieldDenominator(K);
         end for;
     end if;
 end for;
-
 return K;
 
 end intrinsic;
@@ -128,18 +129,6 @@ intrinsic RelativeSplittingField(f::RngUPolElt) -> FldNum
 {Determines a relative splitting field of the polynomials f.}
 
 return RelativeSplittingField([ f ]);
-
-end intrinsic;
-
-
-intrinsic ExtendInfinitePlace(iotaF::PlcNumElt, K::Fld) -> PlcNumElt
-{Extends an infinite place over a relative field extension.}
-
-for iotaK in InfinitePlaces(K) do
-    if Extends(iotaK, iotaF) then
-        return iotaK;
-    end if;
-end for;
 
 end intrinsic;
 

@@ -20,23 +20,23 @@ def TypeTest(X):
         return "generic"
 
 class EndomorphismData:
-    def __init__(self, X, prec = prec, Bound = Bound):
-        self.prec = prec
-        self._epscomp_ = 10^(-self.prec + 30)
-        self._epsLLL_ = 5^(-self.prec + 7)
-        self._epsinv_ = 2^(-self.prec + 30)
-        self.Bound = Bound
+    def __init__(self, X, prec, bound = 0, have_oldenburg = False):
         self.curve_type = TypeTest(X)
         if self.curve_type == "hyperelliptic":
             f, h = X.hyperelliptic_polynomials()
             self.f = magma(f)
             self.h = magma(h)
-            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.f, self.h], prec = prec, nvals = 2)
+            self._fod_ = magma.BaseRing(f)
+            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.f, self.h], prec, nvals = 2)
             self.fCC, self.hCC = embedded_list
         elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
-            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.F], prec = prec, nvals = 2)
+            self._fod_ = magma.BaseRing(F)
+            embedded_list, self.iota = magma.EmbedAsComplexPolynomials([self.F], prec, nvals = 2)
             self.FCC = embedded_list[1]
+        self.prec = prec
+        self.bound = bound
+        self.have_oldenburg = have_oldenburg
         self._lat_ = None
 
     def __repr__(self):
@@ -51,81 +51,89 @@ class EndomorphismData:
     def period_matrix(self):
         if not hasattr(self, "_P_"):
             if self.curve_type == "hyperelliptic":
-                self._P_ = magma.PeriodMatrixHyperelliptic(self.fCC, self.hCC)
+                self._P_ = magma.PeriodMatrixHyperelliptic(self.fCC, self.hCC, HaveOldenburg = self.have_oldenburg)
             elif self.curve_type == "plane":
-                self._P_ = magma.PeriodMatrixPlane(self.FCC)
+                self._P_ = magma.PeriodMatrixPlane(self.FCC, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def geometric_representations(self):
         if not hasattr(self, "_geo_reps_"):
             P = self.period_matrix()
-            self._geo_reps_app_ = magma.GeometricEndomorphismBasisFromPeriodMatrix(self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_, nvals = 2)
-            self._geo_reps_pol_ = [ magma.PolynomializeMatrix(A, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for A in self._geo_reps_app_[0] ]
-            self._frep_ = Common_Splitting_Field(self._geo_reps_pol_, Bound = self.Bound)
-            L = magma.AlgebraizeMatricesInField(self._geo_reps_app_[0], self._geo_reps_pol_, self._frep_, epscomp = self._epscomp_, nvals = 2)
-            self._geo_reps_alg_ = L[0]
-            self._fhom_ = L[1]
-            self._geo_reps_ = [ self._geo_reps_alg_, self._geo_reps_app_[0], self._geo_reps_app_[1] ]
+            self._As_, self._Rs_ = magma.GeometricEndomorphismApproximations(P, nvals = 2)
+            self._AsPol_ = magma.PolynomializeMatrices(self._As_)
+            self._fod_ = Relative_Splitting_Field(self.As, bound = self.bound)
+            # TODO: CreateGeometricEndList
+            #L = magma.AlgebraizeMatricesInField(self._geo_reps_app_[0], self._geo_reps_pol_, self._frep_, epscomp = self._epscomp_, nvals = 2)
+            #self._geo_reps_alg_ = L[0]
+            #self._fhom_ = L[1]
+            #self._L_ = magma.BaseRing(magma.Parent(self._geo_reps_alg_[1][1]))
+            #self._geo_reps_ = [ self._geo_reps_alg_, self._geo_reps_app_[0], self._geo_reps_app_[1] ]
+            self._geo_reps_ = 0
         return self._geo_reps_
+
+    def base_field(self):
+        if not hasattr(self, "_fod_"):
+            geo_reps = self.geometric_representations()
+        return self._fod_
 
     def field_of_definition(self):
         if not hasattr(self, "_frep_"):
             geo_reps = self.geometric_representations()
-        return magma.BaseRing(magma.Parent(self._geo_reps_alg_[1][1]))
+        return self._endo_fod_
 
-    def lattice(self):
-        if not self._lat_:
-            AsAlg, As, Rs = self.geometric_representations()
-            L = magma.EndomorphismLatticeG3(AsAlg, As, Rs)
-            self._lat_ = L
-            #self._lat_ = EDs_sagified(L, self._frep_)
-            #self._fsubgen_ = L[1]
-            #self._idems_ = L[2]
-        return Lattice(self)
-
-    def geometric_representations_check(self, bound = 2^10):
-        # TODO: Split case
-        X = magma.HyperellipticCurve(4*self.f + self.h^2)
-        As = self.geometric_representations()[0]
-        K = magma.BaseRing(magma.Parent(As[1]))
-        X, P0, AsL = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 3)
-        tests = [ ]
-        for i in [1..len(AsL)]:
-            if magma.IsScalar(As[i]):
-                tests.append(True)
-            else:
-                d = self.degree_estimate(As[i])
-                tests.append(d)
-                AtL = magma.Transpose(AsL[i])
-                div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, LowerBound = 2*d + 2)
-                # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
-                tests.append(True)
-        return all(tests)
-
-    def geometric(self):
-        geo_reps = self.geometric_representations()
-        return OverField(self, K = "geometric")
-
-    def over_base(self):
-        geo_reps = self.geometric_representations()
-        return OverField(self, K = "base")
-
-    def over_field(self, K):
-        geo_reps = self.geometric_representations()
-        return OverField(self, K = K)
-
-    def rosati_involution(self, A):
-        geo_reps = self.geometric_representations()
-        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
-
-    def degree_estimate(self, A):
-        geo_reps = self.geometric_representations()
-        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
-
-    def decomposition(self):
-        P = self.period_matrix()
-        lat = self.lattice()
-        return Decomposition(self)
+#    def lattice(self):
+#        if not self._lat_:
+#            AsAlg, As, Rs = self.geometric_representations()
+#            L = magma.EndomorphismLatticeG3(AsAlg, As, Rs)
+#            self._lat_ = L
+#            #self._lat_ = EDs_sagified(L, self._frep_)
+#            #self._fsubgen_ = L[1]
+#            #self._idems_ = L[2]
+#        return Lattice(self)
+#
+#    def geometric_representations_check(self, bound = 2^10):
+#        # TODO: Split case
+#        X = magma.HyperellipticCurve(4*self.f + self.h^2)
+#        As = self.geometric_representations()[0]
+#        K = magma.BaseRing(magma.Parent(As[1]))
+#        X, P0, AsL = magma.NonWeierstrassBasePointHyp(X, K, As, nvals = 3)
+#        tests = [ ]
+#        for i in [1..len(AsL)]:
+#            if magma.IsScalar(As[i]):
+#                tests.append(True)
+#            else:
+#                d = self.degree_estimate(As[i])
+#                tests.append(d)
+#                AtL = magma.Transpose(AsL[i])
+#                div = magma.CantorMorphismFromMatrixSplit(X, P0, AtL, LowerBound = 2*d + 2)
+#                # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
+#                tests.append(True)
+#        return all(tests)
+#
+#    def geometric(self):
+#        geo_reps = self.geometric_representations()
+#        return OverField(self, K = "geometric")
+#
+#    def over_base(self):
+#        geo_reps = self.geometric_representations()
+#        return OverField(self, K = "base")
+#
+#    def over_field(self, K):
+#        geo_reps = self.geometric_representations()
+#        return OverField(self, K = K)
+#
+#    def rosati_involution(self, A):
+#        geo_reps = self.geometric_representations()
+#        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
+#
+#    def degree_estimate(self, A):
+#        geo_reps = self.geometric_representations()
+#        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
+#
+#    def decomposition(self):
+#        P = self.period_matrix()
+#        lat = self.lattice()
+#        return Decomposition(self)
 
 class Lattice:
     def __init__(self, EndJac):

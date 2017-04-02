@@ -68,11 +68,11 @@ h = x^4 + x^2 + 1
 
 # The main functionality:
 X = HyperellipticCurve(f, h)
-End = EndomorphismData(X, prec = 300)
+End = EndomorphismData(X, 300, have_oldenburg = True)
 print End.period_matrix()
-print End.geometric_representations()
-print End.field_of_definition()
-print End.lattice()
+#print End.geometric_representations()
+#print End.field_of_definition()
+#print End.lattice()
 #print End.geometric().description()
 #print End.over_base().description()
 #print End.field_of_definition()

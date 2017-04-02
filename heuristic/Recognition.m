@@ -7,49 +7,21 @@
  *  See LICENSE.txt for license details.
  */
 
-function CompositeReduce(Ks);
-// Input:   A list of fields.
-// Output:  A compositum.
-if #Ks eq 1 then
-    return [ Ks[1] ];
-else
-    return &cat[ CompositeFields(Ks[1], L) : L in CompositeReduce(Ks[2..#Ks])];
-end if;
-end function;
 
+intrinsic RelativeMinimalPolynomial(a::FldComElt, F::FldNum, iota::PlcNumElt) -> RngUPolElt
+{Determines a relative minimal polynomial of the element a with respected to the number field F and the embedding iota of F.}
+// TODO: Keep track of loop by a verbose flag
 
-function MySplittingField(fs);
-// Input:   A list of polynomials.
-// Output:  A corresponding splitting field.
-//          NOTE: Default functionality was slow so this one tries a compositum
-//          first.
-Ks := [* NumberField(f) : f in fs *];
-Ls := [ IntegralRepresentationNF(L : iso := false) : L in CompositeReduce(Ks) ];
-for L in Ls do
-    if IsNormal(L) then
-        return L;
-    end if;
-end for;
-return SplittingField(fs);
-end function;
+CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
+epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
+R<x> := PolynomialRing(F);
 
-
-function PolynomializeElement(a : epscomp := epscomp0, epsLLL := epsLLL0);
-// Input:    An element of a complex field.
-// Output:   A minimal polynomial one of whose roots approximates a well.
-R<x> := PolynomialRing(Rationals());
-Ca := Parent(a);
-Ra := RealField(Precision(Ca));
-// d is redundant but useful for clarity
-d := 0;
-h := 1;
-// NOTE: Play with the next parameter if (when) the algorithm fails
-h0 := 10;
-powers := [ Ca ! 1 ];
+// NOTE: h0 is a parameter to play with
+d := 0; h := 1; h0 := 10;
+powers := [ CC ! 1 ];
 while true do
     // Increase height:
-    d +:= 1;
-    h *:= h0;
+    d +:= 1; h *:= h0;
     Append(~powers, powers[#powers] * a);
     M := Transpose(Matrix([powers]));
     // Now split and take an IntegralLeftKernel:
@@ -69,31 +41,32 @@ while true do
             end for;
         end if;
     end for;
-    // Making sure of loop exit:
-    if d gt 100 then
-        error Error("No polynomials of small degree found");
-    end if;
 end while;
 
-end function;
+end intrinsic;
 
 
-function PolynomializeMatrix(A : epscomp := epscomp0, epsLLL := epsLLL0);
-// Input:    A matrix over a complex field.
-// Output:   The same matrix with its entries replaced by the polynomials
-//           obtained by running the previous algorithm.
-return Matrix([[ PolynomializeElement(a : epscomp := epscomp, epsLLL :=
-    epsLLL) : a in Eltseq(r) ] : r in Rows(A) ]);
-end function;
+intrinsic RelativeMinimalPolynomials(L::SeqEnum) -> SeqEnum
+{Polynomializes matrices.}
+
+return [ RelativeMinimalPolynomial(a) : a in L ] ;
+
+end intrinsic;
 
 
-// The following function is generalized by AlgebraizeElementInField:
-function FractionalApproximation(a : epscomp := epscomp0, epsLLL := epsLLL0);
-    // Input:    An element of a complex field.
-    // Output:   A fraction that approximates to the given precision
-    //           (using continued fractions is likely much better).
+intrinsic RelativeMinimalPolynomialsMatrices(As::SeqEnum) -> SeqEnum
+{Polynomializes matrices.}
+
+return &cat[ RelativeMinimalPolynomials(Eltseq(A)) : A in As ];
+
+end intrinsic;
+
+
+intrinsic FractionalApproximation(a::FldComElt) -> FldRatElt
+{Fractional approximation of a complex number a.}
+    CC := Parent(a); prec := Precision(CC);
+    epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
     M := Matrix([[1], [-Real(a)]]);
-    // TODO: A loop should follow if this algorithm ever fails
     K := IntegralLeftKernel(M : epsLLL := epsLLL);
     q := K[1,1] / K[1,2];
     if Abs(q - a) lt epscomp then
@@ -101,23 +74,26 @@ function FractionalApproximation(a : epscomp := epscomp0, epsLLL := epsLLL0);
     else
         error Error("LLL not does return a sufficiently good fraction");
     end if;
-end function;
+end intrinsic;
 
 
-function AlgebraizeElementInField(a, frep, h : epscomp := epscomp0,
-    epsLLL := epsLLL0);
-// Input:    A complex number a, a representation of a number field frep, and a
-//           number representing a homomorphism h from that field into the
-//           complex numbers.
-// Output:   A power basis representation of x as an element of the field
-//           corresponding to frep.
+
+
+
+
+
+intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::FldNum, iota::PlcNumElt) -> FldNumElt
+{Finds an algebraic approximation of a as an element of K via the embedding iota of K into CC.}
+
+CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
+epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
+R<x> := PolynomialRing(K);
+
 Ca := Parent(a);
 ran := Ca!h;
 Ra := RealField(Precision(Ca));
 K := NumberField(Polynomial(frep));
 d := Degree(K);
-// FIXME: Usual hateful dichotomy. Maybe take roots of DefiningPolynomial or
-// defining polynomial?
 if d ne 1 then
     r := K.1;
 else
@@ -143,108 +119,31 @@ for R in Rows(Ker) do
     end if;
 end for;
 
-error Error("Fail to algebraize element in ambient");
+error Error("Failed to algebraize element in ambient");
 
-end function;
-
-
-// A slight variation of the above (in the application below, we could even
-// replace it with AlgebraizeElementInField):
-function NearbyRoot(a, f, h : epscomp := epscomp0);
-// Input:   A polynomial f, a complex number a that is an approximation of a
-//          complex root of f, and a homomorphism h of a number field K into the
-//          parent of a.
-// Output:  A root of f in K whose embedding under h is close to a.
-
-K := Domain(h);
-rs := [ tup[1] : tup in Roots(f, K) ];
-for r in rs do
-    if Abs(h(r) - a) lt epscomp then
-        return r;
-    end if;
-end for;
-
-error Error("Failed to find a nearby root");
-
-end function;
+end intrinsic;
 
 
-function AlgebraizeMatricesInField(As, AsPol, frep : epscomp := epscomp0);
-// Input:   A collection of matrices As and their polynomizations AsPol, along
-//          with a number field, specified by a tuple frep.
-// Output:  Algebraic representations of these matrices and representations of
-//          the corresponding number field and embedding.
+intrinsic AlgebraizeMatrixInRelativeField(A::AlgMatElt, K::FldNum, iota::PlcNumElt) -> AlgMatElt
+{Algebraizes a matrix.}
 
-// Choose complex embedding; need to hack this because of Magma's stupidity.
+return Matrix([ [ AlgebraizeElementInRelativeField(c, K, iota) : c in Eltseq(row) ] : row in Rows(A) ]);
 
-f := Polynomial(frep);
-prec := Precision(BaseRing(As[1]));
-if Degree(f) eq 1 then
-    K<r> := RationalsAsNumberField();
-    h := hom<K -> ComplexField(prec) | 1>;
-    //K := Rationals();
-    //h := hom<K -> ComplexField(prec) | >;
-    fhom := h(0);
-else
-    K<r> := NumberField(f);
-    ra := Roots(f, ComplexField(prec))[1][1];
-    h := hom<K -> ComplexField(prec) | ra>;
-    fhom := h(r);
-end if;
-
-// Unfortunately we cannot zip matrices in Magma, so we resort to running over
-// indices:
-L := #As;
-M := #Rows(As[1]);
-N := #Rows(Transpose(As[1]));
-// TODO: This step may be too expensive, and we should use
-// AlgebraizeElementInField
-AsAlg := [Matrix(K, [[ NearbyRoot(As[l][m][n], AsPol[l][m][n], h : epscomp :=
-    epscomp) : n in [1..N]] : m in [1..M] ]) : l in [1..L]];
-
-// Return representation along with root needed to reconstruct:
-return AsAlg, fhom;
-
-end function;
+end intrinsic;
 
 
-function IntegralRepresentationNF(K : iso := true);
-// Input:   A number field K.
-// Output:  A number field L with a small integral defining polynomial and an
-//          isomorphism h from K to L.
+intrinsic AlgebraizeMatrixInRelativeField(A::ModMatRngElt, K::FldNum, iota::PlcNumElt) -> ModMatRngElt
+{Algebraizes a matrix.}
 
-d := Degree(K);
-if d eq 1 then
-    // In the case of degree 1 we use the rationals as a number field for
-    // reasons of uniformity:
-    L := RationalsAsNumberField();
-    //L := Rationals();
-    if K eq Rationals() then
-        return L, hom<K -> L | >;
-    else
-        return L, hom<K -> L | L ! (K.1)>;
-    end if;
-    L := Rationals();
-else
-    // We cannot quite apply OptimizedRepresentation straight away since it does
-    // not always make the defining polynomial integral. Instead of this we find
-    // a small element of the maximal order that defines the field and apply the
-    // function to that instead:
-    r := K.1;
-    dens := Reverse([ Denominator(coeff) : coeff in Coefficients(MinimalPolynomial(r)) ]);
-    primes := &join[ Set([ tup[1] : tup in Factorization(den) ]) : den in dens | den ne 0 ];
-    if #primes eq 0 then
-        common_den := 1;
-    else
-        common_den := &*[ p^Maximum([ Ceiling(Valuation(dens[k], p)/k) : k in [1..#dens] | dens[k] ne 0 ]) : p in primes ];
-    end if;
-    g := MinimalPolynomial(common_den*r);
-    L := OptimizedRepresentation(NumberField(g));
-    if not iso then
-        return L;
-    end if;
-    test, h := IsIsomorphic(K, L);
-    return L, h;
-end if;
+return Matrix([ [ AlgebraizeElementInRelativeField(c, K, iota) : c in Eltseq(row) ] : row in Rows(A) ]);
 
-end function;
+end intrinsic;
+
+
+intrinsic GeometricEndomorphismRepresentations(As::SeqEnum, Rs::SeqEnum, K::FldNum, iota::PlcNumElt) -> List
+{Final algebraization step.}
+
+AsAlg := [ AlgebraizeMatrixInRelativeField(A, K, iota) : A in As ];
+return [* As, Rs, AsAlg *];
+
+end intrinsic;
