@@ -58,23 +58,32 @@ class EndomorphismData:
 
     def geometric_representations(self):
         if not hasattr(self, "_geo_reps_"):
-            P = self.period_matrix()
-            self._As_, self._Rs_ = magma.GeometricEndomorphismApproximations(P, nvals = 2)
-            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._As_, self.base_field, self._iotaF_)
-            self._fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
-            self._iotaL_ = magma.ExtendInfinitePlace(self._iotaF_, self._fod_)
-            self._AsAlg_ = magma.GeometricEndomorphismRepresentations(self._As_, self._Rs_, self._fod_, self._iotaL_)
-        return [ self._As_, self._Rs_, self._AsAlg_ ]
+            self._P_ = self.period_matrix()
+            self._geo_approxs_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
+            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._geo_approxs_, self._fod_)
+            self._endo_fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
+            self._geo_reps_ = magma.GeometricEndomorphismBasisRepresentations(self._geo_approxs_, self._fod_)
+        return self._geo_reps_
 
     def base_field(self):
-        if not hasattr(self, "_fod_"):
-            geo_reps = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         return self._fod_
 
-    def field_of_definition(self):
-        if not hasattr(self, "_frep_"):
-            geo_reps = self.geometric_representations()
+    def endomorphism_field(self):
+        self._geo_reps_ = self.geometric_representations()
         return self._endo_fod_
+
+    def geometric(self):
+        self._geo_reps_ = self.geometric_representations()
+        return OverField(self, K = "geometric")
+
+    def over_base(self):
+        self._geo_reps_ = self.geometric_representations()
+        return OverField(self, K = "base")
+
+    def over_field(self, K):
+        self._geo_reps_ = self.geometric_representations()
+        return OverField(self, K = K)
 
 #    def lattice(self):
 #        if not self._lat_:
@@ -85,7 +94,15 @@ class EndomorphismData:
 #            #self._fsubgen_ = L[1]
 #            #self._idems_ = L[2]
 #        return Lattice(self)
+
+#    def rosati_involution(self, A):
+#        geo_reps = self.geometric_representations()
+#        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
 #
+#    def degree_estimate(self, A):
+#        geo_reps = self.geometric_representations()
+#        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
+
 #    def geometric_representations_check(self, bound = 2^10):
 #        # TODO: Split case
 #        X = magma.HyperellipticCurve(4*self.f + self.h^2)
@@ -104,27 +121,7 @@ class EndomorphismData:
 #                # TODO: This justs appends True for now because in fact the current test will never stop if there is an error... TBD
 #                tests.append(True)
 #        return all(tests)
-#
-#    def geometric(self):
-#        geo_reps = self.geometric_representations()
-#        return OverField(self, K = "geometric")
-#
-#    def over_base(self):
-#        geo_reps = self.geometric_representations()
-#        return OverField(self, K = "base")
-#
-#    def over_field(self, K):
-#        geo_reps = self.geometric_representations()
-#        return OverField(self, K = K)
-#
-#    def rosati_involution(self, A):
-#        geo_reps = self.geometric_representations()
-#        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
-#
-#    def degree_estimate(self, A):
-#        geo_reps = self.geometric_representations()
-#        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
-#
+
 #    def decomposition(self):
 #        P = self.period_matrix()
 #        lat = self.lattice()
@@ -132,6 +129,7 @@ class EndomorphismData:
 
 class Lattice:
     def __init__(self, EndJac):
+        # TODO: Make this different
         self._frep_ = EndJac._frep_
         self._lat_ = EndJac._lat_
 
@@ -181,6 +179,8 @@ class OverField:
         return self._reps_
 
     def description(self):
+        # TODO: Should be deferred elsewhere
+        return 0
         if not hasattr(self, "_desc_"):
             if self._lat_ != None:
                 if self.field == "geometric":

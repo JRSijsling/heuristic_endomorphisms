@@ -1,5 +1,5 @@
 /***
- *  Algebraizing the basis over a field
+ *  Subrings of the geometric endomorphism ring over subfields
  *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)

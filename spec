@@ -43,6 +43,9 @@
     Relative.m
     Periods.m
     Recognition.m
+    Linear.m
+    Analytic.m
+    OverField.m
   }
   puiseux
   {

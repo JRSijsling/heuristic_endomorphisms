@@ -1,3 +1,14 @@
+/***
+ *  Determining period matrices
+ *
+ *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
+ *                                       (jeroen.sijsling@uni-ulm.de)
+ *  See LICENSE.txt for license details.
+ */
+
+/* Enable Oldenburg if you have access to the relevant code by Pascal Molin,
+ * Christian Neurohr et al. */
+
 intrinsic PeriodMatrixHyperelliptic(f::RngUPolElt, h::RngUPolElt : HaveOldenburg := false) -> AlgMatElt
 {Computes a (big) period matrix of the hyperelliptic curve defined by f and h.}
 

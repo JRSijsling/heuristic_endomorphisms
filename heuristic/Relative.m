@@ -1,11 +1,14 @@
 /***
- *  Relative number field functionality
+ *  Relative number field functionality and attributes
  *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)
  *  See LICENSE.txt for license details.
  */
 
+
+/* We keep track of an infinite place, that can be modified if the need ever
+ * arises. */
 
 declare attributes FldNum : iota;
 declare attributes FldRat : iota;
@@ -22,6 +25,8 @@ if Type(F) eq FldNum then
             SetInfinitePlace(F, iotaF);
         end if;
     end for;
+else
+    SetInfinitePlace(F, InfinitePlaces(F)[1]);
 end if;
 
 end intrinsic;
@@ -35,24 +40,29 @@ K`iota := iota;
 end intrinsic;
 
 
-intrinsic EmbedAsComplexPolynomials(fs::SeqEnum, prec::RngIntElt) -> SeqEnum
-{Embeds a list of polynomials fs as complex polynomials to precision prec.}
+intrinsic DefineOrExtendInfinitePlace(K::Fld)
+{Extends an infinite place over a relative field extension.}
 
-R := Parent(fs[1]); d := #GeneratorsSequence(R);
-F := BaseRing(R);
-if not assigned F`iota then
-    SetInfinitePlace(F, InfinitePlaces(F)[1]);
-end if;
-
-CC<I> := ComplexField(prec);
-if d eq 1 then
-    RCC := PolynomialRing(CC);
+F := BaseRing(K);
+if not assigned F`iota or Type(BaseRing(K)) eq FldRat then
+    SetInfinitePlace(K, InfinitePlaces(K)[1]);
 else
-    RCC := PolynomialRing(CC, d);
+    for iotaK in InfinitePlaces(K) do
+        if Extends(iotaK, F`iota) then
+            K`iota := iotaK;
+        end if;
+    end for;
 end if;
-fsCC := [ EmbedAtInfinitePlace(f, F`iota, R, RCC) : f in fs ];
 
-return fsCC;
+end intrinsic;
+
+
+intrinsic NumberFieldExtra(f::RngUPolElt) -> FldNum
+{Creates a number field with an embedding.}
+
+K := NumberField(f);
+DefineOrExtendInfinitePlace(K);
+return K;
 
 end intrinsic;
 
@@ -81,6 +91,27 @@ else
     mons := Monomials(f);
     return &+[ Evaluate(MonomialCoefficient(f, mon), iota : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];
 end if;
+
+end intrinsic;
+
+
+intrinsic EmbedAsComplexPolynomials(fs::SeqEnum, prec::RngIntElt) -> SeqEnum
+{Embeds a list of polynomials fs as complex polynomials to precision prec.}
+
+R := Parent(fs[1]); d := #GeneratorsSequence(R);
+F := BaseRing(R);
+if not assigned F`iota then
+    SetInfinitePlace(F, InfinitePlaces(F)[1]);
+end if;
+
+CC<I> := ComplexField(prec);
+if d eq 1 then
+    RCC := PolynomialRing(CC);
+else
+    RCC := PolynomialRing(CC, d);
+end if;
+fsCC := [ EmbedAtInfinitePlace(f, F`iota, R, RCC) : f in fs ];
+return fsCC;
 
 end intrinsic;
 
@@ -118,13 +149,12 @@ else
 end if;
 f := MinimalPolynomial(common_den*r);
 K := NumberField(f);
-
 return K;
 
 end intrinsic;
 
 
-intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt) -> Fld
+intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt) -> FldNum
 {Extension step for relative splitting fields.}
 
 if Degree(F) eq 1 then
@@ -145,7 +175,7 @@ end while;
 end intrinsic;
 
 
-intrinsic RelativeSplittingField(fs::SeqEnum) -> Fld
+intrinsic RelativeSplittingField(fs::SeqEnum) -> FldNum
 {Determines a relative splitting field of the polynomials in fs.}
 
 // FIXME: This code below is relatively bad; I would prefer to first define K
@@ -162,7 +192,6 @@ for f in fs do
         end for;
     end if;
 end for;
-
 return K;
 
 end intrinsic;
@@ -176,13 +205,19 @@ return RelativeSplittingField([ f ]);
 end intrinsic;
 
 
-intrinsic ExtendInfinitePlace(iotaF::PlcNumElt, K::Fld)
-{Extends an infinite place over a relative field extension.}
+intrinsic RelativeSplittingFieldExtra(fs::SeqEnum) -> FldNum
+{Creates a relative splitting field field with an embedding.}
 
-for iotaK in InfinitePlaces(K) do
-    if Extends(iotaK, iotaF) then
-        K`iota := iotaK;
-    end if;
-end for;
+K := RelativeSplittingField(fs);
+DefineOrExtendInfinitePlace(K);
+return K;
+
+end intrinsic;
+
+
+intrinsic RelativeSplittingFieldExtra(f::RngUPolElt) -> FldNum
+{Creates a relative splitting field field with an embedding.}
+
+return RelativeSplittingFieldExtra([ f ]);
 
 end intrinsic;

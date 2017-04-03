@@ -1,5 +1,5 @@
 """
- *  Routines for recognizing complex numbers as elements of number fields
+ *  Relative splitting fields with GP optimizations
  *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)
@@ -24,5 +24,7 @@ def Relative_Splitting_Field(fs, bound = 0):
                 else:
                     K = magma.ClearFieldDenominator(K)
                 if Bound_Set and magma.Degree(K) >= Bound:
+                    magma.DefineOrExtendInfinitePlace(K);
                     return K
+    magma.DefineOrExtendInfinitePlace(K);
     return K

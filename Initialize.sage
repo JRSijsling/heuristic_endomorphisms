@@ -13,7 +13,7 @@ if not '__endodir__' in globals():
 # The following line is a lazy solution:
 magma.AttachSpec('spec');
 
-load(__endodir__ + 'heuristic/Recognition.sage')
+load(__endodir__ + 'heuristic/Relative.sage')
 #load(__endodir__ + 'heuristic/Canonize.sage')
 #load(__endodir__ + 'heuristic/Decomposition.sage')
 #load(__endodir__ + 'heuristic/Conversion.sage')

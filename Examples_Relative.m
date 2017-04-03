@@ -5,14 +5,14 @@ R<x> := PolynomialRing(F);
 f := x^3 + x + 1;
 g := x^2 - 5;
 
-K := NumberField(f);
-print K;
-print BaseRing(K);
+K := NumberFieldExtra(f);
+SetInfinitePlace(K, InfinitePlaces(K)[2]);
 
-L := RelativeSplittingField([f, g]);
+K := NumberField(f);
+L := RelativeSplittingFieldExtra([f, g]);
 print L;
-print BaseRing(L);
-print Roots(f, L);
+print L`iota;
+//print Roots(f, L);
 
 F<r> := NumberField(x^2 - 2);
 R<x> := PolynomialRing(F);
@@ -21,20 +21,13 @@ g := x^2 - 5;
 g := x^2 - 5 + r;
 
 K := NumberField(f);
-print K;
-print BaseRing(K);
-
-L := RelativeSplittingField([f, g]);
+L := RelativeSplittingFieldExtra([f, g]);
 print L;
-print BaseRing(L);
-print Roots(f, L);
+print L`iota;
+//print Roots(f, L);
 
-print InfinitePlaces(F);
-print InfinitePlaces(L);
-
-infF := InfinitePlaces(F)[1];
-for infL in InfinitePlaces(L) do
-    print Extends(infL, infF);
-end for;
+SetInfinitePlace(L, InfinitePlaces(L)[7]);
+print L`iota;
+print F`iota;
 
 exit;

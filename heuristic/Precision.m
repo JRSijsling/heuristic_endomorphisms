@@ -1,12 +1,13 @@
 /***
- *  Relative number field functionality
+ *  Richer structure for complex number fields
  *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)
  *  See LICENSE.txt for license details.
  */
 
-
+/* We add parameters for comparison, LLL, and seeing whether a square matrix is
+ * invertible. */
 declare attributes FldCom : epscomp, epsLLL, epsinv;
 declare attributes FldRe  : epscomp, epsLLL, epsinv;
 
