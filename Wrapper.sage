@@ -37,7 +37,6 @@ class EndomorphismData:
         self.prec = prec
         self.bound = bound
         self.have_oldenburg = have_oldenburg
-        self._lat_ = None
 
     def __repr__(self):
         if self.curve_type == "hyperelliptic":
@@ -85,15 +84,11 @@ class EndomorphismData:
         self._geo_reps_ = self.geometric_representations()
         return OverField(self, K = K)
 
-#    def lattice(self):
-#        if not self._lat_:
-#            AsAlg, As, Rs = self.geometric_representations()
-#            L = magma.EndomorphismLatticeG3(AsAlg, As, Rs)
-#            self._lat_ = L
-#            #self._lat_ = EDs_sagified(L, self._frep_)
-#            #self._fsubgen_ = L[1]
-#            #self._idems_ = L[2]
-#        return Lattice(self)
+    def lattice_description(self):
+        if not hasattr(self, "_lat_"):
+            self._geo_reps_ = self.geometric_representations()
+            self._lat_ = magma.EndomorphismLatticeDescription(self._geo_reps_)
+        return Lattice(self)
 
 #    def rosati_involution(self, A):
 #        geo_reps = self.geometric_representations()

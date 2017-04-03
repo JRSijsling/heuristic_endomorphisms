@@ -6,72 +6,40 @@
  *  See LICENSE.txt for license details.
  */
 
-function EndomorphismDataG3(GeoEndList, L, K);
-// Input:   Algebraized, analytic, and rational representations of the basis of
-//          an endomorphism ring of a Jacobian, along with its period matrix.
-// Output:  Invariants for the associated ring, algebra, algebra tensored with
-//          RR, and decompositions.
+intrinsic EndomorphismData(EndList::SeqEnum) -> List
+{Gives the endomorphism data over the subfield K, starting from.}
 
-// The function always returns the endomorphism algebra; optionally, with
-// AddTensor, AddRing and AddDecomposition, information is returned about the
-// endomorphism ring (an order in the endomorphism algebra), the endomorphism
-// algebra tensored with RR over QQ, and the idempotents needed for a
-// decomposition of the isogeny class of the Jacobian.
-
-// In the current version we use the compactified representation of these data,
-// but the functions used can be applied in greater generality (this seemed like
-// a good compromise).
-
-// TODO: Make relative, and if possible work with general fields in the input so that other functions can go in the Wrapper.
-        
-if K eq L then
-    // Geometric case:
-    EndList0 := GeoEndList;
-else
-    Gp, Gf, Gphi := AutomorphismGroup(L);
-    if Degree(K) eq 1 then
-        GensHp := Generators(Gp);
-    else
-        Hp := FixedGroup(L, K);
-        GensHp := Generators(Hp);
-    end if;
-    // Galois invariants and resulting endomorphisms:
-    GensHf := [ Gphi(hp) : hp in GensHp ];
-    EndList0 := EndomorphismBasisOverSubfield(GensHf, GeoEndList);
-end if;
-Rs := EndList0[3];
-
-// Creation of relevant algebras:
+Rs := EndList[3];
+// Creation of relevant algebras
 g := #Rows(Rs[1]) div 2;
-// Ambient matrix algebra, plus generators of the endomorphism ring:
-A := Algebra(MatrixRing(Rationals(), 2*g)); GensA := [A ! Eltseq(R) : R in Rs];
-// As a subalgebra:
-B := sub<A | GensA>; GensB := [B ! gen : gen in GensA];
-// As an associative algebra:
-C := AssociativeAlgebra(B); GensC := [C ! gen : gen in GensB];
+// Ambient matrix algebra, plus generators of the endomorphism ring
+A := Algebra(MatrixRing(Rationals(), 2*g)); GensA := [ A ! Eltseq(R) : R in Rs ];
+// As a subalgebra
+B := sub<A | GensA>; GensB := [ B ! gen : gen in GensA ];
+// As an associative algebra
+C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 
-ED := [* *];
-RepFactorsQQ := EndomorphismAlgebraFactorsQQG3(C);
-Append(~ED, RepFactorsQQ);
-RepFactorsRR := EndomorphismAlgebraFactorsRRG3(RepFactorsQQ);
-Append(~ED, RepFactorsRR);
-RepRing := EndomorphismRingG3(GensC, C);
-Append(~ED, RepRing);
-return ED;
+EndoDescList := [* *];
+EndoDescQQ := EndomorphismDescriptionQQ(C);
+Append(~EndoDescList, EndoDescQQ);
+EndoDescRR := EndomorphismDescriptionRR(EndoDescQQ);
+Append(~EndoDescList, EndoDescRR);
+EndoDescZZ := EndomorphismDescriptionZZ(GensC, C);
+Append(~EndoDescList, EndoDescZZ);
 
-end function;
+return C, EndoDescList;
+
+end intrinsic;
 
 
-function EndomorphismAlgebraFactorsQQG3(C);
-// Determines the endomorphism algebra factors in the algorithm above. It
-// heavily uses the classification. Also returns some other arguments needed for
-// later use in determining the endomorphism ring and decompositions.
+intrinsic EndomorphismDescriptionQQ(C::AlgAss) -> .
+{Decribes the factors of endomorphism algebra.}
 
-// Central decomposition:
+// Central decomposition
 Ds := DirectSumDecomposition(C);
-RepFactorsQQ := [* *];
+EndoDescQQ := [* *];
 for D in Ds do
-    RepFactorQQ := [* *];
+    DescFactorQQ := [* *];
     E1 := AlgebraOverCenter(D);
     F := IntegralRepresentationNF(BaseRing(E1));
     FDesc := Eltseq(MinimalPolynomial(F.1));
@@ -79,76 +47,73 @@ for D in Ds do
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then
         if d eq 1 then
-            RepFactorQQ := [* "I", FDesc, d, -1 *];
+            DescFactorQQ := [* "I", FDesc, d, -1 *];
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Integers() ! Norm(DQFin);
             if not IsDefinite(Q) then
-                RepFactorQQ := [* "II", FDesc, d, NDQ *];
+                DescFactorQQ := [* "II", FDesc, d, NDQ *];
             else
                 // TODO: Case where we have a matrix ring over HH
-                RepFactorQQ := [* "III", FDesc, d, NDQ *];
+                DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
         else
-            RepFactorQQ := [* "II or III", FDesc, d, -1 *];
+            DescFactorQQ := [* "II or III", FDesc, d, -1 *];
         end if;
     else
         if d eq 1 then
-            RepFactorQQ := [* "IV", FDesc, d, -1 *];
+            DescFactorQQ := [* "IV", FDesc, d, -1 *];
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Norm(DQFin);
-            RepFactorQQ := [* "IV", FDesc, d, NDQ *];
+            DescFactorQQ := [* "IV", FDesc, d, NDQ *];
         else
-            RepFactorQQ := [* "IV", FDesc, d, -1 *];
+            DescFactorQQ := [* "IV", FDesc, d, -1 *];
         end if;
     end if;
-    Append(~RepFactorsQQ, RepFactorQQ);
+    Append(~EndoDescQQ, DescFactorQQ);
 end for;
+return EndoDescQQ;
 
-return RepFactorsQQ;
-
-end function;
+end intrinsic;
 
 
-function EndomorphismAlgebraFactorsRRG3(RepFactorsQQ);
-// Returns factors of endomorphism algebra tensored with RR.
+intrinsic EndomorphismDescriptionRR(EndoDescQQ::List) -> .
+{Decribes the factors of endomorphism algebra tensored with RR.}
 
-RepFactorsRR := [];
-for RepQQ in RepFactorsQQ do
-    AlbertType := RepQQ[1];
-    e := #RepQQ[2] - 1;
+EndoDescRR := [ ];
+for DescFactorQQ in EndoDescQQ do
+    AlbertType := DescFactorQQ[1];
+    e := #DescFactorQQ[2] - 1;
     if AlbertType eq "I" then
-        RepFactorsRR cat:= [ "RR" : i in [1..e] ];
+        EndoDescRR cat:= [ "RR" : i in [1..e] ];
     elif AlbertType eq "II" then
-        RepFactorsRR cat:= [ "M_2 (RR)" : i in [1..e] ];
+        EndoDescRR cat:= [ "M_2 (RR)" : i in [1..e] ];
     elif AlbertType eq "III" then
-        RepFactorsRR cat:= [ "HH" : i in [1..e] ];
+        EndoDescRR cat:= [ "HH" : i in [1..e] ];
     elif AlbertType eq "OO or III" then
-        RepFactorsRR cat:= [ "M2 (RR) or HH" : i in [1..e] ];
+        EndoDescRR cat:= [ "M2 (RR) or HH" : i in [1..e] ];
     elif AlbertType eq "IV" then
-        d := RepQQ[3];
+        d := DescFactorQQ[3];
         if d eq 1 then
-            RepFactorsRR cat:= [ "CC" : i in [1..(e div 2)] ];
+            EndoDescRR cat:= [ "CC" : i in [1..(e div 2)] ];
         else
             str := Sprintf("M_%o (CC)", d);
-            RepFactorsRR cat:= [ str : i in [1..(e div 2)] ];
+            EndoDescRR cat:= [ str : i in [1..(e div 2)] ];
         end if;
     end if;
 end for;
+return EndoDescRR;
 
-return RepFactorsRR;
-
-end function;
+end intrinsic;
 
 
-function EndomorphismRingG3(GensC, C);
-// Returns endomorphism ring in the better ambient given by the previous
-// algorithm.
+intrinsic EndomorphismDescriptionZZ(GensC::SeqEnum, C::AlgAss) -> .
+{Describes of the endomorphism ring.}
 
 OC := Order(Integers(), GensC);
 DOC := Discriminant(OC); DOM := Discriminant(MaximalOrder(C));
 test, ind := IsSquare(DOC / DOM);
 return Integers() ! ind;
 
-end function;
+end intrinsic;

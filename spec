@@ -46,6 +46,8 @@
     Linear.m
     Analytic.m
     OverField.m
+    Data.m
+    Lattice.m
   }
   puiseux
   {

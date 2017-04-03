@@ -19,7 +19,7 @@ end intrinsic;
 intrinsic SubmatrixOfRank(M::., rk::RngIntElt : ColumnsOrRows := "Rows") -> .
 {Finds a submatrix of M of rank rk, returning an error if such a matrix does not seem to exist. ColumnsOrRows specifies which are used.}
 
-// Reducing to columns:
+// Reducing to columns
 if ColumnsOrRows eq "Columns" then
     M := Transpose(M);
 end if;
