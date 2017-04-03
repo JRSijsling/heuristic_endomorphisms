@@ -9,35 +9,38 @@
 
 
 intrinsic RelativeMinimalPolynomial(a::FldComElt, F::FldNum) -> RngUPolElt
-{Determines a relative minimal polynomial of the element a with respect to the first infinite embedding of the number field F.}
-// TODO: Keep track of loop by a verbose flag, and may want to indicate infinite place.
+{Determines a relative minimal polynomial of the element a with respect to the stored infinite place of F.}
 
-degF := Degree(F); R<x> := PolynomialRing(F); iota := InfinitePlaces(F)[1];
+//TODO: Speed relies on storing iota of a generator, which seems to happen, but experiment
+degF := Degree(F); R<x> := PolynomialRing(F);
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
-epscomp := 10^(-prec + 30);
 
 // NOTE: height is a parameter to play with
 degf := 0; height := 1; height0 := 100;
-gen := CC ! Evaluate(iota, F.1 : Precision := prec);
+gen := CC ! Evaluate(F`iota, F.1 : Precision := prec);
 powersgen := [ gen^i : i in [0..(degF - 1)] ];
 powersa := [ CC ! 1 ];
+MLine := [ ];
+
 while true do
     // Increase height and number of possible relations
     degf +:= 1; height *:= height0;
-    Append(~powersa, powersa[#powersa] * a);
-    M := Transpose(Matrix([powers]));
+    powera := powersa[#powersa] * a; powersa cat:= [ powera ];
+    MLine cat:= [ powersgen * a : powergen in powersgen ];
+    M := Transpose(Matrix(CC, [ MLine ]));
+
     // Now split and take an IntegralLeftKernel
     MSplit := SplitPeriodMatrix(M);
     Ker := IntegralLeftKernel(MSplit);
     for row in Rows(Ker) do
         // Height condition
         if &and[ Abs(c) le height : c in Eltseq(row) ] then
-            f := &+ [ row[i + 1] * x^i : i in [0..degf] ];
+            f := &+[ &+[ row[i*degF + j]*F.1^j : j in [0..(degF - 1)] ] * x^i : i in [0..degf] ];
             // Factor (to eliminate redundancy) and check
             Fac := Factorization(f);
             for tup in Fac do
                 g := tup[1];
-                if Abs(Evaluate(g, a)) lt epscomp then
+                if Abs(Evaluate(g, a)) lt CC`epscomp then
                     return g;
                 end if;
             end for;
@@ -66,12 +69,10 @@ end intrinsic;
 
 intrinsic FractionalApproximation(a::FldComElt) -> FldRatElt
 {Fractional approximation of a complex number a.}
-    CC := Parent(a); prec := Precision(CC);
-    epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
-    M := Matrix([[1], [-Real(a)]]);
-    K := IntegralLeftKernel(M : epsLLL := epsLLL);
-    q := K[1,1] / K[1,2];
-    if Abs(q - a) lt epscomp then
+    CC := Parent(a); RR := RealField(CC);
+    M := Matrix(RR, [ [ 1 ], [ -Real(a) ] ]);
+    K := IntegralLeftKernel(M); q := K[1,1] / K[1,2];
+    if Abs(q - a) lt CC`epscomp then
         return q;
     else
         error Error("LLL not does return a sufficiently good fraction");
@@ -79,73 +80,57 @@ intrinsic FractionalApproximation(a::FldComElt) -> FldRatElt
 end intrinsic;
 
 
+intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::FldNum) -> FldNumElt
+{Finds an algebraic approximation of a as an element of K.}
 
-
-
-
-
-intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::FldNum, iota::PlcNumElt) -> FldNumElt
-{Finds an algebraic approximation of a as an element of K via the embedding iota of K into CC.}
-
+degK := Degree(K); R<x> := PolynomialRing(K);
+F := BaseField(K); degF := Degree(K);
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
-epscomp := 10^(-prec + 30); epsLLL := 5^(-prec + 7);
-R<x> := PolynomialRing(K);
 
-Ca := Parent(a);
-ran := Ca!h;
-Ra := RealField(Precision(Ca));
-K := NumberField(Polynomial(frep));
-d := Degree(K);
-if d ne 1 then
-    r := K.1;
-else
-    r := K ! 0;
-end if;
-// Creating algebraic and analytic powers
-powers := [ r^n : n in [0..d-1] ];
-powersan := [ ran^n : n in [0..d-1] ];
-// Column matrix of embedding of basis elements plus (minus) a
-Man := VerticalJoin(Transpose(Matrix([powersan])), Matrix([[-a]]));
+genK := CC ! Evaluate(K`iota, K.1 : Precision := prec); genF := CC ! Evaluate(F`iota, F.1 : Precision := prec);
+powersgenK := [ genJ^i : i in [0..(degK - 1)] ]; powersgenF := [ genF^i : i in [0..(degF - 1)] ];
+MLine := &cat[ [ powergenF * powergenK : powergenF in powersgenF ] : powergenK in powersgenK ] cat [-a];
+M := Transpose(Matrix(CC, [ MLine ]));
+
 // Now split and take an IntegralLeftKernel
-ManSplit := SplitPeriodMatrix(Man);
-Ker := IntegralLeftKernel(ManSplit : epsLLL := epsLLL);
-for R in Rows(Ker) do
-    den := R[d + 1];
+MSplit := SplitPeriodMatrix(M);
+Ker := IntegralLeftKernel(MSplit);
+for row in Rows(Ker) do
+    den := row[#row];
     if den ne 0 then
-        s := (&+[ R[i] * powers[i] : i in [1..d] ])/ den;
-        san := (&+[ R[i] * powersan[i] : i in [1..d] ]) / den;
+        sCC := &+[ &+[ row[i*degF + j]*genF^j : j in [0..(degF - 1)] ] * genK^i : i in [0..(degK - 1)] ] / den;
         // Check correct to given precision
-        if Abs(san - a) lt epscomp then
-            return Eltseq(s);
+        if Abs(sCC - a) lt CC`epscomp then
+            s := &+[ &+[ row[i*degF + j]*F.1^j : j in [0..(degF - 1)] ] * K.1^i : i in [0..(degK - 1)] ] / den;
+            return s;
         end if;
     end if;
 end for;
-
-error Error("Failed to algebraize element in ambient");
+error Error("LLL fails to algebraize element in ambient");
 
 end intrinsic;
 
 
-intrinsic AlgebraizeMatrixInRelativeField(A::AlgMatElt, K::FldNum, iota::PlcNumElt) -> AlgMatElt
+intrinsic AlgebraizeMatrixInRelativeField(A::AlgMatElt, K::FldNum) -> AlgMatElt
 {Algebraizes a matrix.}
 
-return Matrix([ [ AlgebraizeElementInRelativeField(c, K, iota) : c in Eltseq(row) ] : row in Rows(A) ]);
+return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : row in Rows(A) ]);
 
 end intrinsic;
 
 
-intrinsic AlgebraizeMatrixInRelativeField(A::ModMatRngElt, K::FldNum, iota::PlcNumElt) -> ModMatRngElt
+intrinsic AlgebraizeMatrixInRelativeField(A::ModMatRngElt, K::FldNum) -> ModMatRngElt
 {Algebraizes a matrix.}
 
-return Matrix([ [ AlgebraizeElementInRelativeField(c, K, iota) : c in Eltseq(row) ] : row in Rows(A) ]);
+return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : row in Rows(A) ]);
 
 end intrinsic;
 
 
-intrinsic GeometricEndomorphismRepresentations(As::SeqEnum, Rs::SeqEnum, K::FldNum, iota::PlcNumElt) -> List
+intrinsic GeometricEndomorphismRepresentations(As::SeqEnum, Rs::SeqEnum, K::FldNum) -> List
 {Final algebraization step.}
 
-AsAlg := [ AlgebraizeMatrixInRelativeField(A, K, iota) : A in As ];
+AsAlg := [ AlgebraizeMatrixInRelativeField(A, K) : A in As ];
 return [* As, Rs, AsAlg *];
 
 end intrinsic;

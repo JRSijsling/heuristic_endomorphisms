@@ -176,12 +176,12 @@ return RelativeSplittingField([ f ]);
 end intrinsic;
 
 
-intrinsic ExtendInfinitePlace(iotaF::PlcNumElt, K::Fld) -> PlcNumElt
+intrinsic ExtendInfinitePlace(iotaF::PlcNumElt, K::Fld)
 {Extends an infinite place over a relative field extension.}
 
 for iotaK in InfinitePlaces(K) do
     if Extends(iotaK, iotaF) then
-        return iotaK;
+        K`iota := iotaK;
     end if;
 end for;
 

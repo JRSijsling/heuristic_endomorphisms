@@ -42,6 +42,7 @@
     Precision.m
     Relative.m
     Periods.m
+    Recognition.m
   }
   puiseux
   {
