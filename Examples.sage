@@ -68,8 +68,8 @@ h = x^4 + x^2 + 1
 
 # The main functionality:
 X = HyperellipticCurve(f, h)
-End = EndomorphismData(X, 300, have_oldenburg = True)
-print End.period_matrix()
+End = EndomorphismData(X, 100, have_oldenburg = True)
+#print End.period_matrix()
 print End.geometric_representations()
 #print End.endomorphism_field()
 #print End.lattice()

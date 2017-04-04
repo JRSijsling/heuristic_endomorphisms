@@ -7,7 +7,7 @@
  */
 
 
-intrinsic RelativeMinimalPolynomial(a::FldComElt, F::FldNum) -> RngUPolElt
+intrinsic RelativeMinimalPolynomial(a::FldComElt, F::Fld) -> RngUPolElt
 {Determines a relative minimal polynomial of the element a with respect to the stored infinite place of F.}
 
 // NOTE: The speed of this relies on Magma storing the evaluation of a
@@ -18,16 +18,20 @@ CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
 
 // NOTE: Here height is a parameter to play with.
 degf := 0; height := 1; height0 := 100;
-gen := CC ! Evaluate(F`iota, F.1 : Precision := prec);
+gen := CC ! Evaluate(F.1, F`iota : Precision := prec);
 powersgen := [ gen^i : i in [0..(degF - 1)] ];
-powersa := [ CC ! 1 ];
-MLine := [ ];
 
+// Create first entry corresponding to constant term
+powera := CC ! 1;
+MLine := [ ];
+MLine cat:= [ powergen * powera : powergen in powersgen ];
+
+// Successively adding other entries to find relations
 while true do
     // Increase height and number of possible relations
     degf +:= 1; height *:= height0;
-    powera := powersa[#powersa] * a; powersa cat:= [ powera ];
-    MLine cat:= [ powersgen * a : powergen in powersgen ];
+    powera *:= a;
+    MLine cat:= [ powergen * powera : powergen in powersgen ];
     M := Transpose(Matrix(CC, [ MLine ]));
 
     // Now split and take an IntegralLeftKernel
@@ -52,18 +56,18 @@ end while;
 end intrinsic;
 
 
-intrinsic RelativeMinimalPolynomials(L::SeqEnum) -> SeqEnum
+intrinsic RelativeMinimalPolynomials(L::SeqEnum, F::Fld) -> SeqEnum
 {Polynomializes matrices.}
 
-return [ RelativeMinimalPolynomial(a) : a in L ] ;
+return [ RelativeMinimalPolynomial(a, F) : a in L ] ;
 
 end intrinsic;
 
 
-intrinsic RelativeMinimalPolynomialsMatrices(As::SeqEnum) -> SeqEnum
+intrinsic RelativeMinimalPolynomialsMatrices(As::SeqEnum, F::Fld) -> SeqEnum
 {Polynomializes matrices.}
 
-return &cat[ RelativeMinimalPolynomials(Eltseq(A)) : A in As ];
+return &cat[ RelativeMinimalPolynomials(Eltseq(A), F) : A in As ];
 
 end intrinsic;
 

@@ -26,12 +26,12 @@ class EndomorphismData:
             f, h = X.hyperelliptic_polynomials()
             self.f = magma(f)
             self.h = magma(h)
-            self._fod_ = magma.BaseRing(f)
+            self._fod_ = magma.BaseRing(self.f)
             embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
             self._fCC_, self._hCC_ = embedded_list
         elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
-            self._fod_ = magma.BaseRing(F)
+            self._fod_ = magma.BaseRing(self.F)
             embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
             self._FCC_ = embedded_list[1]
         self.prec = prec
@@ -59,8 +59,8 @@ class EndomorphismData:
         if not hasattr(self, "_geo_reps_"):
             self._P_ = self.period_matrix()
             self._geo_reps_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
-            return self._geo_reps_
-            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._geo_reps_, self._fod_)
+            self._AsPol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_reps_[1], self._fod_)
+            return self._AsPol_
             self._endo_fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
             self._geo_reps_ = magma.GeometricEndomorphismBasisRepresentations(self._geo_reps_, self._fod_)
         return self._geo_reps_
