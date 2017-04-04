@@ -125,7 +125,7 @@ return fsCC;
 end intrinsic;
 
 
-intrinsic ClearFieldDenominator(K::FldNum) -> FldNum
+intrinsic ClearFieldDenominator(K::Fld) -> Fld
 {Simplifies the defining polynomial of a field to an integral version.}
 
 F := BaseRing(K); d := Degree(K);

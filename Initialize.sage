@@ -11,7 +11,7 @@ import os
 if not '__endodir__' in globals():
     __endodir__ = os.getenv("PWD") + "/"
 # The following line is a lazy solution:
-magma.AttachSpec('~/Dropbox/LMFDB_periodmatrices/periodmatrices/spec')
+magma.load('~/.magmarc');
 magma.AttachSpec('spec');
 
 load(__endodir__ + 'heuristic/Relative.sage')

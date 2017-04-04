@@ -83,11 +83,11 @@ class EndomorphismData:
         self._AsAlg_ = self.geometric_representations()
         return OverField(self, K = K)
 
-    def lattice_description(self):
+    def lattice(self):
         if not hasattr(self, "_lat_"):
             self._AsAlg_ = self.geometric_representations()
-            self._lat_ = magma.EndomorphismLatticeDescription(self._geo_reps_)
-        return Lattice(self)
+            self._lat_ = magma.EndomorphismLattice(self._geo_reps_)
+        return Lattice(self._lat_)
 
 #    def rosati_involution(self, A):
 #        geo_reps = self.geometric_representations()
@@ -122,21 +122,35 @@ class EndomorphismData:
 #        return Decomposition(self)
 
 class Lattice:
-    def __init__(self, EndJac):
-        # TODO: Make this different
-        self._lat_ = EndJac._lat_
+    def __init__(self, lat):
+        self._lat_ = lat
+        self._lat_reps_ = lat[1]
+        self._lat_structs_ = lat[2]
+        self._lat_descs_ = lat[3]
 
     def __repr__(self):
         # TODO: Better presentation postponed
-        return str(self._lat_)
+        return "Some lattice dude!"
         statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
-        for ED in self._lat_:
+        for ED in self._lat_descs_:
             statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))
             statement += endo_statement(ED[1], ED[2], ED[3], r'F')
             #statement += st_group_statement(ED[4])
             #statement += gl2_simple_statement(ED[1], ED[2])
             statement += '\n'
         return statement
+
+    def representations(self):
+        # TODO: Better presentation postponed
+        return self._lat_reps_
+
+    def structures(self):
+        # TODO: Better presentation postponed
+        return self._lat_structs_
+
+    def descriptions(self):
+        # TODO: Better presentation postponed, and should include Galois group
+        return self._lat_descs_
 
 class OverField:
     def __init__(self, EndJac, K = "geometric"):
@@ -167,7 +181,31 @@ class OverField:
                 self._reps_ = magma.EndomorphismBasis(self._geo_reps_, self.base_field)
             else:
                 self._reps_ = magma.EndomorphismBasis(self._geo_reps_, magma(self.field))
+        return self._reps_
+
+    def representations_tangent(self):
+        self._reps_ = self.representations()
         return self._reps_[1]
+
+    def representations_homology(self):
+        self._reps_ = self.representations()
+        return self._reps_[2]
+
+    def representations_approximations(self):
+        self._reps_ = self.representations()
+        return self._reps_[3]
+
+    def structure(self):
+        if not hasattr(self, "_struct_"):
+            self._reps_ = self.representations()
+            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+        return self._struct_
+
+    def description(self):
+        if not hasattr(self, "_desc_"):
+            self._reps_ = self.representations()
+            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+        return self._desc_
 
 #    def description(self):
 #        # TODO: Should be deferred elsewhere

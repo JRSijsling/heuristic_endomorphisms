@@ -1,13 +1,13 @@
 /***
- *  Data per subfield
+ *  Structural description per subfield
  *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)
  *  See LICENSE.txt for license details.
  */
 
-intrinsic EndomorphismData(EndList::SeqEnum) -> List
-{Gives the endomorphism data over the subfield K, starting from.}
+intrinsic EndomorphismStructure(EndList::List) -> List
+{Gives the endomorphism structure over the subfield K, starting from a list of representations.}
 
 Rs := EndList[2];
 // Creation of relevant algebras
@@ -19,20 +19,19 @@ B := sub<A | GensA>; GensB := [ B ! gen : gen in GensA ];
 // As an associative algebra
 C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 
-EndoDescList := [* *];
-EndoDescQQ := EndomorphismDescriptionQQ(C);
-Append(~EndoDescList, EndoDescQQ);
-EndoDescRR := EndomorphismDescriptionRR(EndoDescQQ);
-Append(~EndoDescList, EndoDescRR);
-EndoDescZZ := EndomorphismDescriptionZZ(GensC, C);
-Append(~EndoDescList, EndoDescZZ);
-
-return C, EndoDescList;
+EndoStruct := [* *]; EndoDesc := [* *];
+EndoStructQQ, EndoDescQQ := EndomorphismStructureQQ(C);
+Append(~EndoStruct, EndoStructQQ); Append(~EndoDesc, EndoDescQQ);
+EndoStructRR, EndoDescRR := EndomorphismStructureRR(C, EndoDescQQ);
+Append(~EndoStruct, EndoStructRR); Append(~EndoDesc, EndoDescRR);
+EndoStructZZ, EndoDescZZ := EndomorphismStructureZZ(C, GensC);
+Append(~EndoStruct, EndoStructZZ); Append(~EndoDesc, EndoDescZZ);
+return EndoStruct, EndoDesc;
 
 end intrinsic;
 
 
-intrinsic EndomorphismDescriptionQQ(C::AlgAss) -> .
+intrinsic EndomorphismStructureQQ(C::AlgAss) -> .
 {Decribes the factors of endomorphism algebra.}
 
 // Central decomposition
@@ -41,7 +40,7 @@ EndoDescQQ := [* *];
 for D in Ds do
     DescFactorQQ := [* *];
     E1 := AlgebraOverCenter(D);
-    F := IntegralRepresentationNF(BaseRing(E1));
+    F := ClearFieldDenominator(BaseRing(E1));
     FDesc := Eltseq(MinimalPolynomial(F.1));
     E2 := ChangeRing(E1, F);
     test, d := IsSquare(Dimension(E2));
@@ -73,12 +72,12 @@ for D in Ds do
     end if;
     Append(~EndoDescQQ, DescFactorQQ);
 end for;
-return EndoDescQQ;
+return C, EndoDescQQ;
 
 end intrinsic;
 
 
-intrinsic EndomorphismDescriptionRR(EndoDescQQ::List) -> .
+intrinsic EndomorphismStructureRR(C::AlgAss, EndoDescQQ::List) -> .
 {Decribes the factors of endomorphism algebra tensored with RR.}
 
 EndoDescRR := [ ];
@@ -103,17 +102,17 @@ for DescFactorQQ in EndoDescQQ do
         end if;
     end if;
 end for;
-return EndoDescRR;
+return EndoDescRR, EndoDescRR;
 
 end intrinsic;
 
 
-intrinsic EndomorphismDescriptionZZ(GensC::SeqEnum, C::AlgAss) -> .
+intrinsic EndomorphismStructureZZ(C::AlgAss, GensC::SeqEnum) -> .
 {Describes of the endomorphism ring.}
 
 OC := Order(Integers(), GensC);
 DOC := Discriminant(OC); DOM := Discriminant(MaximalOrder(C));
 test, ind := IsSquare(DOC / DOM);
-return Integers() ! ind;
+return OC, Integers() ! ind;
 
 end intrinsic;

@@ -8,7 +8,7 @@
     Linear.m
     Analytic.m
     OverField.m
-    Data.m
+    Structure.m
     Lattice.m
   }
   puiseux
