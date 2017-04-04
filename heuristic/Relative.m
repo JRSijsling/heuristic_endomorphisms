@@ -148,11 +148,15 @@ return K;
 end intrinsic;
 
 
-intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt) -> FldNum
+intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt : Optimize := true) -> FldNum
 {Extension step for relative splitting fields.}
 
 if Degree(F) eq 1 then
-    return SplittingField(f);
+    K := SplittingField(f);
+    if Optimize then
+        K := OptimizedRepresentation(K);
+    end if;
+    return K;
 end if;
 while true do
     factors := [ tup[1] : tup in Factorization(f, K) | Degree(tup[1]) gt 1 ];

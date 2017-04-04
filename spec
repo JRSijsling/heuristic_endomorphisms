@@ -11,6 +11,10 @@
     Structure.m
     Lattice.m
   }
+  polarization
+  {
+    Rosati.m
+  }
   puiseux
   {
     LocalInfo.m

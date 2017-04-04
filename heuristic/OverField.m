@@ -12,7 +12,7 @@ intrinsic EndomorphismBasis(GeoEndList::List, GensHf::SeqEnum) -> List
 
 // Setting the stage
 AsAlg, Rs, As := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
+L := BaseRing(AsAlg[1]); K := FixedField(L, GensHf);
 N := #AsAlg;
 
 // Trivial case
@@ -39,6 +39,7 @@ B := Basis(Lat);
 AsAlg := [ &+[ b[n] * AsAlg[n] : n in [1..N] ] : b in B ];
 Rs    := [ &+[ b[n] * Rs[n]    : n in [1..N] ] : b in B ];
 As    := [ &+[ b[n] * As[n]    : n in [1..N] ] : b in B ];
+AsAlg := [ Matrix(K, A) : A in AsAlg ];
 return [* AsAlg, Rs, As *];
 
 end intrinsic;

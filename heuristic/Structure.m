@@ -31,8 +31,11 @@ return EndoStruct, EndoDesc;
 end intrinsic;
 
 
-intrinsic EndomorphismStructureQQ(C::AlgAss) -> .
+intrinsic EndomorphismStructureQQ(C::AlgAss : Optimize := true) -> .
 {Decribes the factors of endomorphism algebra.}
+// FIXME: Right now a non-Optimized version is not yet easily accessible from
+// Sage. On the other hand, it is not a big operation, so I hav not spent time
+// on this.
 
 // Central decomposition
 Ds := DirectSumDecomposition(C);
@@ -41,6 +44,9 @@ for D in Ds do
     DescFactorQQ := [* *];
     E1 := AlgebraOverCenter(D);
     F := ClearFieldDenominator(BaseRing(E1));
+    if (Type(F) eq FldNum and Optimize) then
+        F := OptimizedRepresentation(F);
+    end if;
     FDesc := Eltseq(MinimalPolynomial(F.1));
     E2 := ChangeRing(E1, F);
     test, d := IsSquare(Dimension(E2));
@@ -53,10 +59,17 @@ for D in Ds do
             if not IsDefinite(Q) then
                 DescFactorQQ := [* "II", FDesc, d, NDQ *];
             else
-                // TODO: Case where we have a matrix ring over HH
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
         else
+            /* FIXME: We do not know what happens here, even when using the
+             * extended Albert classification that I have applied. Testing for
+             * a matrix ring can be done with
+             *     Norm(Discriminant(MaximalOrder(E2)));
+             * but that is only a necessary condition; there may be
+             * ramification at infinity only, in which case this does not tell
+             * enough. For now we get by; this should be addressed with more
+             * general functionality for algebras, not by our package. */
             DescFactorQQ := [* "II or III", FDesc, d, -1 *];
         end if;
     else
@@ -107,12 +120,35 @@ return EndoDescRR, EndoDescRR;
 end intrinsic;
 
 
-intrinsic EndomorphismStructureZZ(C::AlgAss, GensC::SeqEnum) -> .
+intrinsic EndomorphismStructureZZ(C::AlgAss, GensC::SeqEnum : Optimize := true) -> .
 {Describes of the endomorphism ring.}
 
+// Calculating index
 OC := Order(Integers(), GensC);
 DOC := Discriminant(OC); DOM := Discriminant(MaximalOrder(C));
 test, ind := IsSquare(DOC / DOM);
-return OC, Integers() ! ind;
+
+// Test whether Eichler in a quaternion algebra
+Ds := DirectSumDecomposition(C);
+if #Ds eq 1 then
+    E1, f1 := AlgebraOverCenter(C);
+    F := ClearFieldDenominator(BaseRing(E1));
+    if (Type(F) eq FldNum and Optimize) then
+        F := OptimizedRepresentation(F);
+    end if;
+    E2, f2 := ChangeRing(E1, F);
+    test, d := IsSquare(Dimension(E2));
+    if d eq 2 then
+        test, Q, f3 := IsQuaternionAlgebra(E2);
+        if test then
+            f := f1 * f2 * f3;
+            OO := QuaternionOrder([ f(gen) : gen in GensC ]);
+            if IsEichler(OO) then
+                return OC, [ Integers() ! ind, 1 ];
+            end if;
+        end if;
+    end if;
+end if;
+return OC, [ Integers() ! ind, -1 ];
 
 end intrinsic;

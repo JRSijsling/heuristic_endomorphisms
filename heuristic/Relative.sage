@@ -17,7 +17,7 @@ def Relative_Splitting_Field(fs, bound = 0):
     for f in fs:
         if not magma.HasRoot(f, K):
             for tup in magma.Factorization(f):
-                K = magma.ExtendRelativeSplittingField(K, F, tup[1])
+                K = magma.ExtendRelativeSplittingField(K, F, tup[1], Optimize = False)
                 if overQQ:
                     g = magma.DefiningPolynomial(K)
                     g = R(str(gp.polredabs(R(magma.Eltseq(g)))))

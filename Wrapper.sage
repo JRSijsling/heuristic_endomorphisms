@@ -89,13 +89,13 @@ class EndomorphismData:
             self._lat_ = magma.EndomorphismLattice(self._geo_reps_)
         return Lattice(self._lat_)
 
-#    def rosati_involution(self, A):
-#        geo_reps = self.geometric_representations()
-#        return magma.RosatiInvolution(geo_reps[0], geo_reps[1], geo_reps[2], A)
-#
-#    def degree_estimate(self, A):
-#        geo_reps = self.geometric_representations()
-#        return magma.DegreeEstimate(geo_reps[0], geo_reps[1], geo_reps[2], A)
+    def rosati_involution(self, A):
+        self._geo_reps_ = self.geometric_representations()
+        return magma.RosatiInvolution(self._geo_reps_, A)
+
+    def degree_estimate(self, A):
+        self._geo_reps_ = self.geometric_representations()
+        return magma.DegreeEstimate(self._geo_reps_, A)
 
 #    def geometric_representations_check(self, bound = 2^10):
 #        # TODO: Split case
