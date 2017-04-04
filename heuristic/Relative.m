@@ -57,6 +57,15 @@ end if;
 end intrinsic;
 
 
+intrinsic DefineOrExtendInfinitePlaceFunction(K::Fld) -> Fld
+{Extends an infinite place over a relative field extension.}
+
+DefineOrExtendInfinitePlace(K);
+return K;
+
+end intrinsic;
+
+
 intrinsic NumberFieldExtra(f::RngUPolElt) -> FldNum
 {Creates a number field with an embedding.}
 

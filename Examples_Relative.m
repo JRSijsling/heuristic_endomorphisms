@@ -1,5 +1,7 @@
 AttachSpec("spec");
 
+print "Over QQ:";
+
 F := Rationals();
 R<x> := PolynomialRing(F);
 f := x^3 + x + 1;
@@ -13,6 +15,8 @@ L := RelativeSplittingFieldExtra([f, g]);
 print L;
 print L`iota;
 //print Roots(f, L);
+
+print "Over a number field:";
 
 F<r> := NumberField(x^2 - 2);
 R<x> := PolynomialRing(F);

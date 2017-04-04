@@ -7,24 +7,25 @@
 """
 
 def Relative_Splitting_Field(fs, bound = 0):
+    bound_set = (bound != 0)
+    F = magma.BaseRing(fs[1])
     overQQ = (magma.Degree(F) == 1)
     if overQQ:
         R.<x> = PolynomialRing(QQ)
-    F = magma.BaseRing(fs[1])
-    Bound_Set = (Bound != 0)
     fs = sorted(fs, key = lambda f : -magma.Degree(f))
+    K = F
     for f in fs:
         if not magma.HasRoot(f, K):
             for tup in magma.Factorization(f):
-                K = magma.ExtendRelativeSplittingField(K, tup[1])
+                K = magma.ExtendRelativeSplittingField(K, F, tup[1])
                 if overQQ:
                     g = magma.DefiningPolynomial(K)
                     g = R(str(gp.polredabs(R(magma.Eltseq(g)))))
                     K = magma.NumberField(g)
                 else:
                     K = magma.ClearFieldDenominator(K)
-                if Bound_Set and magma.Degree(K) >= Bound:
-                    magma.DefineOrExtendInfinitePlace(K);
+                if bound_set and magma.Degree(K) >= bound:
+                    K = magma.DefineOrExtendInfinitePlaceFunction(K);
                     return K
-    magma.DefineOrExtendInfinitePlace(K);
+    K = magma.DefineOrExtendInfinitePlaceFunction(K);
     return K
