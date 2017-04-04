@@ -15,9 +15,9 @@ intrinsic PeriodMatrixHyperelliptic(f::RngUPolElt, h::RngUPolElt : HaveOldenburg
 g := 4*f + h^2;
 if not HaveOldenburg then
     J := AnalyticJacobian(g);
-    return Transpose(BigPeriodMatrix(J));
+    return Transpose(Matrix(BaseRing(f), BigPeriodMatrix(J)));
 end if;
-return Transpose(PeriodMatrix(g));
+return Transpose(Matrix(BaseRing(f), PeriodMatrix(g)));
 
 end intrinsic;
 
@@ -30,6 +30,6 @@ h := hom<SCC -> RCC | [x,y,1]>; f := h(F);
 if not HaveOldenburg then
     return 0;
 end if;
-return Transpose(PeriodMatrix(f));
+return Transpose(Matrix(BaseRing(F), PeriodMatrix(f)));
 
 end intrinsic;

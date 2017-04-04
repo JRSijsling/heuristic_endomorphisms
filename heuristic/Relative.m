@@ -104,7 +104,7 @@ if not assigned F`iota then
     SetInfinitePlace(F, InfinitePlaces(F)[1]);
 end if;
 
-CC<I> := ComplexField(prec);
+CC<I> := ComplexFieldExtra(prec);
 if d eq 1 then
     RCC := PolynomialRing(CC);
 else

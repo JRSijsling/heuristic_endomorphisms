@@ -28,12 +28,12 @@ class EndomorphismData:
             self.h = magma(h)
             self._fod_ = magma.BaseRing(f)
             embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
-            self.fCC, self.hCC = embedded_list
+            self._fCC_, self._hCC_ = embedded_list
         elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
             self._fod_ = magma.BaseRing(F)
             embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
-            self.FCC = embedded_list[1]
+            self._FCC_ = embedded_list[1]
         self.prec = prec
         self.bound = bound
         self.have_oldenburg = have_oldenburg
@@ -50,18 +50,19 @@ class EndomorphismData:
     def period_matrix(self):
         if not hasattr(self, "_P_"):
             if self.curve_type == "hyperelliptic":
-                self._P_ = magma.PeriodMatrixHyperelliptic(self.fCC, self.hCC, HaveOldenburg = self.have_oldenburg)
+                self._P_ = magma.PeriodMatrixHyperelliptic(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
             elif self.curve_type == "plane":
-                self._P_ = magma.PeriodMatrixPlane(self.FCC, HaveOldenburg = self.have_oldenburg)
+                self._P_ = magma.PeriodMatrixPlane(self._FCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def geometric_representations(self):
         if not hasattr(self, "_geo_reps_"):
             self._P_ = self.period_matrix()
-            self._geo_approxs_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
-            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._geo_approxs_, self._fod_)
+            self._geo_reps_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
+            return self._geo_reps_
+            self._AsPol_ = magma.RelativeMinimalPolynomialMatrices(self._geo_reps_, self._fod_)
             self._endo_fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
-            self._geo_reps_ = magma.GeometricEndomorphismBasisRepresentations(self._geo_approxs_, self._fod_)
+            self._geo_reps_ = magma.GeometricEndomorphismBasisRepresentations(self._geo_reps_, self._fod_)
         return self._geo_reps_
 
     def base_field(self):

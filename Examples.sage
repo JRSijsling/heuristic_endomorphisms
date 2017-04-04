@@ -70,7 +70,7 @@ h = x^4 + x^2 + 1
 X = HyperellipticCurve(f, h)
 End = EndomorphismData(X, 300, have_oldenburg = True)
 print End.period_matrix()
-#print End.geometric_representations()
+print End.geometric_representations()
 #print End.endomorphism_field()
 #print End.lattice()
 #print End.geometric().description()

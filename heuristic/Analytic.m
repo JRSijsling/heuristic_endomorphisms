@@ -11,7 +11,7 @@ intrinsic ComplexStructure(P::.) -> .
 {Gives the complex structure that corresponds to the period matrix P.}
 
 CC := BaseRing(P); RR := RealField(CC);
-PSplit := SplitPeriodMatrix(P); iPSplit := SplitPeriodMatrix(CC.1 * Matrix(k, P));
+PSplit := SplitMatrix(P); iPSplit := SplitMatrix(CC.1 * P);
 return NumericalLeftSolve(PSplit, iPSplit);
 
 end intrinsic;
@@ -26,7 +26,7 @@ gP := #Rows(JP) div 2; gQ := #Rows(JQ) div 2;
 n := 4 * gP * gQ;
 // Building a formal matrix corresponding to all possible integral
 // transformations of the lattice
-R := PolynomialRing(CC, n);
+R := PolynomialRing(RR, n);
 vars := GeneratorsSequence(R);
 Ma := Matrix(R, 2 * gP, 2 * gQ, vars);
 // Condition that integral transformation preserve the complex structure
@@ -55,7 +55,7 @@ end intrinsic;
 intrinsic GeometricIsogenyApproximations(P::., Q::.) -> .
 {Starting from period matrices P and Q, determines isogenies between the corresponding abelian varieties.}
 
-// Setting up the equations
+// Basic invariants
 gP := #Rows(Transpose(P)); gQ := #Rows(Transpose(Q));
 JP := ComplexStructure(P); JQ := ComplexStructure(Q);
 // FIXME: Understand why this fails
@@ -63,21 +63,22 @@ JP := ComplexStructure(P); JQ := ComplexStructure(Q);
 M := RationalIsogenyEquations(JP, JQ);
 
 // Determination of approximate endomorphisms by LLL
-K := IntegralLeftKernel(M : epsLLL := epsLLL);
+K := IntegralLeftKernel(M);
 
 // Deciding which rows to keep
+RR := BaseRing(JP);
 Rs := [];
 for r in Rows(K) do
     alpha := Matrix(Rationals(), 2*gQ, 2*gP, Eltseq(r));
     // Culling the correct transformations from holomorphy condition
     Comm := JP * alpha - alpha * JQ;
-    if &and([Abs(c) lt epscomp : c in Eltseq(Comm)]) then
+    if &and([ (RR ! Abs(c)) lt RR`epscomp : c in Eltseq(Comm) ]) then
         Append(~Rs, alpha);
     end if;
 end for;
 
 As := [ AnalyticRepresentationIsogeny(R, P, Q) : R in Rs ];
-return As, Rs;
+return [* As, Rs *];
 
 end intrinsic;
 

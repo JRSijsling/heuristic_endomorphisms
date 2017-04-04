@@ -46,9 +46,9 @@ end intrinsic;
 
 
 intrinsic InvertibleSubmatrix(M::.) -> .
-{Finds an invertible submatrix of M, returning an error if such a matrix does not seem to exist.}
+{Finds an invertible submatrix of M of maximal possible dimension, returning an error if such a matrix does not seem to exist.}
 
-return SubmatrixOfRank(M, Maximum(#Rows(M), #Rows(Transpose(M))));
+return SubmatrixOfRank(M, Minimum(#Rows(M), #Rows(Transpose(M))));
 
 end intrinsic;
 
