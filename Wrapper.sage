@@ -26,12 +26,12 @@ class EndomorphismData:
             f, h = X.hyperelliptic_polynomials()
             self.f = magma(f)
             self.h = magma(h)
-            self._fod_ = magma.BaseRing(self.f)
+            self.base_field = magma.BaseRing(self.f)
             embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
             self._fCC_, self._hCC_ = embedded_list
         elif self.curve_type == "plane":
             self.F = magma(X.defining_polynomial())
-            self._fod_ = magma.BaseRing(self.F)
+            self.base_field = magma.BaseRing(self.F)
             embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
             self._FCC_ = embedded_list[1]
         self.prec = prec
@@ -59,34 +59,33 @@ class EndomorphismData:
         if not hasattr(self, "_geo_reps_"):
             self._P_ = self.period_matrix()
             self._geo_reps_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
-            self._AsPol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_reps_[1], self._fod_)
+            self._AsPol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_reps_[1], self.base_field)
             self._endo_fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
-            self._geo_reps_ = magma.GeometricEndomorphismBasis(self._geo_reps_, self._fod_)
-        return self._geo_reps_
-
-    def base_field(self):
-        self._geo_reps_ = self.geometric_representations()
-        return self._fod_
+            self._geo_reps_ = magma.GeometricEndomorphismBasis(self._geo_reps_, self._endo_fod_)
+            self._AsAlg_ = self._geo_reps_[1]
+            self._Rs_ = self._geo_reps_[2]
+            self._As_ = self._geo_reps_[3]
+        return self._AsAlg_
 
     def endomorphism_field(self):
-        self._geo_reps_ = self.geometric_representations()
+        self._AsAlg_ = self.geometric_representations()
         return self._endo_fod_
 
     def geometric(self):
-        self._geo_reps_ = self.geometric_representations()
+        self._AsAlg_ = self.geometric_representations()
         return OverField(self, K = "geometric")
 
     def over_base(self):
-        self._geo_reps_ = self.geometric_representations()
+        self._AsAlg_ = self.geometric_representations()
         return OverField(self, K = "base")
 
     def over_field(self, K):
-        self._geo_reps_ = self.geometric_representations()
+        self._AsAlg_ = self.geometric_representations()
         return OverField(self, K = K)
 
     def lattice_description(self):
         if not hasattr(self, "_lat_"):
-            self._geo_reps_ = self.geometric_representations()
+            self._AsAlg_ = self.geometric_representations()
             self._lat_ = magma.EndomorphismLatticeDescription(self._geo_reps_)
         return Lattice(self)
 
@@ -125,11 +124,10 @@ class EndomorphismData:
 class Lattice:
     def __init__(self, EndJac):
         # TODO: Make this different
-        self._frep_ = EndJac._frep_
         self._lat_ = EndJac._lat_
 
     def __repr__(self):
-        # TODO: Better represetation postponed
+        # TODO: Better presentation postponed
         return str(self._lat_)
         statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
         for ED in self._lat_:
@@ -144,9 +142,9 @@ class OverField:
     def __init__(self, EndJac, K = "geometric"):
         self.f = EndJac.f
         self.h = EndJac.h
-        self._geo_reps_ = EndJac._geo_reps_
-        self._lat_ = EndJac._lat_
+        self.base_field = EndJac.base_field
         self.field = K
+        self._geo_reps_ = EndJac._geo_reps_
 
     def __repr__(self):
         if self.h == 0:
@@ -166,40 +164,38 @@ class OverField:
             if self.field == "geometric":
                 self._reps_ = self._geo_reps_
             elif self.field == "base":
-                AsAlg, As, Rs = self._geo_reps_
-                self._reps_ = magma.EndomorphismBasisOverField(magma.Rationals(), AsAlg, As, Rs)
+                self._reps_ = magma.EndomorphismBasis(self._geo_reps_, self.base_field)
             else:
-                AsAlg, As, Rs = self._geo_reps_
-                self._reps_ = magma.EndomorphismBasisOverField(magma(self.field), AsAlg, As, Rs)
-        return self._reps_
+                self._reps_ = magma.EndomorphismBasis(self._geo_reps_, magma(self.field))
+        return self._reps_[1]
 
-    def description(self):
-        # TODO: Should be deferred elsewhere
-        return 0
-        if not hasattr(self, "_desc_"):
-            if self._lat_ != None:
-                if self.field == "geometric":
-                    ED = self._lat_[-1]
-                elif self.field == "base":
-                    ED = self._lat_[0]
-                else:
-                    for EDtry in self._lat_[::-1]:
-                        L = magma.NumberField(magma.Polynomial(EDtry[0][0]))
-                        if magma.IsSubfield(L, magma(K)):
-                            ED = EDtry
-                            break
-                self._desc_ = endo_statement(ED[1], ED[2], ED[3], r'F') + st_group_statement(ED[4]) + gl2_simple_statement(ED[1], ED[2])
-            else:
-                AsAlg, As, Rs = self._geo_reps_
-                if self.field == "geometric":
-                    ED = magma.EndomorphismLatticeG2SingleElement(magma.BaseRing(AsAlg[1]), AsAlg, As, Rs)
-                elif self.field == "base":
-                    ED = magma.EndomorphismLatticeG2SingleElement(magma.Rationals(), AsAlg, As, Rs)
-                else:
-                    ED = magma.EndomorphismLatticeG2SingleElement(magma(K), AsAlg, As, Rs)
-                ED = ED_sagified(ED)
-                self._desc_ = endo_statement(ED[0], ED[1], ED[2], r'F') + st_group_statement(ED[3]) + gl2_simple_statement(ED[0], ED[1])
-        return self._desc_
+#    def description(self):
+#        # TODO: Should be deferred elsewhere
+#        return 0
+#        if not hasattr(self, "_desc_"):
+#            if self._lat_ != None:
+#                if self.field == "geometric":
+#                    ED = self._lat_[-1]
+#                elif self.field == "base":
+#                    ED = self._lat_[0]
+#                else:
+#                    for EDtry in self._lat_[::-1]:
+#                        L = magma.NumberField(magma.Polynomial(EDtry[0][0]))
+#                        if magma.IsSubfield(L, magma(K)):
+#                            ED = EDtry
+#                            break
+#                self._desc_ = endo_statement(ED[1], ED[2], ED[3], r'F') + st_group_statement(ED[4]) + gl2_simple_statement(ED[1], ED[2])
+#            else:
+#                AsAlg, As, Rs = self._geo_reps_
+#                if self.field == "geometric":
+#                    ED = magma.EndomorphismLatticeG2SingleElement(magma.BaseRing(AsAlg[1]), AsAlg, As, Rs)
+#                elif self.field == "base":
+#                    ED = magma.EndomorphismLatticeG2SingleElement(magma.Rationals(), AsAlg, As, Rs)
+#                else:
+#                    ED = magma.EndomorphismLatticeG2SingleElement(magma(K), AsAlg, As, Rs)
+#                ED = ED_sagified(ED)
+#                self._desc_ = endo_statement(ED[0], ED[1], ED[2], r'F') + st_group_statement(ED[3]) + gl2_simple_statement(ED[0], ED[1])
+#        return self._desc_
 
 class Decomposition:
     def __init__(self, EndJac):

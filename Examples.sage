@@ -59,23 +59,25 @@ h = x^3 + 1
 # Debug (TODO: Point returned is wrong):
 #f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 #h = 0
-# Case where [RR, CC] occurs:
-f = x^5 + x^4 + 2*x^3 + x^2 + x
-h = x^2 + x
 # Genus 3:
 f = x^7 + x^6 + x^5 + x^3 + x^2 + x
 h = x^4 + x^2 + 1
+# Case where [RR, CC] occurs:
+f = x^5 + x^4 + 2*x^3 + x^2 + x
+h = x^2 + x
 
 # The main functionality:
 X = HyperellipticCurve(f, h)
 End = EndomorphismData(X, 100, have_oldenburg = True)
-#print End.period_matrix()
+print End.period_matrix()
 print End.geometric_representations()
-#print End.endomorphism_field()
+print End.endomorphism_field()
+print End.geometric().representations()
+print End.over_base().representations()
+K.<r> = NumberField(x^2 - 2)
+print End.over_field(K).representations()
+
 #print End.lattice()
-#print End.geometric().description()
-#print End.over_base().description()
-#print End.field_of_definition()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

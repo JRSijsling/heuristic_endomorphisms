@@ -28,8 +28,9 @@ intrinsic EndomorphismLatticeDescription(GeoEndList::List) -> List
 AsAlg, As, Rs := Explode(GeoEndList);
 L := BaseRing(AsAlg[1]);
 Gp, Gf, Gphi := AutomorphismGroup(L);
+
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
-Sort(~S, CompareGroups); Reverse(~S);
+Sort(~Hs, CompareGroups); Reverse(~Hs);
 
 Lat := [* *];
 for H in Hs do

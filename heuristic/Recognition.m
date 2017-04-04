@@ -131,6 +131,6 @@ intrinsic GeometricEndomorphismBasis(Approxs::List, K::Fld) -> List
 
 As, Rs := Explode(Approxs);
 AsAlg := [ AlgebraizeMatrixInRelativeField(A, K) : A in As ];
-return [* As, Rs, AsAlg *];
+return [* AsAlg, Rs, As *];
 
 end intrinsic;

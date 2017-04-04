@@ -79,10 +79,11 @@ end intrinsic;
 
 intrinsic IntegralLeftKernel(M::.) -> .
 {Returns simultaneous integral cancellations of all the rows of M.}
+// TODO: Integral splitting here?
 
-CC := BaseRing(M);
-MI := IdentityMatrix(CC, #Rows(M));
-MJ := HorizontalJoin(MI, (1 / CC`epsLLL) * M);
+RR := BaseRing(M);
+MI := IdentityMatrix(RR, #Rows(M));
+MJ := HorizontalJoin(MI, (1 / RR`epsLLL) * M);
 L, K := LLL(MJ);
 return K;
 

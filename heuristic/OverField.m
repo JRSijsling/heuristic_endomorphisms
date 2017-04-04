@@ -11,7 +11,7 @@ intrinsic EndomorphismBasis(GeoEndList::List, GensHf::SeqEnum) -> List
 {Extracts basis over subfield determines by a list of automorphisms.}
 
 // Setting the stage
-AsAlg, As, Rs := Explode(GeoEndList);
+AsAlg, Rs, As := Explode(GeoEndList);
 L := BaseRing(AsAlg[1]);
 N := #AsAlg;
 
@@ -21,25 +21,25 @@ if #GensHf eq 0 then
 end if;
 
 // The vector space representing the full endomorphism algebra
-Kern := VectorSpace(Rationals(), N);
+Ker := VectorSpace(Rationals(), N);
 // Successively filter by writing down the conditions for a matrix to be fixed
 // under a given generator
 for sigma in GensHf do
     Msigma := Matrix([MatrixInBasis(ConjugateMatrix(sigma, A), AsAlg) : A in AsAlg]);
-    Msigma := Msigma - IdentityMatrix(Rationals(), N);
-    Kern := Kern meet Kernel(Msigma);
+    Msigma -:= IdentityMatrix(Rationals(), N);
+    Ker meet:= Kernel(Msigma);
 end for;
 
 // Retrieve representations for a basis of of the endomorphism ring by taking a
 // pure lattice / saturation
-Lat := PureLattice(Lattice(Matrix(Basis(Kern))));
+Lat := PureLattice(Lattice(Matrix(Basis(Ker))));
 B := Basis(Lat);
 
 // Constructing said basis
-AsAlg0 := [&+[b[n] * AsAlg[n] : n in [1..N]] : b in B];
-As0 := [&+[b[n] * As[n] : n in [1..N]] : b in B];
-Rs0 := [&+[b[n] * Rs[n] : n in [1..N]] : b in B];
-return [* AsAlg0, As0, Rs0 *];
+AsAlg := [ &+[ b[n] * AsAlg[n] : n in [1..N] ] : b in B ];
+Rs    := [ &+[ b[n] * Rs[n]    : n in [1..N] ] : b in B ];
+As    := [ &+[ b[n] * As[n]    : n in [1..N] ] : b in B ];
+return [* AsAlg, Rs, As *];
 
 end intrinsic;
 
@@ -67,15 +67,15 @@ AsAlg, As, Rs := Explode(GeoEndList);
 L := BaseRing(AsAlg[1]);
 
 // Trivial case
-if Degree(K) eq 1 then
+if (Degree(K) eq 1) or (Type(L) eq FldRat) then
     Gp, Gf, Gphi := AutomorphismGroup(L);
     GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
-    return EndomorphismBasisOverSubfield(GensHf, GeoEndList);
+    return EndomorphismBasis(GeoEndList, GensHf);
 end if;
 
 // Take smallest subfield of K that fits inside L and take corresponding fixed group
 S := Subfields(K); S := [ tup[1] : tup in S ];
-Sort(~S, CompareSubfield); Reverse(~S);
+Sort(~S, CompareFields); Reverse(~S);
 for M in S do
     test, f := IsSubfield(M, L);
     if test then
@@ -91,6 +91,6 @@ else
     // Case where we need to go down all the way
     GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
 end if;
-return EndomorphismBasis(GensHf, GeoEndList);
+return EndomorphismBasis(GeoEndList, GensHf);
 
 end intrinsic;

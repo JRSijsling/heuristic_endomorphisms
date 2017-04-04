@@ -9,7 +9,7 @@
 intrinsic EndomorphismData(EndList::SeqEnum) -> List
 {Gives the endomorphism data over the subfield K, starting from.}
 
-Rs := EndList[3];
+Rs := EndList[2];
 // Creation of relevant algebras
 g := #Rows(Rs[1]) div 2;
 // Ambient matrix algebra, plus generators of the endomorphism ring
