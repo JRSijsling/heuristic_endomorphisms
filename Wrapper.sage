@@ -61,8 +61,7 @@ class EndomorphismData:
             self._geo_reps_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
             self._AsPol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_reps_[1], self._fod_)
             self._endo_fod_ = Relative_Splitting_Field(self._AsPol_, bound = self.bound)
-            return self._endo_fod_
-            self._geo_reps_ = magma.GeometricEndomorphismBasisRepresentations(self._geo_reps_, self._fod_)
+            self._geo_reps_ = magma.GeometricEndomorphismBasis(self._geo_reps_, self._fod_)
         return self._geo_reps_
 
     def base_field(self):

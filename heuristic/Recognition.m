@@ -87,14 +87,14 @@ end if;
 end intrinsic;
 
 
-intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::FldNum) -> FldNumElt
+intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::Fld) -> .
 {Finds an algebraic approximation of a as an element of K.}
 
 degK := Degree(K); R<x> := PolynomialRing(K);
-F := BaseField(K); degF := Degree(K);
+F := BaseField(K); degF := Degree(F);
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
 
-genK := CC ! Evaluate(K`iota, K.1 : Precision := prec); genF := CC ! Evaluate(F`iota, F.1 : Precision := prec);
+genK := CC ! Evaluate(K.1, K`iota : Precision := prec); genF := CC ! Evaluate(F.1, F`iota : Precision := prec);
 powersgenK := [ genK^i : i in [0..(degK - 1)] ]; powersgenF := [ genF^i : i in [0..(degF - 1)] ];
 MLine := &cat[ [ powergenF * powergenK : powergenF in powersgenF ] : powergenK in powersgenK ] cat [-a];
 M := Transpose(Matrix(CC, [ MLine ]));
@@ -103,12 +103,12 @@ M := Transpose(Matrix(CC, [ MLine ]));
 MSplit := SplitMatrix(M);
 Ker := IntegralLeftKernel(MSplit);
 for row in Rows(Ker) do
-    den := row[#row];
+    den := row[#Eltseq(row)];
     if den ne 0 then
-        sCC := &+[ &+[ row[i*degF + j]*genF^j : j in [0..(degF - 1)] ] * genK^i : i in [0..(degK - 1)] ] / den;
+        sCC := &+[ &+[ row[i*degF + j + 1]*genF^j : j in [0..(degF - 1)] ] * genK^i : i in [0..(degK - 1)] ] / den;
         // Check correct to given precision
         if (RR ! Abs(sCC - a)) lt RR`epscomp then
-            s := &+[ &+[ row[i*degF + j]*F.1^j : j in [0..(degF - 1)] ] * K.1^i : i in [0..(degK - 1)] ] / den;
+            s := &+[ &+[ row[i*degF + j + 1]*F.1^j : j in [0..(degF - 1)] ] * K.1^i : i in [0..(degK - 1)] ] / den;
             return s;
         end if;
     end if;
@@ -118,7 +118,7 @@ error Error("LLL fails to algebraize element in ambient");
 end intrinsic;
 
 
-intrinsic AlgebraizeMatrixInRelativeField(A::AlgMatElt, K::FldNum) -> AlgMatElt
+intrinsic AlgebraizeMatrixInRelativeField(A::., K::Fld) -> AlgMatElt
 {Algebraizes a matrix.}
 
 return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : row in Rows(A) ]);
@@ -126,17 +126,10 @@ return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : 
 end intrinsic;
 
 
-intrinsic AlgebraizeMatrixInRelativeField(A::ModMatRngElt, K::FldNum) -> ModMatRngElt
-{Algebraizes a matrix.}
-
-return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : row in Rows(A) ]);
-
-end intrinsic;
-
-
-intrinsic GeometricEndomorphismBasisRepresentations(As::SeqEnum, Rs::SeqEnum, K::FldNum) -> List
+intrinsic GeometricEndomorphismBasis(Approxs::List, K::Fld) -> List
 {Final algebraization step.}
 
+As, Rs := Explode(Approxs);
 AsAlg := [ AlgebraizeMatrixInRelativeField(A, K) : A in As ];
 return [* As, Rs, AsAlg *];
 

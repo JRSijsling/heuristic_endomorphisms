@@ -125,21 +125,6 @@ return fsCC;
 end intrinsic;
 
 
-function CompareFields(K1, K2);
-// Input:   Two subfields, fields, or polynomials.
-// Output:  A comparison function: field with smaller degrees are smaller.
-
-if Degree(K1) lt Degree(K2) then
-    return -1;
-elif Degree(K1) eq Degree(K2) then
-    return 0;
-else
-    return 1;
-end if;
-
-end function;
-
-
 intrinsic ClearFieldDenominator(K::FldNum) -> FldNum
 {Simplifies the defining polynomial of a field to an integral version.}
 
@@ -182,6 +167,21 @@ while true do
 end while;
 
 end intrinsic;
+
+
+function CompareFields(K1, K2);
+// Input:   Two subfields, fields, or polynomials.
+// Output:  A comparison function: field with smaller degrees are smaller.
+
+if Degree(K1) lt Degree(K2) then
+    return -1;
+elif Degree(K1) eq Degree(K2) then
+    return 0;
+else
+    return 1;
+end if;
+
+end function;
 
 
 intrinsic RelativeSplittingField(fs::SeqEnum) -> FldNum

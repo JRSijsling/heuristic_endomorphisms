@@ -6,6 +6,7 @@
  *  See LICENSE.txt for license details.
  */
 
+
 intrinsic EndomorphismBasis(GeoEndList::List, GensHf::SeqEnum) -> List
 {Extracts basis over subfield determines by a list of automorphisms.}
 
@@ -43,6 +44,21 @@ return [* AsAlg0, As0, Rs0 *];
 end intrinsic;
 
 
+function CompareFields(K1, K2);
+// Input:   Two subfields, fields, or polynomials.
+// Output:  A comparison function: field with smaller degrees are smaller.
+
+if Degree(K1) lt Degree(K2) then
+    return -1;
+elif Degree(K1) eq Degree(K2) then
+    return 0;
+else
+    return 1;
+end if;
+
+end function;
+
+
 intrinsic EndomorphismBasis(GeoEndList::List, K::Fld) -> List
 {Extracts basis over a general field.}
 
@@ -75,23 +91,6 @@ else
     // Case where we need to go down all the way
     GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
 end if;
-return EndomorphismBasisOverSubfield(GensHf, GeoEndList);
+return EndomorphismBasis(GensHf, GeoEndList);
 
 end intrinsic;
-
-
-if K eq L then
-    // Geometric case
-    EndList := GeoEndList;
-else
-    Gp, Gf, Gphi := AutomorphismGroup(L);
-    if Degree(K) eq 1 then
-        GensHp := Generators(Gp);
-    else
-        Hp := FixedGroup(L, K);
-        GensHp := Generators(Hp);
-    end if;
-    // Galois invariants and resulting endomorphisms
-    GensHf := [ Gphi(hp) : hp in GensHp ];
-    EndList := EndomorphismBasisOverSubfield(GensHf, GeoEndList);
-end if;
