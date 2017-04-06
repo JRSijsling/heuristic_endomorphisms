@@ -9,9 +9,6 @@
 def intlist_to_poly(s):
     return str(PolynomialRing(QQ, 'x')(s))
 
-def strlist_to_nfelt(L, varname):
-    return str(PolynomialRing(QQ, varname)(L))
-
 def ED_sagified(ED):
     return [ [ [ Canonize_Field(factorsQQ[1].sage())[0], factorsQQ[2].sage() ] for factorsQQ in ED[1] ], [ repr(factorRR) for factorRR in ED[2] ], ED[3].sage(), repr(ED[4]) ]
 
@@ -30,9 +27,8 @@ def EDs_sagified(EDs, frep):
     return EDs_sage
 
 def ring_pretty(L, f):
-    # Only usable for at most quadratic fields
-    # TODO: Generalize, so that we can use it for cyclotomic maximal orders as
-    # well. Note that this requires further modification of the code below.
+    # Only makes a difference for at most quadratic fields
+    # FIXME: Generalize, for example to cyclotomic fields
     if len(L) == 2:
         return r'ZZ'
     c,b,a = L
@@ -48,9 +44,8 @@ def ring_pretty(L, f):
     return r'ZZ [(1 + sqrt(%s))/2]' % (str(f), str(D))
 
 def field_pretty(L):
-    # Only usable for at most quadratic fields
-    # TODO: Generalize, so that we can use it for cyclotomic maximal orders as
-    # well. Note that this requires further modification of the code below.
+    # Only makes a difference for at most quadratic fields
+    # FIXME: Generalize, for example to cyclotomic fields
     if len(L) == 2:
         return r'QQ'
     if len(L) == 3:
@@ -84,6 +79,7 @@ def endo_statement(factorsQQ, factorsRR, ring, fieldstring):
     factorsQQ_number = len(factorsQQ)
     factorsQQ_pretty = [ field_pretty(factorQQ[0]) for factorQQ in factorsQQ ]
     statement = """End (J_%s): """ % fieldstring
+
     # First row: description of the endomorphism ring as an order in the
     # endomorphism algebra
     # First the case of a maximal order:

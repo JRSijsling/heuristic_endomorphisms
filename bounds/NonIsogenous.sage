@@ -1,5 +1,3 @@
-attach("constants.sage")
-
 def CertifyNonIsogenous(LPolys1, LPolys2, geometric = true) :
     extDegree = 12
     if not geometric :
@@ -12,8 +10,8 @@ def CertifyNonIsogenous(LPolys1, LPolys2, geometric = true) :
         # print "Twisting the L-polys"
         q1 = twistPolynomial(q1, extDegree)
         q2 = twistPolynomial(q2, extDegree)
-        
+
         if q1 != q2 :
             return true
-        
+
     return false

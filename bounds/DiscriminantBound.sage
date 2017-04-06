@@ -1,13 +1,14 @@
-attach("constants.sage")
-
-def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ) :                      # returns a pair (type, bound), where type is one of "Z", "RM", "QuadraticCM", "FullCM" and bound is a bound on the discriminant of the field of endomorphisms
+def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ):
+    # returns a pair (type, bound), where type is one of "Z", "RM",
+    # "QuadraticCM", "FullCM" and bound is a bound on the discriminant of the
+    # field of endomorphisms
     discBound=0;
 
     CMField = Rationals()
     RMField = Rationals()
     FullCM = true
     RM = true
-    
+
     for p in range (2,maxP):
       if is_prime(p) and LPolys[p] <> 0 :
         q = LPolys[p]
@@ -16,16 +17,13 @@ def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ) :             
         if alreadyTwisted :
             extDegree = 1
         break
-    
-    
+
     for p in range (2,maxP):
       if is_prime(p) and LPolys[p] <> 0 :
         q = LPolys[p]
         # print q
         # print "Testing p =", p
-        
-        
-        
+
         # print "Twisting the L-poly"
         q = twistPolynomial(q, extDegree)
         # print "Prime", p, "Polynomial", q;
@@ -40,7 +38,7 @@ def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ) :             
                 # print K1.discriminant()
                 # print "Define K1Real"
                 K1Real = K1.maximal_totally_real_subfield()[0];
-                
+
                 # print "Comparisons"
                 if (CMField == Rationals()) :
                     CMField = K1
@@ -48,7 +46,7 @@ def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ) :             
                     RMField = K1Real
                 if (FullCM and not CMField.is_isomorphic(K1) ) :
                     FullCM = false ;
-                if ( RM and RMField.degree() == 1 ) :    
+                if ( RM and RMField.degree() == 1 ) :
                     RM = false ;
                 if (RM and not RMField.is_isomorphic(K1Real) ) :
                     RM = false ;
@@ -62,5 +60,5 @@ def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ) :             
         return "FullCM", discBound
     if RM :
         return "RM", discBound^(1/g)
-    
+
     return "Quadratic", discBound^(1/g)

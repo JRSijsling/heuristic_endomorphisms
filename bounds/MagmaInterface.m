@@ -3,7 +3,7 @@ function computeLPolys2(N)
     Picard := x1^3*x3 + x2^2*x3^2 + 3*x2^4 + 7*x2*x3^3;
 
     C := Curve(ProjectiveSpace(Integers(),2), Picard);
-    
+
     R<x> := PolynomialRing(Integers());
 
     LPolys := [R!0 : k in [0..230]];
@@ -26,7 +26,7 @@ function computeLPolys3(N)
     Picard := x1^3*x3 + x2^2*x3^2 + 3*x2^4 + 2*x2*x3^3;
 
     C := Curve(ProjectiveSpace(Integers(),2), Picard);
-    
+
     R<x> := PolynomialRing(Integers());
 
     LPolys := [R!0 : k in [0..230]];
@@ -42,7 +42,6 @@ function computeLPolys3(N)
     end for;
     return LPolys;
 end function;
-                
 
 
 function computeLPolys1(N)
@@ -54,7 +53,7 @@ function computeLPolys1(N)
     89869*x2^2*x3^2 - 1079572*x2*x3^3 - 6084*x3^4;
 
     C := Curve(ProjectiveSpace(Integers(),2), Q11);
-    
+
     R<x> := PolynomialRing(Integers());
 
     LPolys := [R!0 : k in [0..230]];
@@ -70,4 +69,3 @@ function computeLPolys1(N)
     end for;
     return LPolys;
 end function;
-                

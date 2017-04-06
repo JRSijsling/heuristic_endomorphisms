@@ -6,15 +6,18 @@
  *  See LICENSE.txt for license details.
 """
 
-import os
-# The following line is a bad solution:
 if not '__endodir__' in globals():
-    __endodir__ = os.getenv("PWD") + "/"
+    import os
+    import inspect
+    filename = inspect.getframeinfo(inspect.currentframe())[0];
+    __endodir__ = os.path.dirname(filename) + "/"
 
-magma.load('~/.magmarc');
-magma.AttachSpec('spec');
+magma.load('~/.magmarc')
+magma.AttachSpec(__endodir__ + 'spec')
 
 load(__endodir__ + 'heuristic/Relative.sage')
 #load(__endodir__ + 'heuristic/Conversion.sage')
 #load(__endodir__ + 'heuristic/Decomposition.sage')
 load(__endodir__ + 'Wrapper.sage')
+
+from bounds import *

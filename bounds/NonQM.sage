@@ -1,5 +1,3 @@
-attach("constants.sage")
-
 def certifySurfaceNonQM(LPolys, conductor):
     g = 2                                                   # only for surfaces
     for p in range (2,maxP):                                # loop over primes
