@@ -1,5 +1,5 @@
 """
- *  Initialization of the Sage part of the package
+ *  Initialization
  *
  *  Copyright (C) 2016-2017
  *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
@@ -10,19 +10,23 @@
 """
 
 if not '__endodir__' in globals():
-    import os
-    import inspect
-    filename = inspect.getframeinfo(inspect.currentframe())[0];
-    __endodir__ = os.path.dirname(filename) + "/"
+    raise ImportError("Please set a value for __endodir__")
+
+import os
+cur = os.getcwd()
+
+os.chdir(__endodir__)
+magma.chdir(__endodir__)
 
 magma.load('~/.magmarc')
-magma.AttachSpec(__endodir__ + 'spec')
+magma.AttachSpec('spec')
 
-load(__endodir__ + 'heuristic/Relative.sage')
-#load(__endodir__ + 'heuristic/Conversion.sage')
-#load(__endodir__ + 'heuristic/Decomposition.sage')
-load(__endodir__ + 'Wrapper.sage')
+load('heuristic/Relative.sage')
+#load('heuristic/Conversion.sage')
+#load('heuristic/Decomposition.sage')
+load('Wrapper.sage')
 
-# This is very suboptimal; need relative import
-load(__endodir__ + 'bounds/__init__.py')
-#import bounds as Bounds
+import bounds as Bounds
+
+os.chdir(cur)
+magma.chdir(cur)
