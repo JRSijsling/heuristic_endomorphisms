@@ -1,4 +1,5 @@
-function computeLPolys2(N)
+intrinsic computeLPolys2(N::.) -> .
+{docstring}
     _<x1,x2,x3> := PolynomialRing(Integers(), 3);
     Picard := x1^3*x3 + x2^2*x3^2 + 3*x2^4 + 7*x2*x3^3;
 
@@ -18,10 +19,11 @@ function computeLPolys2(N)
         end if;
     end for;
     return LPolys;
-end function;
+end intrinsic;
 
 
-function computeLPolys3(N)
+intrinsic computeLPolys3(N::.) -> .
+{docstring}
     _<x1,x2,x3> := PolynomialRing(Integers(), 3);
     Picard := x1^3*x3 + x2^2*x3^2 + 3*x2^4 + 2*x2*x3^3;
 
@@ -41,10 +43,11 @@ function computeLPolys3(N)
         end if;
     end for;
     return LPolys;
-end function;
+end intrinsic;
 
 
-function computeLPolys1(N)
+intrinsic computeLPolys1(N::.) -> .
+{docstring}
     _<x1,x2,x3> := PolynomialRing(Integers(), 3);
     Q11 :=
     -4169*x1^4 - 956*x1^3*x2 + 7440*x1^3*x3 + 55770*x1^2*x2^2 +
@@ -68,4 +71,4 @@ function computeLPolys1(N)
         end if;
     end for;
     return LPolys;
-end function;
+end intrinsic;

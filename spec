@@ -11,6 +11,7 @@
     Structure.m
     Lattice.m
     G2Factor.m
+    VerifyRing.m
   }
   polarization
   {

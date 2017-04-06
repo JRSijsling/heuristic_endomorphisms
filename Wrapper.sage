@@ -68,27 +68,33 @@ class EndomorphismData:
             self._AsAlg_ = self._geo_reps_[1]
             self._Rs_ = self._geo_reps_[2]
             self._As_ = self._geo_reps_[3]
-        return self._AsAlg_
+        return self._geo_reps_
+
+    def verify_ring(self):
+        self._geo_reps_ = self.geometric_representations()
+        if not hasattr(self, "_is_verified_ring_"):
+            self._is_verified_ring_ = magma.VerifyRing(self._Rs_, self._P_)
+        return self._is_verified_ring_
 
     def endomorphism_field(self):
-        self._AsAlg_ = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         return self._endo_fod_
 
     def geometric(self):
-        self._AsAlg_ = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         return OverField(self, K = "geometric")
 
     def over_base(self):
-        self._AsAlg_ = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         return OverField(self, K = "base")
 
     def over_field(self, K):
-        self._AsAlg_ = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         return OverField(self, K = K)
 
     def lattice(self):
         if not hasattr(self, "_lat_"):
-            self._AsAlg_ = self.geometric_representations()
+            self._geo_reps_ = self.geometric_representations()
             self._lat_ = magma.EndomorphismLattice(self._geo_reps_)
         return Lattice(self._lat_)
 
@@ -101,7 +107,7 @@ class EndomorphismData:
         return magma.DegreeEstimate(self._geo_reps_, A)
 
     def geometric_representations_check(self, bound = 2^10):
-        self._AsAlg_ = self.geometric_representations()
+        self._geo_reps_ = self.geometric_representations()
         XL, P0L, AsL = magma.NonWeierstrassBasePointHyp(self.X, self.base_field, self._AsAlg_, nvals = 3)
         for AL in AsL:
             if magma.IsScalar(AL):

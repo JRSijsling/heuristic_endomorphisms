@@ -19,7 +19,7 @@ if not '__boundsdir__' in globals():
     __boundsdir__ = os.path.dirname(filename) + "/"
 
 from sage.all import *
-load(__boundsdir__ + "MagmaInterface.m")
+magma.AttachSpec("spec")
 load(__boundsdir__ + "constants.sage");
 load(__boundsdir__ + "DiscriminantBound.sage")
 load(__boundsdir__ + "TwistPolynomials.sage")
