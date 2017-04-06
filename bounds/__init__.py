@@ -11,15 +11,11 @@
 
 from sage.all import load
 
-# by using inspect, we can set __endodir__ to the right path, and use heuristic_endomorphisms as a python module
-if not '__boundsdir__' in globals():
-    import os
-    import inspect
-    filename = inspect.getframeinfo(inspect.currentframe())[0];
-    __boundsdir__ = os.path.dirname(filename) + "/"
+import os
+__boundsdir__ = os.getcwd() + '/bounds/'
 
 from sage.all import *
-magma.AttachSpec("spec")
+magma.AttachSpec(__boundsdir__ + "spec")
 load(__boundsdir__ + "constants.sage");
 load(__boundsdir__ + "DiscriminantBound.sage")
 load(__boundsdir__ + "TwistPolynomials.sage")

@@ -1,6 +1,7 @@
 *.swp
 *~
 *.sage.py
+*.pyc
 *.sig
 database/Add_To_Database*
 database/gce*
