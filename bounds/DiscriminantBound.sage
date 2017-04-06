@@ -1,3 +1,14 @@
+"""
+ *  Bound functionality
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+"""
+
 def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ):
     # returns a pair (type, bound), where type is one of "Z", "RM",
     # "QuadraticCM", "FullCM" and bound is a bound on the discriminant of the

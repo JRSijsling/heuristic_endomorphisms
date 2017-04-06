@@ -1,35 +1,46 @@
-function RecognizeG2Invariants(g2sCC : epscomp := epscomp0, epsLLL := epscomp0);
+/***
+ *  Genus 2 curve from decomposition
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+ */
+
+
+function RecognizeG2Invariants(g2sCC)
 // Recognizes a bunch of G2Invariants, together, as algebraic elements
 
-pols := [ PolynomializeElement(g2 : epscomp := epscomp, epsLLL := epsLLL) : g2 in g2sCC ];
-K := MySplittingField(pols);
-f := MinimalPolynomial(K.1); frep := Eltseq(f);
-CC := Parent(g2sCC[1]); h := Roots(f, CC)[1][1];
-g2s := [ AlgebraizeElementInField(g2CC, frep, h : epscomp := epscomp, epsLLL := epsLLL) : g2CC in g2sCC ];
-if Degree(K) eq 1 then
-    g2s := [ Rationals() ! g2 : g2 in g2s ];
-end if;
+CC := Parent(g2sCC[1]);
+QQ := Rationals(); SetInfinitePlace(QQ, InfinitePlaces(QQ)[1]);
+pols := [ RelativeMinimalPolynomial(g2, QQ) : g2 in g2sCC ];
+K := RelativeSplittingFieldExtra(pols);
+g2s := [ AlgebraizeElementInRelativeField(g2CC, K) : g2CC in g2sCC ];
 return g2s;
 
 end function;
 
 
-function TwistingFactor(P, X);
+function TwistingFactor(P, X)
 // TODO: Just generic for now
 
 CC := Parent(P[1,1]); RCC := PolynomialRing(CC);
+QQ := Rationals(); SetInfinitePlace(QQ, InfinitePlaces(QQ)[1]);
 f, h := HyperellipticPolynomials(X);
 Q := Transpose(BigPeriodMatrix(AnalyticJacobian(HyperellipticCurve(RCC ! f))));
 Q := Matrix(CC, #Rows(Q), #Rows(Transpose(Q)), Eltseq(Q));
-As, Rs := GeometricIsogenyBasisFromPeriodMatrices(P, Q);
-Apol := PolynomializeMatrix(As[1]);
-K := MySplittingField(Eltseq(Apol));
+AsRs := GeometricIsogenyBasisApproximations(P, Q);
+pols := RelativeMinimalPolynomialsMatrices(AsRs[1], QQ);
+K := SplittingField(pols);
 return SquareFree(Discriminant(Integers(K)));
 
 end function;
 
 
-function HyperellipticCurveFromBigPeriodMatrixG2(PBig, PSmall : epscomp := epscomp0, epsLLL := epscomp0);
+intrinsic HyperellipticCurveFromBigPeriodMatrixG2(PBig::., PSmall::.) -> .
+{Finds a genus 2 factor.}
 // (P::AlgMatElt: prec := 300) -> CrvHyp
 
 PBig := Transpose(PBig);
@@ -42,7 +53,7 @@ CC := Parent(PSmall[1,1]);
 RCC<xCC> := PolynomialRing(CC);
 fCC := xCC * (xCC - 1) * &*[ xCC - rosenCC : rosenCC in rosensCC ];
 g2sCC := G2Invariants(HyperellipticCurve(fCC));
-g2s := RecognizeG2Invariants(g2sCC : epscomp := epscomp, epsLLL := epsLLL);
+g2s := RecognizeG2Invariants(g2sCC);
 X := HyperellipticCurveFromG2Invariants(g2s);
 if BaseRing(X) eq Rationals() then
     X := ReducedMinimalWeierstrassModel(X);
@@ -52,8 +63,6 @@ if BaseRing(X) eq Rationals() then
     d := TwistingFactor(PBig, X);
     X := HyperellipticCurve(d*f);
 end if;
-
 return X;
 
-end function;
-
+end intrinsic;

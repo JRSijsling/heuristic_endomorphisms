@@ -1,10 +1,14 @@
 /***
  *  Richer structure for complex number fields
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 /* We add parameters for comparison, LLL, and seeing whether a square matrix is
  * invertible. */

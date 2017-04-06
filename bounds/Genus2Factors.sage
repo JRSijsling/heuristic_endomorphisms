@@ -1,3 +1,14 @@
+"""
+ *  Bound functionality
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+"""
+
 def Genus2FactorTwistedLPolys(LPolys) : # the input LPolys need to be in genus 3!
     Genus2LPolys = [0 for k in range(0,maxP)]
     for p in range (2,maxP) :

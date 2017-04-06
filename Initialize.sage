@@ -1,8 +1,11 @@
 """
  *  Initialization of the Sage part of the package
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
 """
 
@@ -20,4 +23,6 @@ load(__endodir__ + 'heuristic/Relative.sage')
 #load(__endodir__ + 'heuristic/Decomposition.sage')
 load(__endodir__ + 'Wrapper.sage')
 
-import bounds as Bounds
+# This is very suboptimal; need relative import
+load(__endodir__ + 'bounds/__init__.py')
+#import bounds as Bounds

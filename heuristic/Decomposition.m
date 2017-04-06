@@ -1,10 +1,14 @@
 /***
  *  Elliptic curves from decompositions
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 function DecompositionDegree(R);
 

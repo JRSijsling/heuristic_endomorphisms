@@ -1,10 +1,14 @@
 /***
  *  Computation of local expansions
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 forward LiftPuiseuxSeries;
 
@@ -247,19 +251,11 @@ function CreateLiftIterator(X, Y, M)
  * Output:  An iterator that refines the tangent approximation of M to higher order.
  */
 
-X_unif_index := X`unif_index;
-X_other_index := (X_unif_index mod 2) + 1;
-fX := X`DEs[1];
-dfX := Derivative(fX, X_other_index);
-BX := X`NormB;
-gX := X`g;
+X_unif_index := X`unif_index; X_other_index := (X_unif_index mod 2) + 1;
+fX := X`DEs[1]; dfX := Derivative(fX, X_other_index); BX := X`NormB; gX := X`g;
 
-Y_unif_index := Y`unif_index;
-Y_other_index := (Y_unif_index mod 2) + 1;
-fY := Y`DEs[1];
-dfY := Derivative(fY, Y_other_index);
-BY := Y`NormB;
-gY := Y`g;
+Y_unif_index := Y`unif_index; Y_other_index := (Y_unif_index mod 2) + 1;
+fY := Y`DEs[1]; dfY := Derivative(fY, Y_other_index); BY := Y`NormB; gY := Y`g;
 
 e := PuiseuxRamificationIndex(M);
 
@@ -326,4 +322,3 @@ end for;
 return P, Qs;
 
 end intrinsic;
-

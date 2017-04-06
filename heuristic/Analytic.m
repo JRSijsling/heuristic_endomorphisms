@@ -1,8 +1,11 @@
 /***
  *  Finding an approximate basis for the geometric endomorphism ring
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
 
@@ -52,7 +55,7 @@ return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RQ0)));
 end intrinsic;
 
 
-intrinsic GeometricIsogenyApproximations(P::., Q::.) -> .
+intrinsic GeometricIsogenyBasisApproximations(P::., Q::.) -> .
 {Starting from period matrices P and Q, determines isogenies between the corresponding abelian varieties.}
 
 // Basic invariants
@@ -86,6 +89,6 @@ end intrinsic;
 intrinsic GeometricEndomorphismBasisApproximations(P::.) -> .
 {Starting from a period matrix P, determines the endomorphisms of the corresponding abelian variety.}
 
-return GeometricIsogenyApproximations(P, P);
+return GeometricIsogenyBasisApproximations(P, P);
 
 end intrinsic;

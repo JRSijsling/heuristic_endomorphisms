@@ -1,10 +1,14 @@
 /***
  *  Structural description per subfield
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 intrinsic EndomorphismStructure(EndList::List) -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}

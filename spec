@@ -10,6 +10,7 @@
     OverField.m
     Structure.m
     Lattice.m
+    G2Factor.m
   }
   polarization
   {

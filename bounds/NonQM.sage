@@ -1,3 +1,14 @@
+"""
+ *  Bound functionality
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+"""
+
 def certifySurfaceNonQM(LPolys, conductor):
     g = 2                                                   # only for surfaces
     for p in range (2,maxP):                                # loop over primes

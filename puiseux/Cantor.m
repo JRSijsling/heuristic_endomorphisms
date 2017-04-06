@@ -1,10 +1,14 @@
 /***
  *  Cantor equation functionality
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 forward CantorEquations;
 
@@ -207,21 +211,11 @@ NormM := X`T * M * (X`T)^(-1);
 tjs0, f := InitializeImageBranch(M);
 
 /* Some global elements needed below: */
-g := X`g;
-F := X`F;
-rF := X`rF;
-OF := X`OF;
-BOF := X`BOF;
-R := X`R;
-K := X`K;
+g := X`g; F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF; R := X`R; K := X`K;
 /* TODO: Play with precision here */
 P, Qs := ApproximationsFromTangentAction(X, NormM, g);
 
-ps_rts := [ ];
-prs := [ ];
-I := ideal<X`OF | 1>;
-fss_red := [* *];
-have_to_check := true;
+ps_rts := [ ]; prs := [ ]; I := ideal<X`OF | 1>; fss_red := [* *]; have_to_check := true;
 while true do
     /* Find new prime */
     repeat
@@ -232,11 +226,8 @@ while true do
     vprintf EndoCheck : "Split prime over %o\n", p;
 
     /* Add corresponding data: */
-    pr := ideal<OF | [ p, rF - rt ]>;
-    Append(~prs, pr);
-    I *:= pr;
-    X_red := ReduceCurveSplit(X, p, rt);
-    NormM_red := ReduceMatrixSplit(NormM, p, rt);
+    pr := ideal<OF | [ p, rF - rt ]>; Append(~prs, pr); I *:= pr;
+    X_red := ReduceCurveSplit(X, p, rt); NormM_red := ReduceMatrixSplit(NormM, p, rt);
     BI := Basis(I);
 
     /* Uncomment for check on compatibility with reduction */
@@ -336,4 +327,3 @@ while true do
 end while;
 
 end intrinsic;
-

@@ -1,10 +1,14 @@
 /***
  *  Divisor functionality
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 declare attributes Crv : is_hyperelliptic, is_planar, is_smooth, is_plane_quartic;
 declare attributes Crv : unif, unif_index;
@@ -44,18 +48,14 @@ end if;
 if X`initialized then
     return 0;
 end if;
-X`is_hyperelliptic := IsHyperelliptic(X);
-X`is_planar := IsPlaneCurve(X);
-X`is_smooth := IsNonSingular(X);
-X`g := Genus(X);
-X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
+X`is_hyperelliptic := IsHyperelliptic(X); X`is_planar := IsPlaneCurve(X); X`is_smooth := IsNonSingular(X);
+X`g := Genus(X); X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
 if IsAffine(X) then
     X`U := X; X`P0 := P0; X`patch_index := 1;
 else
     X`U, X`P0, X`patch_index := AffinePatch(X, P0);
 end if;
-X`A := Ambient(X`U);
-X`R := CoordinateRing(X`A);
+X`A := Ambient(X`U); X`R := CoordinateRing(X`A);
 if (X`is_hyperelliptic or X`g eq 1) and (X`patch_index eq 3) then
     X`x := X`R.2; X`y := X`R.1;
 else
@@ -69,8 +69,7 @@ else
     X`rF := Denominator(X`F.1) * X`F.1;
     X`OF := Order([ X`rF^i : i in [0..Degree(X`F) - 1] ]);
 end if;
-X`BOF := Basis(X`OF);
-X`K := FieldOfFractions(X`R);
+X`BOF := Basis(X`OF); X`K := FieldOfFractions(X`R);
 X`DEs := DefiningEquations(X`U);
 X`unif, X`unif_index := AlgebraicUniformizer(X);
 X`OurB := OurBasisOfDifferentials(X);
@@ -202,8 +201,8 @@ function NormalizedBasisOfDifferentials(X)
  */
 
 P := DevelopPoint(X, X`P0, X`g);
-print X`U;
-print X`unif;
+//print X`U;
+//print X`unif;
 BP := [ Evaluate(b, P) : b in X`OurB ];
 T := Matrix([ [ Coefficient(BP[i], j - 1) : j in [1..X`g] ] : i in [1..X`g] ])^(-1);
 NormB := [ &+[ T[i,j] * X`OurB[j] : j in [1..X`g] ] : i in [1..X`g] ];
@@ -221,8 +220,7 @@ function CandidateDivisors(X, Y, d)
 
 gX := X`g; fX := X`DEs[1]; RX := X`R; xX := X`x; yX := X`y;
 gY := Y`g; fY := Y`DEs[1]; RY := Y`R; xY := Y`x; yY := Y`y;
-R := PolynomialRing(X`F, 2);
-Rprod := PolynomialRing(X`F, 4);
+R := PolynomialRing(X`F, 2); Rprod := PolynomialRing(X`F, 4);
 
 if X`is_hyperelliptic then
     divsX := [ xX^i : i in [0..(d div 2)] ] cat [ xX^i*yX : i in [0..((d - gX - 1) div 2)] ];
@@ -510,4 +508,3 @@ while true do
 end while;
 
 end intrinsic;
-

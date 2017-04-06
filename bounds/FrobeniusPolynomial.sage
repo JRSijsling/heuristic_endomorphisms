@@ -1,3 +1,14 @@
+"""
+ *  Bound functionality
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+"""
+
 '''
 Compute the characteristic polynomial of Frobenius for the curve y^2=f(x) at the prime p.
 It assumes that p is odd and the curve has good reduction at p

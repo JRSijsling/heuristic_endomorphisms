@@ -1,10 +1,14 @@
 /***
  *  Divisor functionality
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 declare attributes Crv : is_hyp, is_planar, is_smooth, is_plane_quartic;
 declare attributes Crv : unif, unif_index;
@@ -40,28 +44,21 @@ end if;
 if X`initialized then
     return 0;
 end if;
-X`is_hyp := IsHyperelliptic(X);
-X`is_planar := IsPlaneCurve(X);
-X`is_smooth := IsNonSingular(X);
-X`g := Genus(X);
-X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
+X`is_hyp := IsHyperelliptic(X); X`is_planar := IsPlaneCurve(X); X`is_smooth := IsNonSingular(X);
+X`g := Genus(X); X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
 if IsAffine(X) then
     X`U := X; X`P0 := P0;
 else
     X`U, X`P0 := AffinePatch(X, P0);
 end if;
-X`A := Ambient(X`U);
-X`R := CoordinateRing(X`A);
-X`F := BaseRing(X`R);
+X`A := Ambient(X`U); X`R := CoordinateRing(X`A); X`F := BaseRing(X`R);
 if Type(X`F) eq FldRat then
-    X`rF := 1;
-    X`OF := Integers();
+    X`rF := 1; X`OF := Integers();
 else
     X`rF := Denominator(X`F.1) * X`F.1;
     X`OF := Order([ X`rF^i : i in [0..Degree(X`F) - 1] ]);
 end if;
-X`BOF := Basis(X`OF);
-X`K := FieldOfFractions(X`R);
+X`BOF := Basis(X`OF); X`K := FieldOfFractions(X`R);
 X`DEs := DefiningEquations(X`U);
 X`unif, X`unif_index := AlgebraicUniformizer(X);
 X`OurB := OurBasisOfDifferentials(X);
@@ -206,11 +203,7 @@ F := BaseRing(X`U);
 B := [ [ F ! c : c in Eltseq(b) ] : b in B ];
 
 /* Corresponding equations: */
-DEs := X`DEs;
-R := X`R;
-Rprod := Parent(fs[1]);
-d := Rank(R);
-g := X`g;
+DEs := X`DEs; R := X`R; Rprod := Parent(fs[1]); d := Rank(R); g := X`g;
 hs := [ hom<R -> Rprod | [ Rprod.j : j in [ ((i-1)*d + 1)..i*d ] ]> : i in [1..2] ];
 eqs := [ &+[ b[i] * fs[i] : i in [1..#fs] ] : b in B ];
 eqs := eqs cat [ h(DE) : h in hs, DE in DEs ];
@@ -327,19 +320,12 @@ M := X`T * M * (X`T)^(-1);
 tjs0, f := InitializeImageBranch(M);
 
 /* Some global elements needed below: */
-F := X`F;
-rF := X`rF;
-OF := X`OF;
-BOF := X`BOF;
+F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF;
 /* TODO: Play with precision here */
 P, Qs := ApproximationsFromTangentAction(X, M, X`g);
 Rprod := PolynomialRing(X`F, 2 * Rank(X`R));
 
-ps_rts := [ ];
-prs := [ ];
-I := ideal<X`OF | 1>;
-DEss_red := [* *];
-have_to_check := true;
+ps_rts := [ ]; prs := [ ]; I := ideal<X`OF | 1>; DEss_red := [* *]; have_to_check := true;
 while true do
     /* Find new prime */
     repeat
@@ -350,11 +336,8 @@ while true do
     vprintf EndoCheck : "Split prime over %o\n", p;
 
     /* Add corresponding data: */
-    pr := ideal<X`OF | [ p, rF - rt ]>;
-    Append(~prs, pr);
-    I *:= pr;
-    X_red := ReduceCurveSplit(X, p, rt);
-    M_red := ReduceMatrixSplit(M, p, rt);
+    pr := ideal<X`OF | [ p, rF - rt ]>; Append(~prs, pr); I *:= pr;
+    X_red := ReduceCurveSplit(X, p, rt); M_red := ReduceMatrixSplit(M, p, rt);
     BI := Basis(I);
 
     /* Uncomment for check on compatibility with reduction */
@@ -464,4 +447,3 @@ while true do
 end while;
 
 end intrinsic;
-

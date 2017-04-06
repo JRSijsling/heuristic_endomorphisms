@@ -1,10 +1,14 @@
 /***
  *  Chinese remainderings of fractions
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 forward RandomSplitPrime;
 forward RandomSplitPrimes;
@@ -169,20 +173,14 @@ function ReduceCurveSplit(X, p, rt)
 /* Only gives an affine patch (which is enough for our algorithms) */
 
 U := ReduceAffinePatchSplit(X`U, p, rt);
-U`is_hyp := X`is_hyp;
-U`is_planar := X`is_planar;
-U`is_smooth := X`is_smooth;
-U`g := X`g;
-U`is_plane_quartic := X`is_plane_quartic;
+U`is_hyp := X`is_hyp; U`is_planar := X`is_planar; U`is_smooth := X`is_smooth;
+U`g := X`g; U`is_plane_quartic := X`is_plane_quartic;
 U`U := U;
 U`P0 := U ! ReducePointSplit(X`P0, p, rt);
-U`A := Ambient(U`U);
-U`R := CoordinateRing(U`A);
-U`F := BaseRing(U`R);
+U`A := Ambient(U`U); U`R := CoordinateRing(U`A); U`F := BaseRing(U`R);
 U`K := FieldOfFractions(U`R);
 U`DEs := DefiningEquations(U`U);
-U`unif_index := X`unif_index;
-U`unif := (U`R).(U`unif_index);
+U`unif_index := X`unif_index; U`unif := (U`R).(U`unif_index);
 U`OurB := ReduceBasisOfDifferentialsSplit(X`OurB, p, rt);
 U`NormB := ReduceBasisOfDifferentialsSplit(X`NormB, p, rt);
 U`T := ReduceMatrixSplit(X`T, p, rt);
@@ -193,4 +191,3 @@ U`initialized := true;
 return U;
 
 end function;
-

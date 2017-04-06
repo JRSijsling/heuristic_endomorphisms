@@ -1,6 +1,16 @@
 /***
  *  Determining the Sato-Tate group
  *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+ */
+
+/***
+ *
  *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
  *                                       (jeroen.sijsling@uni-ulm.de)
  *  See LICENSE.txt for license details.

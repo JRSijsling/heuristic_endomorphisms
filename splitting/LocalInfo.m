@@ -1,10 +1,14 @@
 /***
  *  Computation of local expansions
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
+
 
 forward LiftPuiseuxSeries;
 
@@ -71,14 +75,12 @@ e := PuiseuxRamificationIndex(M);
 
 if g eq 1 then
     r := Eltseq(Rows(M)[1]);
-    RF := PolynomialRing(F); xF := RF.1;
-    PF := PowerSeriesRing(F, #r + 1); tF := PF.1;
+    RF := PolynomialRing(F); xF := RF.1; PF := PowerSeriesRing(F, #r + 1); tF := PF.1;
     return [ &+[ (r[n] / n) * tF^n : n in [1..#r] ] + O(tF^(#r + 1)) ], xF - 1;
 end if;
 
 /* Normalized equations (depend only on the matrix): */
-A := AffineSpace(F, g);
-RA := CoordinateRing(A);
+A := AffineSpace(F, g); RA := CoordinateRing(A);
 eqs := [ ];
 for n in [1..g] do
     powersum := &+[ RA.i^n : i in [1..g] ];
@@ -92,9 +94,7 @@ S := Scheme(A, eqs);
 
 /* The upcoming steps are taken to avoid the use of an algebraic closure */
 RF := PolynomialRing(F);
-hc := [ RF!0 : i in [1..g] ];
-hc[#hc] := RF.1;
-h := hom<RA -> RF | hc>;
+hc := [ RF!0 : i in [1..g] ]; hc[#hc] := RF.1; h := hom<RA -> RF | hc>;
 
 /* By symmetry, this extension always suffices */
 G := GroebnerBasis(ideal<RA | eqs>);
@@ -218,19 +218,11 @@ end function;
 
 function CreateLiftIterator(X, Y, M)
 
-X_unif_index := X`unif_index;
-X_other_index := (X_unif_index mod 2) + 1;
-fX := X`DEs[1];
-dfX := Derivative(fX, X_other_index);
-BX := X`NormB;
-gX := X`g;
+X_unif_index := X`unif_index; X_other_index := (X_unif_index mod 2) + 1;
+fX := X`DEs[1]; dfX := Derivative(fX, X_other_index); BX := X`NormB; gX := X`g;
 
-Y_unif_index := Y`unif_index;
-Y_other_index := (Y_unif_index mod 2) + 1;
-fY := Y`DEs[1];
-dfY := Derivative(fY, Y_other_index);
-BY := Y`NormB;
-gY := Y`g;
+Y_unif_index := Y`unif_index; Y_other_index := (Y_unif_index mod 2) + 1;
+fY := Y`DEs[1]; dfY := Derivative(fY, Y_other_index); BY := Y`NormB; gY := Y`g;
 
 e := PuiseuxRamificationIndex(M);
 
@@ -297,4 +289,3 @@ end for;
 return P, Qs;
 
 end intrinsic;
-
