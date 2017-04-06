@@ -20,4 +20,4 @@ load(__endodir__ + 'heuristic/Relative.sage')
 #load(__endodir__ + 'heuristic/Decomposition.sage')
 load(__endodir__ + 'Wrapper.sage')
 
-from bounds import *
+import bounds as Bounds

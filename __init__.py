@@ -21,4 +21,3 @@ if not '__endodir__' in globals():
 
 from sage.all import *
 load(__endodir__ + "Initialize.sage");
-
