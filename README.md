@@ -66,4 +66,3 @@ cpol := MinimalPolynomial(theta);
 assert Degree(cpol) eq 2;  
 c := [Coefficient(cpol,1), Coefficient(cpol, 0)];
 ```
-

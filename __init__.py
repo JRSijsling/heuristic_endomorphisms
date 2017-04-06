@@ -9,6 +9,10 @@
  *  See LICENSE.txt for license details.
 """
 
-if not '__endodir__' in globals():
-    raise ImportError("Please set a value for __endodir__")
+from sage.all import load
+
+import os
+__endodir__ = os.getcwd() + '/heuristic_endomorphisms/'
+
+from sage.all import *
 load(__endodir__ + "Initialize.sage");
