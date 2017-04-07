@@ -13,7 +13,7 @@
 /* Enable Oldenburg if you have access to the relevant code by Pascal Molin,
  * Christian Neurohr et al. */
 
-intrinsic PeriodMatrixHyperelliptic(f::RngUPolElt, h::RngUPolElt : HaveOldenburg := false) -> AlgMatElt
+intrinsic PeriodMatrix(f::RngUPolElt, h::RngUPolElt : HaveOldenburg := false) -> AlgMatElt
 {Computes a (big) period matrix of the hyperelliptic curve defined by f and h.}
 
 g := 4*f + h^2;
@@ -26,7 +26,7 @@ return Transpose(Matrix(BaseRing(f), PeriodMatrix(g)));
 end intrinsic;
 
 
-intrinsic PeriodMatrixPlane(F::RngMPolElt : HaveOldenburg := false) -> AlgMatElt
+intrinsic PeriodMatrix(F::RngMPolElt : HaveOldenburg := false) -> AlgMatElt
 {Computes a (big) period matrix of the plane curve defined by F.}
 
 SCC<x0,x1,x2> := Parent(F); CC := BaseRing(SCC); RCC<x,y> := PolynomialRing(CC, 2);

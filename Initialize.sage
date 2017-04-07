@@ -22,8 +22,7 @@ magma.load('~/.magmarc')
 magma.AttachSpec('spec')
 
 load('heuristic/Relative.sage')
-#load('heuristic/Conversion.sage')
-#load('heuristic/Decomposition.sage')
+load('heuristic/PrettyPrint.sage')
 load('Wrapper.sage')
 
 import bounds as Bounds

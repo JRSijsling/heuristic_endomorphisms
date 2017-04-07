@@ -16,34 +16,15 @@ R.<x> = PolynomialRing(QQ)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 
-# Some interesting curves:
-# Endomorphisms and decompositions defined over QQ:
-f = x^4 + x^2
-h = x^3 + 1
 # The big degree 48 case:
 f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
 h = R(0)
-# Non-cyclic CM:
-f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
-h = 0
-# RM over QQ:
+# Debug RM over QQ:
 f = -x^5
 h = x^3 + x + 1
-# Potential RM:
-f = x^6 + 2*x^3 - x
-h = x^3 + 1
-# Debugging the splitting functionality:
+# Debug splitting functionality:
 f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
 h = x
-# LMFDB example 1:
-f = x^6 + 2*x^3 - x
-h = x^3 + 1
-# LMFDB example 2:
-f = 6*x^5 + 9*x^4 - x^3 - 3*x^2
-h = 1
-# LMFDB example 3:
-f = -2*x^4 + 4*x^2 - 9*x - 14
-h = x^3 + 1
 # Debug (TODO: FindPoint):
 #f = 3*x^3 - 2*x^2 + 6*x + 2
 #h = x^3 + x
@@ -88,7 +69,7 @@ print End.endomorphism_field()
 #print End.lattice().representations()
 #print End.lattice().structures()
 print End.lattice().descriptions()
-print End.verify_ring()
+print End.verify_saturated()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

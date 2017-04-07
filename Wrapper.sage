@@ -42,20 +42,11 @@ class EndomorphismData:
         self.have_oldenburg = have_oldenburg
 
     def __repr__(self):
-        if self.curve_type == "hyperelliptic":
-            if self.h == 0:
-                return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
-            else:
-                return "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
-        elif self.curve_type == "plane":
-            return "The endomorphism data of the plane curve over QQ defined by {}".format(str(self.F))
+        return ReprEndomorphismData(self)
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            if self.curve_type == "hyperelliptic":
-                self._P_ = magma.PeriodMatrixHyperelliptic(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
-            elif self.curve_type == "plane":
-                self._P_ = magma.PeriodMatrixPlane(self._FCC_, HaveOldenburg = self.have_oldenburg)
+            self._P_ = magma.PeriodMatrix(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def geometric_representations(self):
@@ -69,12 +60,6 @@ class EndomorphismData:
             self._Rs_ = self._geo_reps_[2]
             self._As_ = self._geo_reps_[3]
         return self._geo_reps_
-
-    def verify_ring(self):
-        self._geo_reps_ = self.geometric_representations()
-        if not hasattr(self, "_is_verified_ring_"):
-            self._is_verified_ring_ = magma.VerifyRing(self._Rs_, self._P_)
-        return self._is_verified_ring_
 
     def endomorphism_field(self):
         self._geo_reps_ = self.geometric_representations()
@@ -106,19 +91,21 @@ class EndomorphismData:
         self._geo_reps_ = self.geometric_representations()
         return magma.DegreeEstimate(self._geo_reps_, A)
 
-    def geometric_representations_check(self, bound = 2^10):
+    def verify_algebra(self):
+        return True
+
+    def verify_saturated(self):
+        self._geo_reps_ = self.geometric_representations()
+        return magma.VerifySaturated(self._geo_reps_, self._P_)
+
+    def verify_representations(self):
         self._geo_reps_ = self.geometric_representations()
         XL, P0L, AsL = magma.NonWeierstrassBasePointHyp(self.X, self.base_field, self._AsAlg_, nvals = 3)
-        for AL in AsL:
-            if magma.IsScalar(AL):
-                tests.append(True)
-            else:
-                # TODO: This transpose should go
-                d = self.degree_estimate(AL)
-                ALt = magma.Transpose(AL)
-                div = magma.CantorMorphismFromMatrixSplit(XL, P0L, ALt, LowerBound = 2*d + 2)
-                tests.append(True)
-        return all(tests)
+        d = self.degree_estimate(AL)
+        return magma.VerifyRepresentations(XL, P0L, ALs, LowerBound = 2*d + 2)
+
+    def verify(self):
+        return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
 
     def decomposition(self):
         self._P_ = self.period_matrix()
@@ -133,17 +120,7 @@ class Lattice:
         self._lat_descs_ = lat[3]
 
     def __repr__(self):
-        # TODO: Small phrase
-        return "Some lattice dude!"
-        # TODO: Make what follows a conversion function, Galois group
-        statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(self._frep_)
-        for ED in self._lat_descs_:
-            statement += """Over subfield F with generator %s with minimal polynomial %s:\n""" % (strlist_to_nfelt(ED[0][1], 'a'), intlist_to_poly(ED[0][0]))
-            statement += endo_statement(ED[1], ED[2], ED[3], r'F')
-            #statement += st_group_statement(ED[4])
-            #statement += gl2_simple_statement(ED[1], ED[2])
-            statement += '\n'
-        return statement
+        return ReprLattice(self)
 
     def representations(self):
         # TODO: Make what follows a conversion function, Galois group
@@ -159,24 +136,13 @@ class Lattice:
 
 class OverField:
     def __init__(self, EndJac, K = "geometric"):
-        self.f = EndJac.f
-        self.h = EndJac.h
+        self.X = EndJac.X
         self.base_field = EndJac.base_field
         self.field = K
         self._geo_reps_ = EndJac._geo_reps_
 
     def __repr__(self):
-        if self.h == 0:
-            pre = "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
-        else:
-            pre = "The endomorphism data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
-        if self.field == "geometric":
-            post = " over the algebraic closure of its base field"
-        elif self.field == "base":
-            post = " over its base field"
-        else:
-            post = " over " + str(self.field)
-        return pre + post
+        return ReprOverField(self)
 
     def representations(self):
         if not hasattr(self, "_reps_"):
@@ -210,34 +176,39 @@ class OverField:
         if not hasattr(self, "_desc_"):
             self._reps_ = self.representations()
             self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
-        # TODO: Add conversion function, a single prettification
-        return self._desc_
+        return ReprDescription(self._desc_)
 
 class Decomposition:
+    # TODO: We could have different fields here. Do we want a catch-all?
     def __init__(self, EndJac):
-        self.f = EndJac.f
-        self.h = EndJac.h
+        self.X = EndJac.X
 
     def __repr__(self):
-        if self.h == 0:
-            return "The decomposition data of the hyperelliptic curve over QQ defined by y^2 = {}".format(str(self.f))
-        else:
-            return "The decomposition data of the hyperelliptic curve over QQ defined by y^2 + ({})*y = {}".format(str(self.h), str(self.f))
+        return ReprDecomposition(self)
 
     def field_of_definition(self):
-        # TODO: Should be calculated with below
+        if not hasattr(self, "_decomp_fod_"):
+            return 0
+        # TODO: Run through lattice
         return 0
 
-    def factors(self):
-        # TODO: Defer to Magma
-        K = self.field_of_definition()
-        if not hasattr(self, "_ECs_"):
-            Lats = magma.LatticesFromIdempotents(self._idems_[2], self._P_, epscomp = self._epscomp_, epsLLL = self._epsLLL_, epsinv = self._epsinv_)
-            self._ECs_rep_ = [ Elliptic_Curve_From_Lattice(Lat.sage(), self._fsubrep_opt_, self._fsubhom_opt_, prec = self.prec, epscomp = self._epscomp_, epsLLL = self._epsLLL_) for Lat in Lats ]
-        return [ magma.EllipticCurve([ -K(EC_rep[0])/48, -K(EC_rep[1])/864]).sage() for EC_rep in self._ECs_rep_ ]
+    def idempotents(self):
+        if not hasattr(self, "_idems_"):
+            return 0
+        # TODO: Run through lattice; count over closure and go down, possibly even finer
+        return 0
 
-    def certificate_g2(self):
-        # TODO: Need column numbers, and make this work for any kind of factor. Rest should be like endo verification.
-        if len(self._idems_[1]) == 0:
-            return [ ]
+    def putative_factors(self):
+        # TODO: Defer to Magma. Combination of two functions
+        if not hasattr(self, "_factors_"):
+            self._decomp_fod_ = self.field_of_definition()
+            self._idems_ = self.idempotents()
+            self._factors_ = magma.PutativeFactorsFromIdempotents(self._idems_)
+        return self._factors_
+
+    def morphisms(self):
+        # TODO: This is also the verification
+        # TODO: Need column numbers, and make this work for any kind of factor.
+        if not hasattr(self, "_morphisms_"):
+            return 0
         return 0

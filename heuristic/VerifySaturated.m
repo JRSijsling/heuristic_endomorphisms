@@ -1,9 +1,10 @@
 // TODO: Generalize to isogenies
 
-intrinsic VerifyRing(Rs::SeqEnum, P::.) -> BoolElt
+intrinsic VerifySaturated(GeoEndList::List, P::.) -> BoolElt
 {Verifies whether the endomorphism ring is saturated in the algebra found so far.}
 // Optional argument if lattice was calculated already
 
+Rs := GeoEndList[2];
 // Creation of relevant algebras
 g := #Rows(Rs[1]) div 2;
 // Ambient matrix algebra, plus generators of the endomorphism ring
@@ -15,13 +16,11 @@ C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 
 OC := Order(Integers(), GensC);
 DOC := Discriminant(OC); DOM := Discriminant(MaximalOrder(C));
-test, ind := IsSquare(DOC / DOM);
-ind := Integers() ! ind;
+test, ind := IsSquare(DOC / DOM); ind := Integers() ! ind;
 
 ps := [ tup[1] : tup in Factorization(ind) ];
-return VerifyRingAtPrime(Rs, P, 2);
 for p in ps do
-    if not VerifyRingAtPrime(Rs, P, p) then
+    if not VerifySaturatedAtPrime(GeoEndList, P, p) then
         return false;
     end if;
 end for;
@@ -30,9 +29,10 @@ return true;
 end intrinsic;
 
 
-intrinsic VerifyRingAtPrime(Rs::SeqEnum, P::., p::RngIntElt) -> BoolElt
+intrinsic VerifySaturatedAtPrime(GeoEndList::List, P::., p::RngIntElt) -> BoolElt
 {Verifies whether the endomorphism ring is saturated in the algebra found so far, looking only at the prime p.}
 
+Rs := GeoEndList[2];
 CC := Parent(P[1,1]); RR := RealField(CC); JP := ComplexStructure(P);
 I := [0..(p - 1)]; d := #Rs; CP := CartesianPower(I, d);
 
