@@ -13,6 +13,9 @@ def ReprCurve(X):
 def ReprEndomorphismData(End):
     return "The endomorphism data of" + ReprCurve(End.X)
 
+def ReprLattice(Lat):
+    return "The endomorphism lattice of" + ReprCurve(Lat.X)
+
 def ReprOverField(overfield):
     pre = "The endomorphism structure of" + ReprCurve(overfield.X)
     if overfield.field == "geometric":
