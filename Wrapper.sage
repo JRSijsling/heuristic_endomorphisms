@@ -18,7 +18,7 @@ class EndomorphismData:
         self.have_oldenburg = magma(have_oldenburg)
 
     def __repr__(self):
-        return ReprEndomorphismData(self)
+        return repr_endomorphism_data(self)
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
@@ -99,7 +99,7 @@ class Lattice:
         self._lat_descs_ = Lat[3]
 
     def __repr__(self):
-        return ReprLattice(self)
+        return repr_lattice(self)
 
     def representations(self):
         return [ [ rep[1], rep[2] ] for rep in self._lat_reps_ ]
@@ -111,7 +111,7 @@ class Lattice:
         return self._lat_descs_
 
     def pretty_print(self):
-        return PrettyPrintLattice(self._lat_descs_)
+        return pretty_print_lattice(self._lat_descs_)
 
 class OverField:
     def __init__(self, End, K = "geometric"):
@@ -121,7 +121,7 @@ class OverField:
         self._geo_reps_ = End._geo_reps_
 
     def __repr__(self):
-        return ReprOverField(self)
+        return repr_over_field(self)
 
     def representations(self):
         if not hasattr(self, "_reps_"):
@@ -152,7 +152,7 @@ class OverField:
         if not hasattr(self, "_desc_"):
             self._reps_tang_ = self.representations()
             self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
-        return PrettyPrintOverField(self._lat_descs_)
+        return pretty_print_over_field(self._desc_)
 
 class Decomposition:
     # We take a smallest field over which everything occurs
@@ -160,7 +160,7 @@ class Decomposition:
         self.X = End.X
 
     def __repr__(self):
-        return ReprDecomposition(self)
+        return repr_decomposition(self)
 
     def field_of_definition(self):
         if not hasattr(self, "_decomp_fod_"):

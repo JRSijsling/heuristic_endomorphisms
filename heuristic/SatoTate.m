@@ -9,14 +9,14 @@
  *  See LICENSE.txt for license details.
  */
 
-/***
- *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
- *  See LICENSE.txt for license details.
- */
 
-function SatoTateGroupG2(Lat);
+// TODO: Will need geometric endomorphism list (for shorthand) and
+// corresponding subgroup [but then perhaps a field will also suffice?]. Then
+// we recalculate the factors over RR. It is not
+// the most beautiful approach but very maintainable.
+
+intrinsic SatoTateGroupG2(Lat) -> MonStgElt
+{Sato-Tate group in genus 2.}
 
 if Shorthand eq "A" then
     return "USp(4)";
@@ -193,4 +193,4 @@ end if;
 
 error Error("All cases in SatoTateGroupG2 fell through");
 
-end function;
+end intrinsic;

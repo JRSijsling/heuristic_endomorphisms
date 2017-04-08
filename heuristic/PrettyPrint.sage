@@ -1,4 +1,15 @@
-def ReprCurve(X):
+"""
+ *  Representation and pretty print functions
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+"""
+
+def repr_curve(X):
     curve_type = magma.CurveType(X)
     if str(curve_type) == "hyperelliptic":
         f, h = magma.HyperellipticPolynomials(X, nvals = 2)
@@ -10,147 +21,106 @@ def ReprCurve(X):
         F = magma.DefiningPolynomial(X)
         return " the plane curve {} = 0".format(str(F))
 
-def ReprEndomorphismData(End):
-    return "The endomorphism data of" + ReprCurve(End.X)
+def repr_endomorphism_data(End):
+    return "The endomorphism data of" + repr_curve(End.X)
 
-def ReprLattice(Lat):
-    return "The endomorphism lattice of" + ReprCurve(Lat.X)
+def repr_lattice(Lat):
+    return "The endomorphism lattice of" + repr_curve(Lat.X)
 
-def ReprOverField(overfield):
-    pre = "The endomorphism structure of" + ReprCurve(overfield.X)
-    if overfield.field == "geometric":
+def repr_over_field(over_field):
+    pre = "The endomorphism structure of" + repr_curve(over_field.X)
+    if over_field.field == "geometric":
         post = " over the algebraic closure of its base field"
-    elif overfield.field == "base":
+    elif over_field.field == "base":
         post = " over its base field"
     else:
-        post = " over " + str(overfield.field)
+        post = " over " + str(over_field.field)
     return pre + post
 
-def ReprDecomposition(decomp):
-    return "The decomposition structure of" + ReprCurve(decomp.X)
+def repr_decomposition(decomp):
+    return "The decomposition structure of" + repr_curve(decomp.X)
 
-def PrettyPrintOverField(desc):
+def pretty_print_over_field(desc):
+    desc = sagify_description(desc)
+    # Next is the conversion to a dictionary
+    # (makes it easier to change as only this part will need modification)
+    desc_dict = dict({'factorsQQ' : desc[0], 'factorsRR' : desc[1] , 'factorsZZ' : desc[2]})
+    return all_statements(desc_dict, 'F')
+
+def pretty_print_lattice(desc_lat):
+    desc_lat = sagify_description(desc_lat)
+    # TODO: Apparently such a for-loop is discouraged, but well
     statement = ''
-    statement += endo_statement(desc[1], desc[2], desc[3], r'F')
-    statement += st_group_statement(desc[4])
-    statement += gl2_simple_statement(desc[1], desc[2])
-    statement += '\n'
-    return "boink"
-
-def PrettyPrintLattice(lat_desc):
-    statement = """Smallest field over which all endomorphisms are defined:\nGalois number field K = QQ (a) with defining polynomial %s\n\n""" % intlist_to_poly(lat_desc[0][0])
-    for desc in lat_desc:
-        statement += """Over subfield F minimal polynomial %s:\n""" % intlist_to_poly(desc[0][0])
-        statement += PrettyPrintOverField([ desc[i] for i in [1..len(desc)] ])
+    for desc in desc_lat:
+        statement += """Over subfield F with minimal polynomial %s:\n""" % intlist_to_poly(desc[0])
+        statement += '\n'
+        desc_dict = dict({'factorsQQ' : desc[1], 'factorsRR' : desc[2] , 'factorsZZ' : desc[3]})
+        statement += all_statements(desc_dict, 'F')
+        statement += '\n'
     return statement
+
+def all_statements(desc_dict, fieldstring):
+    statement = ''
+    statement += statement_endomorphisms(desc_dict, r'F')
+    statement += statement_sato_tate_group(desc_dict)
+    statement += statement_gl2(desc_dict)
+    statement += statement_simple(desc_dict)
+    return statement
+
+def sagify_description(desc):
+    desc_str = str(desc)
+    desc_str = desc_str.replace('\n', '').replace('[*', '[').replace('*]', ']').replace(' ','')
+    desc_str = desc_str.replace('I', '\'I\'')
+    desc_str = desc_str.replace('\'I\'\'I\'', '\'II\'')
+    desc_str = desc_str.replace('\'II\'\'I\'', '\'III\'')
+    desc_str = desc_str.replace('\'I\'V', '\'IV\'')
+    desc_str = desc_str.replace('M_', '\'M_')
+    desc_str = desc_str.replace('HH', '\'HH\'')
+    desc_str = desc_str.replace('CC', '\'CC\'')
+    desc_str = desc_str.replace('RR', '\'RR\'')
+    desc_str = desc_str.replace('\'(CC)\'', '(CC)')
+    desc_str = desc_str.replace('\'(RR)\'', '(RR)')
+    return sage_eval(desc_str)
 
 def intlist_to_poly(s, var = 'x'):
     return str(PolynomialRing(QQ, var)(s))
 
-def ED_sagified(ED):
-    return [ [ [ Canonize_Field(factorsQQ[1].sage())[0], factorsQQ[2].sage() ] for factorsQQ in ED[1] ], [ repr(factorRR) for factorRR in ED[2] ], ED[3].sage(), repr(ED[4]) ]
-
-def EDs_sagified(EDs, frep):
-    EDs_sage = []
-    for ED in EDs:
-        ED1 = Canonize_Subfield(ED[1].sage(), frep)
-        ED2 = [ [ Canonize_Field(factorsQQ[1].sage())[0], factorsQQ[2].sage() ] for
-                factorsQQ in ED[2] ]
-        ED3 = [ repr(factorRR) for factorRR in ED[3] ]
-        ED4 = ED[4].sage()
-        #ED5 = repr(ED[5])
-        EDs_sage.append([ED1, ED2, ED3, ED4])
-    EDs_sage = sorted(EDs_sage, key = lambda t : len(t[0][0]))
-    EDs_sage.reverse()
-    return EDs_sage
-
-def ring_pretty(L, f):
+def pretty_print_ring(L, f):
     # Only makes a difference for at most quadratic fields
     # FIXME: Generalize, for example to cyclotomic fields
     if len(L) == 2:
-        return r'ZZ'
+        return 'ZZ'
     c,b,a = L
     D = b**2 - 4*a*c
     if f == 1:
         if D % 4 == 0:
-            return r'ZZ [sqrt(%s)]'% str(D//4)
-        return r'ZZ [(1 + sqrt(%s))/2]' % str(D)
+            return 'ZZ [sqrt(%s)]'% str(D//4)
+        return 'ZZ [(1 + sqrt(%s))/2]' % str(D)
     if D % 4 == 0:
-        return r'ZZ [%s sqrt(%s)]' % (str(f), str(D//4))
+        return 'ZZ [%s sqrt(%s)]' % (str(f), str(D//4))
     if f % 2 == 0:
-        return r'ZZ [%s sqrt(%s)]' % (str(f//2), str(D))
-    return r'ZZ [(1 + sqrt(%s))/2]' % (str(f), str(D))
+        return 'ZZ [%s sqrt(%s)]' % (str(f//2), str(D))
+    return 'ZZ [(1 + sqrt(%s))/2]' % (str(f), str(D))
 
-def field_pretty(L):
+def pretty_print_field(L):
     # Only makes a difference for at most quadratic fields
     # FIXME: Generalize, for example to cyclotomic fields
     if len(L) == 2:
-        return r'QQ'
+        return 'QQ'
     if len(L) == 3:
         c,b,a = L
         D = b**2 - 4*a*c
-        return r'QQ (\sqrt(%s))' % D.squarefree_part()
+        return 'QQ (\sqrt(%s))' % D.squarefree_part()
     else:
-        return r'the number field with defining polynomial %s' % intlist_to_poly(L)
+        return 'the number field with defining polynomial %s' % intlist_to_poly(L)
 
-def factorsRR_raw_to_pretty(factorsRR):
-    return ' x '.join(factorsRR)
-
-def endo_statement(factorsQQ, factorsRR, ring, fieldstring):
+def statement_endomorphisms(desc_dict, fieldstring):
+    return "boink\n"
     factorsQQ_number = len(factorsQQ)
-    factorsQQ_pretty = [ field_pretty(factorQQ[0]) for factorQQ in factorsQQ ]
+    factorsQQ_pretty = [ pretty_print_field(factorQQ[0]) for factorQQ in factorsQQ ]
     statement = """End (J_%s): """ % fieldstring
 
-    # First row: description of the endomorphism ring as an order in the
-    # endomorphism algebra
-    # First the case of a maximal order:
-    if ring[0] == 1:
-        # Single factor:
-        if factorsQQ_number == 1:
-            # Number field or not:
-            if factorsQQ[0][1] == -1:
-                # Prettify in quadratic case:
-                if len(factorsQQ[0][0]) in [2, 3]:
-                    statement += """%s""" % ring_pretty(factorsQQ[0][0], 1)
-                else:
-                    statement += """the maximal order of End (J_%s) ox QQ""" % fieldstring
-            else:
-                # Use M_2 over integers if this applies:
-                if factorsQQ[0][1] == 1 and len(factorsQQ[0][0]) == 2:
-                    statement += """M_2 (ZZ)"""
-                # TODO: Add flag that indicates whether we are over a PID, in
-                # which case we can use the following lines:
-                #if factorsQQ[0][2] == 1:
-                #    statement += """\(\mathrm{M}_2 (%s)\)"""\
-                #        % ring_pretty(factorsQQ[0][1], 1)
-                else:
-                    statement += """a maximal order of End (J_%s) ox QQ""" % fieldstring
-        # If there are two factors, then they are both at most quadratic
-        # and we can prettify them
-        else:
-            statement += ' x '.join([ ring_pretty(factorQQ[0], 1) for factorQQ in factorsQQ ])
-    # Then the case where there is still a single factor:
-    elif factorsQQ_number == 1:
-        # Number field case:
-        if factorsQQ[0][1] == -1:
-            # Prettify in quadratic case:
-            if len(factorsQQ[0][0]) in [2, 3]:
-                statement += """%s""" % ring_pretty(factorsQQ[0][0], ring[0])
-            else:
-                statement += """an order of conductor of norm %s in End (J_%s) ox QQ""" % (ring[0], fieldstring)
-        # Otherwise mention whether the order is Eichler:
-        elif ring[1] == 1:
-            statement += """an Eichler order of index %s in End (J_%s) ox QQ""" % (ring[0], fieldstring)
-        else:
-            statement += """a non-Eichler order of index %s in End (J_{%s}) ox QQ""" % (ring[0], fieldstring)
-    # Finally the case of two factors. We can prettify to some extent, since we
-    # can describe the maximal order here
-    else:
-        statement += """an order of index %s in %s""" % (ring[0], ' x '.join([ ring_pretty(factorQQ[0], 1) for factorQQ in factorsQQ ]))
-    # End of first row:
-    statement += """\n"""
-
-    # Second row: description of endomorphism algebra factors
+    # First row: description of endomorphism algebra factors
     statement += """End (J_%s) ox QQ: """ % fieldstring
     # In the case of only one factor we either get a number field or a
     # quaternion algebra:
@@ -176,23 +146,76 @@ def endo_statement(factorsQQ, factorsRR, ring, fieldstring):
     # End of second row:
     statement += """\n"""
 
+    # Second row: description of the endomorphism ring as an order in the
+    # endomorphism algebra
+    # First the case of a maximal order:
+    if ring[0] == 1:
+        # Single factor:
+        if factorsQQ_number == 1:
+            # Number field or not:
+            if factorsQQ[0][1] == -1:
+                # Prettify in quadratic case:
+                if len(factorsQQ[0][0]) in [2, 3]:
+                    statement += """%s""" % pretty_print_ring(factorsQQ[0][0], 1)
+                else:
+                    statement += """the maximal order of End (J_%s) ox QQ""" % fieldstring
+            else:
+                # Use M_2 over integers if this applies:
+                if factorsQQ[0][1] == 1 and len(factorsQQ[0][0]) == 2:
+                    statement += """M_2 (ZZ)"""
+                # TODO: Add flag that indicates whether we are over a PID, in
+                # which case we can use the following lines:
+                #if factorsQQ[0][2] == 1:
+                #    statement += """\(\mathrm{M}_2 (%s)\)"""\
+                #        % pretty_print_ring(factorsQQ[0][1], 1)
+                else:
+                    statement += """a maximal order of End (J_%s) ox QQ""" % fieldstring
+        # If there are two factors, then they are both at most quadratic
+        # and we can prettify them
+        else:
+            statement += ' x '.join([ pretty_print_ring(factorQQ[0], 1) for factorQQ in factorsQQ ])
+    # Then the case where there is still a single factor:
+    elif factorsQQ_number == 1:
+        # Number field case:
+        if factorsQQ[0][1] == -1:
+            # Prettify in quadratic case:
+            if len(factorsQQ[0][0]) in [2, 3]:
+                statement += """%s""" % pretty_print_ring(factorsQQ[0][0], ring[0])
+            else:
+                statement += """an order of conductor of norm %s in End (J_%s) ox QQ""" % (ring[0], fieldstring)
+        # Otherwise mention whether the order is Eichler:
+        elif ring[1] == 1:
+            statement += """an Eichler order of index %s in End (J_%s) ox QQ""" % (ring[0], fieldstring)
+        else:
+            statement += """a non-Eichler order of index %s in End (J_{%s}) ox QQ""" % (ring[0], fieldstring)
+    # Finally the case of two factors. We can prettify to some extent, since we
+    # can describe the maximal order here
+    else:
+        statement += """an order of index %s in %s""" % (ring[0], ' x '.join([ pretty_print_ring(factorQQ[0], 1) for factorQQ in factorsQQ ]))
+    # End of first row:
+    statement += """\n"""
+
     # Third row: description of algebra tensored with RR
-    statement += """End (J_%s) ox RR: %s\n""" % (fieldstring, factorsRR_raw_to_pretty(factorsRR))
+    statement += """End (J_%s) ox RR: %s\n""" % (fieldstring, ' x '.join(factorsRR))
 
     return statement
 
-def st_group_statement(group):
+def statement_sato_tate_group(desc_dict):
+    return "boink\n"
     return """Sato-Tate group: %s\n""" % group
 
-def gl2_simple_statement(factorsQQ, factorsRR):
-    # TODO: Make this a summation over the RR-type
+def statement_gl2(desc_dict):
+    return "boink\n"
+    # TODO: Use factorsQQ instead
+    # One element in endomorphism algebra, not matrix ring (checked by II with finite discriminant)
     if factorsRR in [ ['RR', 'RR'], ['CC'] ]:
         gl2 = "of GL_2-type"
     else:
         gl2 = "not of GL_2-type"
-    # One element in endomorphism algebra, not matrix ring:
+
+def statement_simple(desc_dict):
+    return "boink\n"
     if len(factorsQQ) == 1 and factorsQQ[0][1] != 1:
         simple = "simple"
     else:
         simple = "not simple"
-    return gl2 + ", " + simple + "\n"

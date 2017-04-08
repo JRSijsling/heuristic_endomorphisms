@@ -56,7 +56,7 @@ for D in Ds do
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then
         if d eq 1 then
-            DescFactorQQ := [* "I", FDesc, d, -1 *];
+            DescFactorQQ := [* "I", FDesc, d, 1 *];
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Integers() ! Norm(DQFin);
@@ -65,6 +65,8 @@ for D in Ds do
             else
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
+        elif d eq 3 then
+            DescFactorQQ := [* "II", FDesc, d, 1 *];
         else
             /* FIXME: We do not know what happens here, even when using the
              * extended Albert classification that I have applied. Testing for
@@ -78,11 +80,13 @@ for D in Ds do
         end if;
     else
         if d eq 1 then
-            DescFactorQQ := [* "IV", FDesc, d, -1 *];
+            DescFactorQQ := [* "IV", FDesc, d, 1 *];
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Norm(DQFin);
             DescFactorQQ := [* "IV", FDesc, d, NDQ *];
+        elif d eq 3 then
+            DescFactorQQ := [* "IV", FDesc, d, 1 *];
         else
             DescFactorQQ := [* "IV", FDesc, d, -1 *];
         end if;
@@ -108,7 +112,7 @@ for DescFactorQQ in EndoDescQQ do
     elif AlbertType eq "III" then
         EndoDescRR cat:= [ "HH" : i in [1..e] ];
     elif AlbertType eq "OO or III" then
-        EndoDescRR cat:= [ "M2 (RR) or HH" : i in [1..e] ];
+        EndoDescRR cat:= [ "M_2 (RR) or HH" : i in [1..e] ];
     elif AlbertType eq "IV" then
         d := DescFactorQQ[3];
         if d eq 1 then

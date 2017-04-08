@@ -10,6 +10,13 @@
  */
 
 
+// TODO: Decomposition field is best found from lattice, after which
+// idempotents are recalculated.
+// We should not have to do anthing in the first step since the algebra encodes
+// the number of idempotents: we make a sausage machine for that number and
+// take a minimal degree element with all present. That gives an OverField
+// call, or perhaps not even that because all the representations are given.
+
 intrinsic DecompositionDenominator(R::.) -> RngIntElt
 {Degree of a projection morphism.}
 

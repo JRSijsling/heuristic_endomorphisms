@@ -1,19 +1,20 @@
 {
   heuristic
   {
-    Curves.m
-    Precision.m
-    Relative.m
-    Periods.m
-    Recognition.m
-    Linear.m
     Analytic.m
-    OverField.m
-    Structure.m
-    Lattice.m
-    VerifySaturated.m
+    Curves.m
     FactorsProject.m
     FactorsReconstruct.m
+    Lattice.m
+    Linear.m
+    OverField.m
+    Periods.m
+    Precision.m
+    Relative.m
+    Recognition.m
+    SatoTate.m
+    Structure.m
+    VerifySaturated.m
   }
   polarization
   {
