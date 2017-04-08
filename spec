@@ -10,8 +10,9 @@
     OverField.m
     Structure.m
     Lattice.m
-    G2Factor.m
     VerifySaturated.m
+    FactorsProject.m
+    FactorsReconstruct.m
   }
   polarization
   {

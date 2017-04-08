@@ -79,7 +79,7 @@ return K;
 end intrinsic;
 
 
-intrinsic EmbedAtInfinitePlace(f::RngUPolElt, iota::., R::RngUPol, RCC::RngUPol) -> RngUPolElt
+intrinsic EmbedAtInfinitePlace(f::RngUPolElt, iota::., RCC::RngUPol) -> RngUPolElt
 {Embeds the polynomial f in R into RCC via the infinite place iota.}
 
 if IsZero(f) then
@@ -93,7 +93,7 @@ end if;
 end intrinsic;
 
 
-intrinsic EmbedAtInfinitePlace(f::RngMPolElt, iota::., R::RngMPol, RCC::RngMPol) -> RngMPolElt
+intrinsic EmbedAtInfinitePlace(f::RngMPolElt, iota::., RCC::RngMPol) -> RngMPolElt
 {Embeds the polynomial f in R into RCC via the infinite place iota.}
 
 if IsZero(f) then
@@ -122,7 +122,7 @@ if d eq 1 then
 else
     RCC := PolynomialRing(CC, d);
 end if;
-fsCC := [ EmbedAtInfinitePlace(f, F`iota, R, RCC) : f in fs ];
+fsCC := [ EmbedAtInfinitePlace(f, F`iota, RCC) : f in fs ];
 return fsCC;
 
 end intrinsic;

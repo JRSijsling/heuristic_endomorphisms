@@ -9,22 +9,11 @@
  *  See LICENSE.txt for license details.
 """
 
-def TypeTest(X):
-    str0 = str(X.__class__)
-    if str0 == "<class 'sage.schemes.curves.projective_curve.ProjectivePlaneCurve_with_category'>":
-        return "plane"
-    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_rational_field.HyperellipticCurve_g2_rational_field_with_category'>":
-        return "hyperelliptic"
-    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_rational_field.HyperellipticCurve_rational_field_with_category'>":
-        return "hyperelliptic"
-    elif str0 == "<class 'sage.schemes.hyperelliptic_curves.hyperelliptic_g2_generic.HyperellipticCurve_g2_generic_with_category'>":
-        return "hyperelliptic"
-    else:
-        return "generic"
-
 class EndomorphismData:
+    # TODO: Perhaps move creation of f, h, F to Magma? Use CrvHyp and CrvPln
     def __init__(self, X, prec, bound = 0, have_oldenburg = False):
-        self.curve_type = TypeTest(X)
+        self.X = X
+        self.curve_type = CurveType(self.X)
         if self.curve_type == "hyperelliptic":
             f, h = X.hyperelliptic_polynomials()
             self.f = magma(f)
@@ -33,7 +22,8 @@ class EndomorphismData:
             embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
             self._fCC_, self._hCC_ = embedded_list
         elif self.curve_type == "plane":
-            self.F = magma(X.defining_polynomial())
+            F = X.defining_polynomial()
+            self.F = magma(F)
             self.base_field = magma.BaseRing(self.F)
             embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
             self._FCC_ = embedded_list[1]
@@ -46,7 +36,10 @@ class EndomorphismData:
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            self._P_ = magma.PeriodMatrix(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
+            if self.curve_type == "hyperelliptic":
+                self._P_ = magma.PeriodMatrix(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
+            elif self.curve_type == "plane":
+                self._P_ = magma.PeriodMatrix(self._FCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def geometric_representations(self):
@@ -81,7 +74,7 @@ class EndomorphismData:
         if not hasattr(self, "_lat_"):
             self._geo_reps_ = self.geometric_representations()
             self._lat_ = magma.EndomorphismLattice(self._geo_reps_)
-        return Lattice(self._lat_)
+        return Lattice(self, self._lat_)
 
     def rosati_involution(self, A):
         self._geo_reps_ = self.geometric_representations()
@@ -102,7 +95,7 @@ class EndomorphismData:
         self._geo_reps_ = self.geometric_representations()
         XL, P0L, AsL = magma.NonWeierstrassBasePointHyp(self.X, self.base_field, self._AsAlg_, nvals = 3)
         d = self.degree_estimate(AL)
-        return magma.VerifyRepresentations(XL, P0L, ALs, LowerBound = 2*d + 2)
+        return magma.VerifyRepresentations(XL, P0L, AsL, LowerBound = 2*d + 2)
 
     def verify(self):
         return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
@@ -113,11 +106,12 @@ class EndomorphismData:
         return Decomposition(self)
 
 class Lattice:
-    def __init__(self, lat):
-        self._lat_ = lat
-        self._lat_reps_ = lat[1]
-        self._lat_structs_ = lat[2]
-        self._lat_descs_ = lat[3]
+    def __init__(self, End, Lat):
+        self.X = End.X
+        self._lat_ = Lat
+        self._lat_reps_ = Lat[1]
+        self._lat_structs_ = Lat[2]
+        self._lat_descs_ = Lat[3]
 
     def __repr__(self):
         return ReprLattice(self)
@@ -135,11 +129,11 @@ class Lattice:
         return self._lat_descs_
 
 class OverField:
-    def __init__(self, EndJac, K = "geometric"):
-        self.X = EndJac.X
-        self.base_field = EndJac.base_field
+    def __init__(self, End, K = "geometric"):
+        self.X = End.X
+        self.base_field = End.base_field
         self.field = K
-        self._geo_reps_ = EndJac._geo_reps_
+        self._geo_reps_ = End._geo_reps_
 
     def __repr__(self):
         return ReprOverField(self)
@@ -179,9 +173,9 @@ class OverField:
         return ReprDescription(self._desc_)
 
 class Decomposition:
-    # TODO: We could have different fields here. Do we want a catch-all?
-    def __init__(self, EndJac):
-        self.X = EndJac.X
+    # We take a smallest field over which everything occurs
+    def __init__(self, End):
+        self.X = End.X
 
     def __repr__(self):
         return ReprDecomposition(self)
@@ -189,25 +183,21 @@ class Decomposition:
     def field_of_definition(self):
         if not hasattr(self, "_decomp_fod_"):
             return 0
-        # TODO: Run through lattice
         return 0
 
     def idempotents(self):
         if not hasattr(self, "_idems_"):
             return 0
-        # TODO: Run through lattice; count over closure and go down, possibly even finer
         return 0
 
     def putative_factors(self):
-        # TODO: Defer to Magma. Combination of two functions
         if not hasattr(self, "_factors_"):
             self._decomp_fod_ = self.field_of_definition()
             self._idems_ = self.idempotents()
-            self._factors_ = magma.PutativeFactorsFromIdempotents(self._idems_)
+            self._factors_ = magma.Factors(self._idems_)
         return self._factors_
 
-    def morphisms(self):
-        # TODO: This is also the verification
+    def verified_morphisms(self):
         # TODO: Need column numbers, and make this work for any kind of factor.
         if not hasattr(self, "_morphisms_"):
             return 0

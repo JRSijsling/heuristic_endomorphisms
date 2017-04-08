@@ -92,6 +92,7 @@ end intrinsic;
 
 intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::Fld) -> .
 {Finds an algebraic approximation of a as an element of K.}
+// TODO: This assumes that the extension is at most double.
 
 degK := Degree(K); R<x> := PolynomialRing(K);
 F := BaseField(K); degF := Degree(F);

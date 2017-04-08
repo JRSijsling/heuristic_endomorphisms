@@ -19,9 +19,9 @@ intrinsic PeriodMatrix(f::RngUPolElt, h::RngUPolElt : HaveOldenburg := false) ->
 g := 4*f + h^2;
 if not HaveOldenburg then
     J := AnalyticJacobian(g);
-    return Transpose(Matrix(BaseRing(f), BigPeriodMatrix(J)));
+    return Transpose(Matrix(BaseRing(g), BigPeriodMatrix(J)));
 end if;
-return Transpose(Matrix(BaseRing(f), PeriodMatrix(g)));
+return Transpose(Matrix(BaseRing(g), PeriodMatrix(g)));
 
 end intrinsic;
 
