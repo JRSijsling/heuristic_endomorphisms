@@ -1,6 +1,7 @@
 {
   heuristic
   {
+    Curves.m
     Precision.m
     Relative.m
     Periods.m

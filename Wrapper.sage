@@ -10,36 +10,20 @@
 """
 
 class EndomorphismData:
-    # TODO: Perhaps move creation of f, h, F to Magma? Use CrvHyp and CrvPln
     def __init__(self, X, prec, bound = 0, have_oldenburg = False):
-        self.X = X
-        self.curve_type = CurveType(self.X)
-        if self.curve_type == "hyperelliptic":
-            f, h = X.hyperelliptic_polynomials()
-            self.f = magma(f)
-            self.h = magma(h)
-            self.base_field = magma.BaseRing(self.f)
-            embedded_list = magma.EmbedAsComplexPolynomials([self.f, self.h], prec)
-            self._fCC_, self._hCC_ = embedded_list
-        elif self.curve_type == "plane":
-            F = X.defining_polynomial()
-            self.F = magma(F)
-            self.base_field = magma.BaseRing(self.F)
-            embedded_list = magma.EmbedAsComplexPolynomials([self.F], prec)
-            self._FCC_ = embedded_list[1]
-        self.prec = prec
-        self.bound = bound
-        self.have_oldenburg = have_oldenburg
+        self.X = magma(X)
+        self.base_field = magma.BaseRing(self.X)
+        self.prec = magma(prec)
+        self.bound = magma(bound)
+        self.have_oldenburg = magma(have_oldenburg)
 
     def __repr__(self):
         return ReprEndomorphismData(self)
 
     def period_matrix(self):
         if not hasattr(self, "_P_"):
-            if self.curve_type == "hyperelliptic":
-                self._P_ = magma.PeriodMatrix(self._fCC_, self._hCC_, HaveOldenburg = self.have_oldenburg)
-            elif self.curve_type == "plane":
-                self._P_ = magma.PeriodMatrix(self._FCC_, HaveOldenburg = self.have_oldenburg)
+            self._eqsCC_ = magma.EmbedCurveEquations(self.X, self.prec)
+            self._P_ = magma.PeriodMatrix(self._eqsCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def geometric_representations(self):
@@ -117,16 +101,16 @@ class Lattice:
         return ReprLattice(self)
 
     def representations(self):
-        # TODO: Make what follows a conversion function, Galois group
         return self._lat_reps_
 
     def structures(self):
-        # TODO: Make what follows a conversion function, Galois group
         return self._lat_structs_
 
     def descriptions(self):
-        # TODO: Make what follows a conversion function, Galois group
         return self._lat_descs_
+
+    def pretty_print(self):
+        return PrettyPrintLattice(self._lat_descs_)
 
 class OverField:
     def __init__(self, End, K = "geometric"):
@@ -170,7 +154,13 @@ class OverField:
         if not hasattr(self, "_desc_"):
             self._reps_ = self.representations()
             self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
-        return ReprDescription(self._desc_)
+        return self._desc_
+
+    def pretty_print(self):
+        if not hasattr(self, "_desc_"):
+            self._reps_ = self.representations()
+            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+        return PrettyPrintOverField(self._lat_descs_)
 
 class Decomposition:
     # We take a smallest field over which everything occurs
