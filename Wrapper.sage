@@ -111,7 +111,7 @@ class Lattice:
         return self._lat_descs_
 
     def pretty_print(self):
-        return pretty_print_lattice(self._lat_descs_)
+        return pretty_print_lattice(self._lat_descs_, magma.Genus(self.X), 'F', 'x')
 
 class OverField:
     def __init__(self, End, K = "geometric"):
@@ -152,7 +152,7 @@ class OverField:
         if not hasattr(self, "_desc_"):
             self._reps_tang_ = self.representations()
             self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
-        return pretty_print_over_field(self._desc_)
+        return pretty_print_over_field(self._desc_, magma.Genus(self.X), 'F')
 
 class Decomposition:
     # We take a smallest field over which everything occurs

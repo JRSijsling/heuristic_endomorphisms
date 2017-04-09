@@ -66,7 +66,7 @@ for D in Ds do
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
         elif d eq 3 then
-            DescFactorQQ := [* "II", FDesc, d, 1 *];
+            DescFactorQQ := [* "II", FDesc, d, -1 *];
         else
             /* FIXME: We do not know what happens here, even when using the
              * extended Albert classification that I have applied. Testing for
