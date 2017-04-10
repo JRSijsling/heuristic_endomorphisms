@@ -111,7 +111,7 @@ class Lattice:
         return self._lat_descs_
 
     def pretty_print(self):
-        return pretty_print_lattice(self._lat_descs_, magma.Genus(self.X), 'F', 'x')
+        return pretty_print_lattice(self._lat_descs_, magma.Genus(self.X), 'K', 'x')
 
 class OverField:
     def __init__(self, End, K = "geometric"):

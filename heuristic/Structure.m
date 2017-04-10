@@ -26,10 +26,11 @@ C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 EndoStruct := [* *]; EndoDesc := [* *];
 EndoStructQQ, EndoDescQQ := EndomorphismStructureQQ(C);
 Append(~EndoStruct, EndoStructQQ); Append(~EndoDesc, EndoDescQQ);
-EndoStructRR, EndoDescRR := EndomorphismStructureRR(C, EndoDescQQ);
-Append(~EndoStruct, EndoStructRR); Append(~EndoDesc, EndoDescRR);
 EndoStructZZ, EndoDescZZ := EndomorphismStructureZZ(C, GensC);
 Append(~EndoStruct, EndoStructZZ); Append(~EndoDesc, EndoDescZZ);
+EndoStructRR, EndoDescRR := EndomorphismStructureRR(C, EndoDescQQ);
+Append(~EndoStruct, EndoStructRR); Append(~EndoDesc, EndoDescRR);
+// TODO: Sato-Tate is relatively difficult and should perhaps be moved elsewhere. (It does not have to do with a sole endomorphism structure, so that makes sense.)
 return EndoStruct, EndoDesc;
 
 end intrinsic;
@@ -52,6 +53,8 @@ for D in Ds do
         F := OptimizedRepresentation(F);
     end if;
     FDesc := Eltseq(MinimalPolynomial(F.1));
+    // Next line is not strictly necessary, but for uniformity of the description:
+    FDesc := [ Integers() ! c : c in FDesc ];
     E2 := ChangeRing(E1, F);
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then

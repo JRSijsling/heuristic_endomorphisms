@@ -70,8 +70,11 @@ print End.lattice().representations()
 print End.lattice().structures()
 print End.lattice().descriptions()
 print End.verify_saturated()
-print End.over_field(K).pretty_print()
-print End.lattice().pretty_print()
+#print End.over_field(K).pretty_print()
+#print End.lattice().pretty_print()
+print End.over_field(K).description()
+print sagify_description(End.over_field(K).description())
+#print sagify_description(End.lattice().descriptions())
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

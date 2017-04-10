@@ -194,3 +194,26 @@ end if;
 error Error("All cases in SatoTateGroupG2 fell through");
 
 end intrinsic;
+
+
+intrinsic SatoTateGroup(GeoEndList::List, GensHf::SeqEnum) -> List
+{Determines Sato-Tate group by subgroup of Galois group.}
+
+g := #Rows(GeoEndList[1]);
+if g eq 2 then
+    return SatoTateGroupG2(GeoEndList, GensHf);
+else
+    // TODO: Add other cases.
+    return "";
+end if;
+
+end intrinsic;
+
+
+// TODO: Part in OverField modular
+intrinsic Subgroup(GeoEndList::List, K::Fld) -> .
+{Returns subgroup corresponding to a relative field extension.}
+
+return 0;
+
+end intrinsic;
