@@ -42,7 +42,10 @@ for H in Hs do
     EndoStructs, EndoDescs := EndomorphismStructure(EndoReps);
     Append(~LatReps, [* K *] cat EndoReps);
     Append(~LatStructs, [* K *] cat EndoStructs);
-    Append(~LatDescs, [* Eltseq(MinimalPolynomial(K.1)) *] cat EndoDescs);
+    // TODO: Indicate class group and decent relative structure.
+    field_seq := Eltseq(MinimalPolynomial(K.1));
+    field_seq := [ Integers() ! c : c in field_seq ];
+    Append(~LatDescs, [* field_seq *] cat EndoDescs);
 end for;
 
 return [* LatReps, LatStructs, LatDescs *];
