@@ -37,13 +37,14 @@ Sort(~Hs, CompareGroups); Reverse(~Hs);
 
 LatReps := [* *]; LatAlgs := [* *]; LatDescs := [* *];
 for H in Hs do
-    GensHf := [ [* genH, Gphi(genH) *] : genH in Generators(H) ];
-    K := FixedField(L, [ tup[2] : tup in GensHf ]);
+    GensH := Generators(H);
+    GalK := [* GensH, Gphi *];
+    K := FixedField(L, [ Gphi(gen) : gen in GensH ]);
     LatRep := [* *]; LatAlg := [* *]; LatDesc := [* *];
     // TODO: Indicate class group and treat the relative case (scaffolding in place).
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
     Append(~LatRep, K); Append(~LatAlg, K); Append(~LatDesc, K_seq);
-    EndoReps, EndoAlgs, EndoDescs := Explode(EndomorphismStructure(GeoEndList, K));
+    EndoReps, EndoAlgs, EndoDescs := Explode(EndomorphismStructure(GeoEndList, GalK));
     LatRep cat:= EndoReps; LatAlg cat:= EndoAlgs; LatDesc cat:= EndoDescs;
     Append(~LatReps, LatRep); Append(~LatAlgs, LatAlg); Append(~LatDescs, LatDesc);
 end for;

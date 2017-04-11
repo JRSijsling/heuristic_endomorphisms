@@ -10,12 +10,13 @@
  */
 
 
-intrinsic EndomorphismStructure(GeoEndList::List, GensHf::SeqEnum) -> List
-{Gives the endomorphism structure over the subfield corresponding to GensHf, starting from a list of representations.}
+intrinsic EndomorphismStructure(GeoEndList::List, GalK::List) -> List
+{Gives the endomorphism structure over the subfield corresponding to GalK, starting from a list of representations.}
 
-EndoReps := EndomorphismBasis(GeoEndList, GensHf);
+EndoReps := EndomorphismBasis(GeoEndList, GalK);
 EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
-SatoTate := SatoTateGroup(GeoEndList, GensHf); Append(~EndoDesc, SatoTate);
+EndoStruct := [* EndoReps, EndoAlg, EndoDesc *];
+SatoTate := SatoTateGroup(GeoEndList, GalK); Append(~EndoDesc, SatoTate);
 return [* EndoReps, EndoAlg, EndoDesc *];
 
 end intrinsic;
@@ -24,10 +25,11 @@ end intrinsic;
 intrinsic EndomorphismStructure(GeoEndList::List, K::Fld) -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}
 
-EndoReps := EndomorphismBasis(GeoEndList, K);
-EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
-SatoTate := SatoTateGroup(GeoEndList, K); Append(~EndoDesc, SatoTate);
-return [* EndoReps, EndoAlg, EndoDesc *];
+AsAlg, As, Rs := Explode(GeoEndList);
+L := BaseRing(AsAlg[1]);
+
+GalK := SubgroupGeneratorsUpToConjugacy(L, K);
+return EndomorphismStructure(GeoEndList, GalK);
 
 end intrinsic;
 
@@ -51,7 +53,7 @@ Append(~EndoAlg, EndoAlgQQ); Append(~EndoDesc, EndoDescQQ);
 EndoAlgZZ, EndoDescZZ := EndomorphismAlgebraZZ(C, GensC);
 Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescZZ);
 EndoAlgRR, EndoDescRR := EndomorphismAlgebraRR(C, EndoDescQQ);
-Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescRR);
+Append(~EndoAlg, EndoAlgRR); Append(~EndoDesc, EndoDescRR);
 
 return EndoAlg, EndoDesc;
 
@@ -136,7 +138,7 @@ for DescFactorQQ in EndoDescQQ do
         EndoDescRR cat:= [ "M_2 (RR)" : i in [1..e] ];
     elif AlbertType eq "III" then
         EndoDescRR cat:= [ "HH" : i in [1..e] ];
-    elif AlbertType eq "OO or III" then
+    elif AlbertType eq "II or III" then
         EndoDescRR cat:= [ "M_2 (RR) or HH" : i in [1..e] ];
     elif AlbertType eq "IV" then
         d := DescFactorQQ[3];
