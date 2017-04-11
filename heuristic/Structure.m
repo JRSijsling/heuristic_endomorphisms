@@ -54,7 +54,6 @@ EndoAlgZZ, EndoDescZZ := EndomorphismAlgebraZZ(C, GensC);
 Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescZZ);
 EndoAlgRR, EndoDescRR := EndomorphismAlgebraRR(C, EndoDescQQ);
 Append(~EndoAlg, EndoAlgRR); Append(~EndoDesc, EndoDescRR);
-
 return EndoAlg, EndoDesc;
 
 end intrinsic;
@@ -75,15 +74,17 @@ for D in Ds do
     F := ClearFieldDenominator(BaseRing(E1));
     if (Type(F) eq FldNum and Optimize) then
         F := OptimizedRepresentation(F);
+        F := ClearFieldDenominator(F);
     end if;
     FDesc := Eltseq(MinimalPolynomial(F.1));
-    // Next line is not strictly necessary, but for uniformity of the description:
     FDesc := [ Integers() ! c : c in FDesc ];
     E2 := ChangeRing(E1, F);
+
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then
         if d eq 1 then
             DescFactorQQ := [* "I", FDesc, d, 1 *];
+        
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Integers() ! Norm(DQFin);
@@ -92,8 +93,10 @@ for D in Ds do
             else
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
+        
         elif d eq 3 then
             DescFactorQQ := [* "II", FDesc, d, -1 *];
+        
         else
             /* FIXME: We do not know what happens here, even when using the
              * extended Albert classification that I have applied. Testing for
@@ -105,6 +108,7 @@ for D in Ds do
              * general functionality for algebras, not by our package. */
             DescFactorQQ := [* "II or III", FDesc, d, -1 *];
         end if;
+
     else
         if d eq 1 then
             DescFactorQQ := [* "IV", FDesc, d, 1 *];
@@ -118,8 +122,10 @@ for D in Ds do
             DescFactorQQ := [* "IV", FDesc, d, -1 *];
         end if;
     end if;
+
     Append(~EndoDescQQ, DescFactorQQ);
 end for;
+
 return C, EndoDescQQ;
 
 end intrinsic;
@@ -170,6 +176,7 @@ if #Ds eq 1 then
     F := ClearFieldDenominator(BaseRing(E1));
     if (Type(F) eq FldNum and Optimize) then
         F := OptimizedRepresentation(F);
+        F := ClearFieldDenominator(F);
     end if;
     E2, f2 := ChangeRing(E1, F);
     test, d := IsSquare(Dimension(E2));
