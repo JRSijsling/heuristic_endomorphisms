@@ -9,10 +9,6 @@
  *  See LICENSE.txt for license details.
 """
 
-from os.path import expanduser
-__endodir__ = expanduser('~/Programs/heuristic_endomorphisms/')
-load(__endodir__ + 'Initialize.sage')
-
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
 #F.<r> = NumberField(x^2 - 2)
@@ -75,12 +71,12 @@ print End.over_field(K).structure()
 print End.over_field(K).description()
 print End.over_field(K).pretty_print()
 
-#print End.lattice()
-#print End.lattice().representations()
-#print End.lattice().structures()
-#print End.lattice().descriptions()
+print End.lattice()
+print End.lattice().representations()
+print End.lattice().structures()
+print End.lattice().descriptions()
 #print sagify_description(End.lattice().descriptions())
-#print End.lattice().pretty_print()
+print End.lattice().pretty_print()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

@@ -117,41 +117,45 @@ class OverField:
     def __init__(self, End, K = "geometric"):
         self.X = End.X
         self.base_field = End.base_field
-        self.field = K
         self._geo_reps_ = End._geo_reps_
+        if K == "geometric":
+            self.field = magma.BaseRing(self._geo_reps_[1][1])
+        elif K == "base":
+            self.field = self.base_field
+        else:
+            self.field = magma(K)
 
     def __repr__(self):
         return repr_over_field(self)
 
     def representations(self):
         if not hasattr(self, "_reps_"):
-            if self.field == "geometric":
-                self._reps_ = self._geo_reps_
-            elif self.field == "base":
-                self._reps_ = magma.EndomorphismBasis(self._geo_reps_, self.base_field)
-            else:
-                self._reps_ = magma.EndomorphismBasis(self._geo_reps_, magma(self.field))
+            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
             self._reps_tang_ = self._reps_[1]
             self._reps_hom_ = self._reps_[2]
             self._reps_approx_ = self._reps_[3]
         return self._reps_tang_
 
+    # NOTE: Using the Magma functionality EndomorphismStructureAndDescription
+    # it is straightforward to get versions that do not calculate the Sato-Tate
+    # group, which could sometimes give a slight performance gain.
+    # Alternatively, it could be a flag whether to include this group or not.
+    # Arguably, including Sato-Tate by default violates modularity.
+    # Yet for now I see no supremely cogent reason to modify the current
+    # approach, which always calculates the Sato-Tate group in one go.
     def structure(self):
         if not hasattr(self, "_struct_"):
-            self._reps_tang_ = self.representations()
-            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
         return self._struct_
 
     def description(self):
         if not hasattr(self, "_desc_"):
-            self._reps_tang_ = self.representations()
-            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
         return self._desc_
 
     def pretty_print(self):
         if not hasattr(self, "_desc_"):
-            self._reps_tang_ = self.representations()
-            self._struct_, self._desc_ = magma.EndomorphismStructure(self._reps_, nvals = 2)
+            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
         return pretty_print_over_field(self._desc_, magma.Genus(self.X), 'F')
 
 class Decomposition:

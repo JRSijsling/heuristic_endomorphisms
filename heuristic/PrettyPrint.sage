@@ -127,8 +127,7 @@ def dict_description(desc):
     dict_to_fill['desc_ZZ'] = dict_desc_ZZ(desc[1])
     dict_to_fill['desc_RR'] = dict_desc_RR(desc[2])
     dict_to_fill['sato_tate'] = ""
-    # TODO: Deal with next line and the substitutions that it requires.
-    #dict_to_fill['sato_tate'] = desc[3]
+    dict_to_fill['sato_tate'] = desc[3]
     return dict_to_fill
 
 def statements_all(desc_dict, genus, fieldstring):
@@ -201,7 +200,7 @@ def statement_factor_ZZ_maximal(factor_QQ, desc_ZZ, fieldstring):
     index = desc_ZZ['index']
     if factor_QQ['albert_type'] == 'I':
         return '%s' % pretty_print_ring(factor_QQ['base_field'], index)
-    # TODO: Next line in greater generality
+    # TODO: Next line in greater generality over PIDs
     elif factor_QQ['albert_type'] == 'II' and factor_QQ['disc'] == index and pretty_print_field(factor_QQ['base_field']) == 'QQ':
         return 'M_%s (%s)' % (factor_QQ['dim_sqrt'], pretty_print_ring(factor_QQ['base_field'], index))
     elif factor_QQ['albert_type'] == 'IV' and factor_QQ['disc'] == index and pretty_print_field(factor_QQ['base_field']) == 'QQ':

@@ -10,8 +10,32 @@
  */
 
 
-intrinsic EndomorphismStructure(EndList::List) -> List
+intrinsic EndomorphismStructure(GeoEndList::List, GensHf::SeqEnum) -> List
+{Gives the endomorphism structure over the subfield corresponding to GensHf, starting from a list of representations.}
+
+EndoReps := EndomorphismBasis(GeoEndList, GensHf);
+EndoStruct, EndoDesc := EndomorphismStructureAndDescription(EndoReps);
+SatoTate := SatoTateGroup(GeoEndList, GensHf);
+Append(~EndoStruct, SatoTate); Append(~EndoDesc, SatoTate);
+return EndoReps, EndoStruct, EndoDesc;
+
+end intrinsic;
+
+
+intrinsic EndomorphismStructure(GeoEndList::List, K::Fld) -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}
+
+EndoReps := EndomorphismBasis(GeoEndList, K);
+EndoStruct, EndoDesc := EndomorphismStructureAndDescription(EndoReps);
+SatoTate := SatoTateGroup(GeoEndList, K);
+Append(~EndoStruct, SatoTate); Append(~EndoDesc, SatoTate);
+return EndoReps, EndoStruct, EndoDesc;
+
+end intrinsic;
+
+
+intrinsic EndomorphismStructureAndDescription(EndList::List) -> List
+{Gives the endomorphism structure, starting from a list of representations.}
 
 Rs := EndList[2];
 // Creation of relevant algebras

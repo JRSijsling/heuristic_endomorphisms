@@ -15,7 +15,7 @@ intrinsic EndomorphismBasis(GeoEndList::List, GensHf::SeqEnum) -> List
 
 AsAlg, Rs, As := Explode(GeoEndList);
 L := BaseRing(AsAlg[1]);
-K := FixedField(L, GensHf); n := #AsAlg;
+K := FixedField(L, [ tup[2] : tup in GensHf ]); n := #AsAlg;
 
 if #GensHf eq 0 then
     return GeoEndList;
@@ -25,8 +25,8 @@ end if;
 Ker := VectorSpace(Rationals(), n);
 // Successively filter by writing down the conditions for a matrix to be fixed
 // under a given generator
-for sigma in GensHf do
-    Msigma := Matrix([MatrixInBasis(ConjugateMatrix(sigma, A), AsAlg) : A in AsAlg]);
+for tup in GensHf do
+    Msigma := Matrix([MatrixInBasis(ConjugateMatrix(tup[2], A), AsAlg) : A in AsAlg]);
     Msigma -:= IdentityMatrix(Rationals(), n);
     Ker meet:= Kernel(Msigma);
 end for;
@@ -52,7 +52,7 @@ intrinsic EndomorphismBasis(GeoEndList::List, K::Fld) -> List
 AsAlg, As, Rs := Explode(GeoEndList);
 L := BaseRing(AsAlg[1]);
 
-GensHf := SubgroupGeneratorsUpToConjugacy(L, K);
+GensHf := SubgroupGeneratorTuplesUpToConjugacy(L, K);
 return EndomorphismBasis(GeoEndList, GensHf);
 
 end intrinsic;
@@ -73,12 +73,12 @@ end if;
 end function;
 
 
-intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld) -> Grp
+intrinsic SubgroupGeneratorTuplesUpToConjugacy(L::Fld, K::Fld) -> SeqEnum
 {Finds the subgroup generators up to conjugacy that correspond to the intersection of L and K, where L is Galois.}
 
 if (Degree(K) eq 1) or (Type(L) eq FldRat) then
     Gp, Gf, Gphi := AutomorphismGroup(L);
-    return [ Gphi(gen) : gen in Generators(Gp) ];
+    return [ [* gen, Gphi(gen) *] : gen in Generators(Gp) ];
 end if;
 
 // Take smallest subfield of K that fits inside L and take corresponding fixed group
@@ -94,10 +94,10 @@ end for;
 
 Gp, Gf, Gphi := AutomorphismGroup(L);
 if test then
-    GensHf := [ Gphi(gen) : gen in Generators(FixedGroup(L, KL)) ];
+    GensHf := [ [* gen, Gphi(gen) *] : gen in Generators(FixedGroup(L, KL)) ];
 else
     // Case where we need to go down all the way
-    GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
+    GensHf := [ [* gen, Gphi(gen) *] : gen in Generators(Gp) ];
 end if;
 
 return GensHf;
