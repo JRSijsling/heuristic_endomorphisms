@@ -14,10 +14,9 @@ intrinsic EndomorphismStructure(GeoEndList::List, GensHf::SeqEnum) -> List
 {Gives the endomorphism structure over the subfield corresponding to GensHf, starting from a list of representations.}
 
 EndoReps := EndomorphismBasis(GeoEndList, GensHf);
-EndoStruct, EndoDesc := EndomorphismStructureAndDescription(EndoReps);
-SatoTate := SatoTateGroup(GeoEndList, GensHf);
-Append(~EndoStruct, SatoTate); Append(~EndoDesc, SatoTate);
-return EndoReps, EndoStruct, EndoDesc;
+EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
+SatoTate := SatoTateGroup(GeoEndList, GensHf); Append(~EndoDesc, SatoTate);
+return [* EndoReps, EndoAlg, EndoDesc *];
 
 end intrinsic;
 
@@ -26,15 +25,14 @@ intrinsic EndomorphismStructure(GeoEndList::List, K::Fld) -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}
 
 EndoReps := EndomorphismBasis(GeoEndList, K);
-EndoStruct, EndoDesc := EndomorphismStructureAndDescription(EndoReps);
-SatoTate := SatoTateGroup(GeoEndList, K);
-Append(~EndoStruct, SatoTate); Append(~EndoDesc, SatoTate);
-return EndoReps, EndoStruct, EndoDesc;
+EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
+SatoTate := SatoTateGroup(GeoEndList, K); Append(~EndoDesc, SatoTate);
+return [* EndoReps, EndoAlg, EndoDesc *];
 
 end intrinsic;
 
 
-intrinsic EndomorphismStructureAndDescription(EndList::List) -> List
+intrinsic EndomorphismAlgebraAndDescription(EndList::List) -> List
 {Gives the endomorphism structure, starting from a list of representations.}
 
 Rs := EndList[2];
@@ -47,20 +45,20 @@ B := sub<A | GensA>; GensB := [ B ! gen : gen in GensA ];
 // As an associative algebra
 C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 
-EndoStruct := [* *]; EndoDesc := [* *];
-EndoStructQQ, EndoDescQQ := EndomorphismStructureQQ(C);
-Append(~EndoStruct, EndoStructQQ); Append(~EndoDesc, EndoDescQQ);
-EndoStructZZ, EndoDescZZ := EndomorphismStructureZZ(C, GensC);
-Append(~EndoStruct, EndoStructZZ); Append(~EndoDesc, EndoDescZZ);
-EndoStructRR, EndoDescRR := EndomorphismStructureRR(C, EndoDescQQ);
-Append(~EndoStruct, EndoStructRR); Append(~EndoDesc, EndoDescRR);
+EndoAlg := [* *]; EndoDesc := [* *];
+EndoAlgQQ, EndoDescQQ := EndomorphismAlgebraQQ(C);
+Append(~EndoAlg, EndoAlgQQ); Append(~EndoDesc, EndoDescQQ);
+EndoAlgZZ, EndoDescZZ := EndomorphismAlgebraZZ(C, GensC);
+Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescZZ);
+EndoAlgRR, EndoDescRR := EndomorphismAlgebraRR(C, EndoDescQQ);
+Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescRR);
 
-return EndoStruct, EndoDesc;
+return EndoAlg, EndoDesc;
 
 end intrinsic;
 
 
-intrinsic EndomorphismStructureQQ(C::AlgAss : Optimize := true) -> .
+intrinsic EndomorphismAlgebraQQ(C::AlgAss : Optimize := true) -> .
 {Decribes the factors of endomorphism algebra.}
 // FIXME: Right now a non-Optimized version is not yet easily accessible from
 // Sage. On the other hand, it is not a big operation, so I hav not spent time
@@ -125,7 +123,7 @@ return C, EndoDescQQ;
 end intrinsic;
 
 
-intrinsic EndomorphismStructureRR(C::AlgAss, EndoDescQQ::List) -> .
+intrinsic EndomorphismAlgebraRR(C::AlgAss, EndoDescQQ::List) -> .
 {Decribes the factors of endomorphism algebra tensored with RR.}
 
 EndoDescRR := [ ];
@@ -155,7 +153,7 @@ return EndoDescRR, EndoDescRR;
 end intrinsic;
 
 
-intrinsic EndomorphismStructureZZ(C::AlgAss, GensC::SeqEnum : Optimize := true) -> .
+intrinsic EndomorphismAlgebraZZ(C::AlgAss, GensC::SeqEnum : Optimize := true) -> .
 {Describes of the endomorphism ring.}
 
 // Calculating index

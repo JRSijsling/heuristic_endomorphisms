@@ -35,19 +35,19 @@ Gp, Gf, Gphi := AutomorphismGroup(L);
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
 Sort(~Hs, CompareGroups); Reverse(~Hs);
 
-LatReps := [* *]; LatStructs := [* *]; LatDescs := [* *];
+LatReps := [* *]; LatAlgs := [* *]; LatDescs := [* *];
 for H in Hs do
     GensHf := [ [* genH, Gphi(genH) *] : genH in Generators(H) ];
     K := FixedField(L, [ tup[2] : tup in GensHf ]);
-    LatRep := [* *]; LatStruct := [* *]; LatDesc := [* *];
+    LatRep := [* *]; LatAlg := [* *]; LatDesc := [* *];
     // TODO: Indicate class group and treat the relative case (scaffolding in place).
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
-    Append(~LatRep, K); Append(~LatStruct, K); Append(~LatDesc, K_seq);
-    EndoReps, EndoStructs, EndoDescs := EndomorphismStructure(GeoEndList, K);
-    LatRep cat:= EndoReps; LatStruct cat:= EndoStructs; LatDesc cat:= EndoDescs;
-    Append(~LatReps, LatRep); Append(~LatStructs, LatStruct); Append(~LatDescs, LatDesc);
+    Append(~LatRep, K); Append(~LatAlg, K); Append(~LatDesc, K_seq);
+    EndoReps, EndoAlgs, EndoDescs := Explode(EndomorphismStructure(GeoEndList, K));
+    LatRep cat:= EndoReps; LatAlg cat:= EndoAlgs; LatDesc cat:= EndoDescs;
+    Append(~LatReps, LatRep); Append(~LatAlgs, LatAlg); Append(~LatDescs, LatDesc);
 end for;
 
-return [* LatReps, LatStructs, LatDescs *];
+return [* LatReps, LatAlgs, LatDescs *];
 
 end intrinsic;

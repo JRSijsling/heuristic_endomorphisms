@@ -26,59 +26,60 @@ class EndomorphismData:
             self._P_ = magma.PeriodMatrix(self._eqsCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
-    def geometric_representations(self):
-        if not hasattr(self, "_geo_reps_"):
+    def calculate_geometric_representations(self):
+        if not hasattr(self, "_geo_rep_list_"):
             self._P_ = self.period_matrix()
-            self._geo_reps_approx_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
-            self._geo_reps_pol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_reps_approx_[1], self.base_field)
-            self._endo_fod_ = Relative_Splitting_Field(self._geo_reps_pol_, bound = self.bound)
-            self._geo_reps_ = magma.GeometricEndomorphismBasis(self._geo_reps_approx_, self._endo_fod_)
-            self._geo_reps_tang_ = self._geo_reps_[1]
-            self._geo_reps_hom_ = self._geo_reps_[2]
-            self._geo_reps_approx_ = self._geo_reps_[3]
-        return self._geo_reps_tang_
+            self._geo_rep_approx_ = magma.GeometricEndomorphismBasisApproximations(self._P_)
+            self._geo_rep_pol_ = magma.RelativeMinimalPolynomialsMatrices(self._geo_rep_approx_[1], self.base_field)
+            self._endo_fod_ = Relative_Splitting_Field(self._geo_rep_pol_, bound = self.bound)
+            self._geo_rep_list_ = magma.GeometricEndomorphismBasis(self._geo_rep_approx_, self._endo_fod_)
+            self._geo_rep_dict_ = dict_rep(self._geo_rep_list_)
+
+    def geometric_representations(self):
+        self.calculate_geometric_representations()
+        return self._geo_rep_dict_['tangent']
 
     def endomorphism_field(self):
-        self._geo_reps_tang_ = self.geometric_representations()
+        self.calculate_geometric_representations()
         return self._endo_fod_
 
     def geometric(self):
-        self._geo_reps_tang_ = self.geometric_representations()
+        self.calculate_geometric_representations()
         return OverField(self, K = "geometric")
 
     def over_base(self):
-        self._geo_reps_tang_ = self.geometric_representations()
+        self.calculate_geometric_representations()
         return OverField(self, K = "base")
 
     def over_field(self, K):
-        self._geo_reps_tang_ = self.geometric_representations()
+        self.calculate_geometric_representations()
         return OverField(self, K = K)
 
     def lattice(self):
-        if not hasattr(self, "_lat_"):
-            self._geo_reps_tang_ = self.geometric_representations()
-            self._lat_ = magma.EndomorphismLattice(self._geo_reps_)
-        return Lattice(self, self._lat_)
+        if not hasattr(self, "_lat_dict_"):
+            self.calculate_geometric_representations()
+            self._lat_dict_ = dict_lattice(magma.EndomorphismLattice(self._geo_rep_list_))
+        return Lattice(self, self._lat_dict_)
 
     def rosati_involution(self, A):
-        self._geo_reps_tang_ = self.geometric_representations()
-        return magma.RosatiInvolution(self._geo_reps_, A)
+        self.calculate_geometric_representations()
+        return magma.RosatiInvolution(self._geo_rep_list_, A)
 
     def degree_estimate(self, A):
-        self._geo_reps_tang_ = self.geometric_representations()
-        return magma.DegreeEstimate(self._geo_reps_, A)
+        self.calculate_geometric_representations()
+        return magma.DegreeEstimate(self._geo_rep_list_, A)
 
     def verify_algebra(self):
         # TODO: Davide
         return True
 
     def verify_saturated(self):
-        self._geo_reps_tang_ = self.geometric_representations()
-        return magma.VerifySaturated(self._geo_reps_, self._P_)
+        self.calculate_geometric_representations()
+        return magma.VerifySaturated(self._geo_rep_list_, self._P_)
 
     def verify_representations(self):
-        self._geo_reps_tang_ = self.geometric_representations()
-        XL, P0L, AsL = magma.NonWeierstrassBasePointHyp(self.X, self.base_field, self._geo_reps_tang_, nvals = 3)
+        self.calculate_geometric_representations()
+        XL, P0L, AsL = magma.NonWeierstrassBasePointHyp(self.X, self.base_field, self._geo_rep_list_, nvals = 3)
         d = self.degree_estimate(AL)
         return magma.VerifyRepresentations(XL, P0L, AsL, LowerBound = 2*d + 2)
 
@@ -86,40 +87,38 @@ class EndomorphismData:
         return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
 
     def decomposition(self):
-        self._P_ = self.period_matrix()
-        self._lat_ = self.lattice()
+        if not hasattr(self, "_lat_dict_"):
+            self._lat_dict_ = self.lattice()
         return Decomposition(self)
 
 class Lattice:
     def __init__(self, End, Lat):
         self.X = End.X
-        self._lat_ = Lat
-        self._lat_reps_ = Lat[1]
-        self._lat_structs_ = Lat[2]
-        self._lat_descs_ = Lat[3]
+        self._lat_dict_ = Lat
 
     def __repr__(self):
         return repr_lattice(self)
 
     def representations(self):
-        return [ [ rep[1], rep[2] ] for rep in self._lat_reps_ ]
+        return [ rep['tangent'] for rep in self._lat_dict_['representations'] ]
 
     def structures(self):
-        return self._lat_structs_
+        return self._lat_dict_['algebras']
 
     def descriptions(self):
-        return self._lat_descs_
+        return self._lat_dict_['descriptions']
 
     def pretty_print(self):
-        return pretty_print_lattice(self._lat_descs_, magma.Genus(self.X), 'K', 'x')
+        return pretty_print_lattice(self._lat_dict_['descriptions'], magma.Genus(self.X), 'K', 'x')
 
 class OverField:
     def __init__(self, End, K = "geometric"):
         self.X = End.X
         self.base_field = End.base_field
-        self._geo_reps_ = End._geo_reps_
+        self._geo_rep_list_ = End._geo_rep_list_
+        self._geo_rep_dict_ = End._geo_rep_dict_
         if K == "geometric":
-            self.field = magma.BaseRing(self._geo_reps_[1][1])
+            self.field = magma.BaseRing(self._geo_rep_dict_['tangent'][1])
         elif K == "base":
             self.field = self.base_field
         else:
@@ -129,34 +128,31 @@ class OverField:
         return repr_over_field(self)
 
     def representations(self):
-        if not hasattr(self, "_reps_"):
-            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
-            self._reps_tang_ = self._reps_[1]
-            self._reps_hom_ = self._reps_[2]
-            self._reps_approx_ = self._reps_[3]
-        return self._reps_tang_
+        if not hasattr(self, "_struct_"):
+            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
+        return self._struct_['representation']['tangent']
 
-    # NOTE: Using the Magma functionality EndomorphismStructureAndDescription
+    # NOTE: Using the Magma functionality EndomorphismAlgebraAndDescription
     # it is straightforward to get versions that do not calculate the Sato-Tate
     # group, which could sometimes give a slight performance gain.
     # Alternatively, it could be a flag whether to include this group or not.
     # Arguably, including Sato-Tate by default violates modularity.
     # Yet for now I see no supremely cogent reason to modify the current
     # approach, which always calculates the Sato-Tate group in one go.
-    def structure(self):
+    def algebra(self):
         if not hasattr(self, "_struct_"):
-            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
-        return self._struct_
+            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
+        return self._struct_['algebra']
 
     def description(self):
-        if not hasattr(self, "_desc_"):
-            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
-        return self._desc_
+        if not hasattr(self, "_struct_"):
+            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
+        return self._struct_['description']
 
     def pretty_print(self):
-        if not hasattr(self, "_desc_"):
-            self._reps_, self._struct_, self._desc_ = magma.EndomorphismStructure(self._geo_reps_, self.field, nvals = 3)
-        return pretty_print_over_field(self._desc_, magma.Genus(self.X), 'F')
+        if not hasattr(self, "_struct_"):
+            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
+        return pretty_print_over_field(self._struct_['description'], magma.Genus(self.X), 'K')
 
 class Decomposition:
     # We take a smallest field over which everything occurs

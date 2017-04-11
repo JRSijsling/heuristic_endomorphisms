@@ -130,6 +130,27 @@ def dict_description(desc):
     dict_to_fill['sato_tate'] = desc[3]
     return dict_to_fill
 
+def dict_rep(rep):
+    dict_to_fill = dict()
+    dict_to_fill['tangent'] = rep[1]
+    dict_to_fill['homology'] = rep[2]
+    dict_to_fill['approx'] = rep[3]
+    return dict_to_fill
+
+def dict_structure(structure):
+    dict_to_fill = dict()
+    dict_to_fill['representation'] = dict_rep(structure[1])
+    dict_to_fill['algebra'] = structure[2]
+    dict_to_fill['description'] = structure[3]
+    return dict_to_fill
+
+def dict_lattice(lattice):
+    dict_to_fill = dict()
+    dict_to_fill['representations'] = [ dict_rep(rep) for rep in lattice[1] ]
+    dict_to_fill['algebras'] = lattice[2]
+    dict_to_fill['descriptions'] = lattice[3]
+    return dict_to_fill
+
 def statements_all(desc_dict, genus, fieldstring):
     statements= [ ]
     statements.append(statement_endomorphisms_QQ(desc_dict, genus, fieldstring) + ' ' + statement_cm(desc_dict, genus, fieldstring))

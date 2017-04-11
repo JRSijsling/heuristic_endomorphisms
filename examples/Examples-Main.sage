@@ -67,18 +67,19 @@ print End.geometric().representations()
 print End.over_base().representations()
 K.<r> = NumberField(x^2 - 2)
 print End.over_field(K).representations()
-print End.over_field(K).structure()
+print End.over_field(K).algebra()
 print End.over_field(K).description()
 print End.over_field(K).pretty_print()
 
+print "Examples of lattices:"
 print End.lattice()
 print End.lattice().representations()
 print End.lattice().structures()
 print End.lattice().descriptions()
-#print sagify_description(End.lattice().descriptions())
+print sagify_description(End.lattice().descriptions())
 print End.lattice().pretty_print()
 
-# Verification of decomposition data:
+#print "Decomposition:"
 #Dec = End.decomposition()
 #print Dec
 #print Dec.field_of_definition()
@@ -86,7 +87,6 @@ print End.lattice().pretty_print()
 #print Dec.factors()
 #print Dec.verify()
 
-# Verification of geometric endomorphisms:
-# Should have multiple parts
+#print "Verification:"
 #print End.verify()
 
