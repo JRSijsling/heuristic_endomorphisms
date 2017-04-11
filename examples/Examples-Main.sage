@@ -9,6 +9,10 @@
  *  See LICENSE.txt for license details.
 """
 
+from os.path import expanduser
+__endodir__ = expanduser('~/Programs/heuristic_endomorphisms/')
+load(__endodir__ + 'Initialize.sage')
+
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
 #F.<r> = NumberField(x^2 - 2)
@@ -56,24 +60,27 @@ X = HyperellipticCurve(f, h)
 
 # The main functionality:
 End = EndomorphismData(X, 100, have_oldenburg = True)
+
+print "Geometric representations:"
 print End.period_matrix()
-print End.geometric_representations()
 print End.endomorphism_field()
+print End.geometric_representations()
+
+print "Over several fields:"
 print End.geometric().representations()
 print End.over_base().representations()
 K.<r> = NumberField(x^2 - 2)
 print End.over_field(K).representations()
 print End.over_field(K).structure()
 print End.over_field(K).description()
-print End.lattice()
-print End.lattice().representations()
-print End.lattice().structures()
-print End.lattice().descriptions()
-print End.verify_saturated()
-print End.over_field(K).description()
 print End.over_field(K).pretty_print()
-print sagify_description(End.lattice().descriptions())
-print End.lattice().pretty_print()
+
+#print End.lattice()
+#print End.lattice().representations()
+#print End.lattice().structures()
+#print End.lattice().descriptions()
+#print sagify_description(End.lattice().descriptions())
+#print End.lattice().pretty_print()
 
 # Verification of decomposition data:
 #Dec = End.decomposition()

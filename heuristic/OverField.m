@@ -13,23 +13,21 @@
 intrinsic EndomorphismBasis(GeoEndList::List, GensHf::SeqEnum) -> List
 {Extracts basis over subfield determines by a list of automorphisms.}
 
-// Setting the stage
 AsAlg, Rs, As := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]); K := FixedField(L, GensHf);
-N := #AsAlg;
+L := BaseRing(AsAlg[1]);
+K := FixedField(L, GensHf); n := #AsAlg;
 
-// Trivial case
 if #GensHf eq 0 then
     return GeoEndList;
 end if;
 
 // The vector space representing the full endomorphism algebra
-Ker := VectorSpace(Rationals(), N);
+Ker := VectorSpace(Rationals(), n);
 // Successively filter by writing down the conditions for a matrix to be fixed
 // under a given generator
 for sigma in GensHf do
     Msigma := Matrix([MatrixInBasis(ConjugateMatrix(sigma, A), AsAlg) : A in AsAlg]);
-    Msigma -:= IdentityMatrix(Rationals(), N);
+    Msigma -:= IdentityMatrix(Rationals(), n);
     Ker meet:= Kernel(Msigma);
 end for;
 
@@ -39,11 +37,23 @@ Lat := PureLattice(Lattice(Matrix(Basis(Ker))));
 B := Basis(Lat);
 
 // Constructing said basis
-AsAlg := [ &+[ b[n] * AsAlg[n] : n in [1..N] ] : b in B ];
-Rs    := [ &+[ b[n] * Rs[n]    : n in [1..N] ] : b in B ];
-As    := [ &+[ b[n] * As[n]    : n in [1..N] ] : b in B ];
+AsAlg := [ &+[ b[i] * AsAlg[i] : i in [1..n] ] : b in B ];
+Rs    := [ &+[ b[i] * Rs[i]    : i in [1..n] ] : b in B ];
+As    := [ &+[ b[i] * As[i]    : i in [1..n] ] : b in B ];
 AsAlg := [ Matrix(K, A) : A in AsAlg ];
 return [* AsAlg, Rs, As *];
+
+end intrinsic;
+
+
+intrinsic EndomorphismBasis(GeoEndList::List, K::Fld) -> List
+{Extracts basis over a general field.}
+
+AsAlg, As, Rs := Explode(GeoEndList);
+L := BaseRing(AsAlg[1]);
+
+GensHf := SubgroupGeneratorsUpToConjugacy(L, K);
+return EndomorphismBasis(GeoEndList, GensHf);
 
 end intrinsic;
 
@@ -63,18 +73,12 @@ end if;
 end function;
 
 
-intrinsic EndomorphismBasis(GeoEndList::List, K::Fld) -> List
-{Extracts basis over a general field.}
+intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld) -> Grp
+{Finds the subgroup generators up to conjugacy that correspond to the intersection of L and K, where L is Galois.}
 
-// Setting the stage
-AsAlg, As, Rs := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
-
-// Trivial case
 if (Degree(K) eq 1) or (Type(L) eq FldRat) then
     Gp, Gf, Gphi := AutomorphismGroup(L);
-    GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
-    return EndomorphismBasis(GeoEndList, GensHf);
+    return [ Gphi(gen) : gen in Generators(Gp) ];
 end if;
 
 // Take smallest subfield of K that fits inside L and take corresponding fixed group
@@ -95,6 +99,7 @@ else
     // Case where we need to go down all the way
     GensHf := [ Gphi(gen) : gen in Generators(Gp) ];
 end if;
-return EndomorphismBasis(GeoEndList, GensHf);
+
+return GensHf;
 
 end intrinsic;

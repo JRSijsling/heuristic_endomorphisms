@@ -30,7 +30,7 @@ EndoStructZZ, EndoDescZZ := EndomorphismStructureZZ(C, GensC);
 Append(~EndoStruct, EndoStructZZ); Append(~EndoDesc, EndoDescZZ);
 EndoStructRR, EndoDescRR := EndomorphismStructureRR(C, EndoDescQQ);
 Append(~EndoStruct, EndoStructRR); Append(~EndoDesc, EndoDescRR);
-// TODO: Sato-Tate is relatively difficult and should perhaps be moved elsewhere. (It does not have to do with a sole endomorphism structure, so that makes sense.)
+
 return EndoStruct, EndoDesc;
 
 end intrinsic;
