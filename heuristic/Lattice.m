@@ -37,15 +37,18 @@ Sort(~Hs, CompareGroups); Reverse(~Hs);
 
 LatReps := [* *]; LatStructs := [* *]; LatDescs := [* *];
 for H in Hs do
-    K := FixedField(L, H);
-    EndoReps := EndomorphismBasis(GeoEndList, [ Gphi(genH) : genH in Generators(H) ]);
+    Ha := [ Gphi(genH) : genH in Generators(H) ];
+    LatRep := [* *]; LatStruct := [* *]; LatDesc := [* *];
+    K := FixedField(L, Ha);
+    // TODO: Indicate class group and treat the relative case (scaffolding in place).
+    K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
+    Append(~LatRep, K); Append(~LatStruct, K); Append(~LatDesc, K_seq);
+    EndoReps := EndomorphismBasis(GeoEndList, Ha);
     EndoStructs, EndoDescs := EndomorphismStructure(EndoReps);
-    Append(~LatReps, [* K *] cat EndoReps);
-    Append(~LatStructs, [* K *] cat EndoStructs);
-    // TODO: Indicate class group and decent relative structure.
-    field_seq := Eltseq(MinimalPolynomial(K.1));
-    field_seq := [ Integers() ! c : c in field_seq ];
-    Append(~LatDescs, [* field_seq *] cat EndoDescs);
+    LatRep cat:= EndoReps; LatStruct cat:= EndoStructs; LatDesc cat:= EndoDescs;
+    //SatoTate := SatoTateGroup(GeoEndList, Ha);
+    //Append(~LatRep, SatoTate); Append(~LatStruct, SatoTate); Append(~LatDesc, SatoTate);
+    Append(~LatReps, LatRep); Append(~LatStructs, LatStruct); Append(~LatDescs, LatDesc);
 end for;
 
 return [* LatReps, LatStructs, LatDescs *];

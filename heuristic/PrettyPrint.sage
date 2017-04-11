@@ -154,7 +154,7 @@ def statement_endomorphisms_ZZ(desc_dict, genus, fieldstring):
         statement = ' x '.join(statements)
     else:
         statement = statement_factors_ZZ_index(factors_QQ, desc_ZZ, fieldstring)
-    return "End (J_%s): " % fieldstring + statement
+    return "End (J_%s):       " % fieldstring + statement
 
 def statement_endomorphisms_RR(desc_dict, genus, fieldstring):
     return "End (J_%s) ox RR: %s" % (fieldstring, ' x '.join(desc_dict['desc_RR']['factors']))
@@ -184,7 +184,9 @@ def statement_factor_QQ(factor_QQ):
             statement = "DefAlg_%s (%s, %s)"  % (d_str, base_str, disc_str)
 
     elif factor_QQ['albert_type'] == 'IV':
-        if disc == 1:
+        if d == 1:
+            statement = base_str
+        elif disc == 1:
             statement = "M_%s (%s)" % (d_str, base_str)
         elif d == 2:
             statement = "Quat (%s, %s)"  % (base_str, disc_str)
@@ -209,7 +211,7 @@ def statement_factor_ZZ_maximal(factor_QQ, desc_ZZ, fieldstring):
 
 def statement_factors_ZZ_index(factors_QQ, desc_ZZ, fieldstring):
     if len(factors_QQ) == 1:
-        statement = "%s" % pretty_print_ring(factors_QQ[0]['base_field'], desc_ZZ['index'])
+        statement = pretty_print_ring(factors_QQ[0]['base_field'], desc_ZZ['index'])
     else:
         statement = "Sub (End (J_%s) ox QQ, %s)" % (fieldstring, desc_ZZ['index'])
     return statement

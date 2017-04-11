@@ -72,6 +72,7 @@ print End.lattice().descriptions()
 print End.verify_saturated()
 print End.over_field(K).description()
 print End.over_field(K).pretty_print()
+print sagify_description(End.lattice().descriptions())
 print End.lattice().pretty_print()
 
 # Verification of decomposition data:
