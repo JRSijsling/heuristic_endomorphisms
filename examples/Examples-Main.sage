@@ -40,6 +40,9 @@ h = x^4 + x^2 + 1
 # Case where [RR, CC] occurs:
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
+# Modular example:
+f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
+h = 0
 
 X = HyperellipticCurve(f, h)
 
@@ -62,22 +65,25 @@ print End.period_matrix()
 print End.endomorphism_field()
 print End.geometric_representations()
 
-print "Over several fields:"
-print End.geometric().representations()
-print End.over_base().representations()
-K.<r> = NumberField(x^2 - 2)
-print End.over_field(K).representations()
-print End.over_field(K).algebra()
-print End.over_field(K).description()
-print End.over_field(K).pretty_print()
+#print "Over several fields:"
+#print End.geometric().representations()
+#print End.over_base().representations()
+#K.<r> = NumberField(x^2 - 2)
+#print End.over_field(K).representations()
+#print End.over_field(K).algebra()
+#print End.over_field(K).description()
+#print End.over_field(K).pretty_print()
 
-print "Examples of lattices:"
-print End.lattice()
-print End.lattice().representations()
-print End.lattice().structures()
-print End.lattice().descriptions()
-print sagify_description(End.lattice().descriptions())
-print End.lattice().pretty_print()
+#print "Examples of lattices:"
+#print End.lattice()
+#print End.lattice().representations()
+#print End.lattice().structures()
+#print End.lattice().descriptions()
+#print sagify_description(End.lattice().descriptions())
+#print End.lattice().pretty_print()
+
+#print "Verification:"
+#print End.verify_representations()
 
 #print "Decomposition:"
 #Dec = End.decomposition()
@@ -86,7 +92,4 @@ print End.lattice().pretty_print()
 #print Dec.impotents()
 #print Dec.factors()
 #print Dec.verify()
-
-#print "Verification:"
-#print End.verify()
 

@@ -20,8 +20,9 @@ test, ind := IsSquare(DOC / DOM); ind := Integers() ! ind;
 
 ps := [ tup[1] : tup in Factorization(ind) ];
 for p in ps do
-    if not VerifySaturatedAtPrime(GeoEndList, P, p) then
-        return false;
+    test, R := VerifySaturatedAtPrime(GeoEndList, P, p);
+    if not test then
+        return R;
     end if;
 end for;
 return true;
@@ -41,7 +42,7 @@ for tup in [ tup : tup in CP | not &and[ c eq 0 : c in tup ] ] do
     if &and[ c in Integers() : c in Eltseq(R) ] then
         D := JP*R - R*JP;
         if &and[ (RR ! Abs(d)) lt RR`epscomp : d in Eltseq(D) ] then
-            return false;
+            return false, R;
         end if;
     end if;
 end for;

@@ -28,6 +28,7 @@ forward CandidateDivisors;
 forward IrreducibleComponentsFromBranches;
 forward IrreducibleComponentCheck;
 
+forward DivisorFromMatrix;
 forward DivisorFromMatrixSplit;
 
 

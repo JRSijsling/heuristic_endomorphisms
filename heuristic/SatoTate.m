@@ -14,7 +14,17 @@ intrinsic SatoTateGroupG2(GeoEndList::List, GalK::List) -> MonStgElt
 {Determines the Sato-Tate group in genus 2.}
 
 // The first two steps are potentially inefficient, but in practice not that
-// bad, so I keep it in. Alternatively, we can give keyword arguments.
+// bad, so I keep it in.
+// Alternatively, we can do this by keeping track of keyword arguments:
+// (1) Pass along desc_RR from a previous calculation of EndoAlg, which
+//     typically comes just one step before;
+// (2) Pass along desc_RR_geo when using lattices by first calculating the
+//     geometric case and using the result.
+// The case where everything is defined over the base field will then still
+// calculate things twice. This is hopefully forgiveable; alternatively, we can
+// cover it by some trivial return statements in the EndomorphismStructure
+// functionality.
+
 GeoEndoAlg, GeoEndoDesc := EndomorphismAlgebraAndDescription(GeoEndList);
 desc_RR_geo := GeoEndoAlg[3];
 Shorthand := SatoTateShorthandG2(desc_RR_geo);

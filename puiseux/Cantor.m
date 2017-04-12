@@ -18,6 +18,7 @@ forward FunctionsFromApproximations;
 forward FunctionsCheck;
 
 forward CantorMorphismFromMatrix;
+forward CantorMorphismFromMatrixSplit;
 
 
 import "Divisor.m": InitializeCurve;

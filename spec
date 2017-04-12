@@ -22,18 +22,19 @@
   }
   puiseux
   {
-    LocalInfo.m
-    FractionalCRT.m
-    Divisor.m
     Cantor.m
+    Divisor.m
     FindPoint.m
+    FractionalCRT.m
+    LocalInfo.m
+    VerifyRepresentations.m
   }
   splitting
   {
-    LocalInfo.m
-    FractionalCRT.m
-    Divisor.m
     Cantor.m
+    Divisor.m
     FindPoint.m
+    FractionalCRT.m
+    LocalInfo.m
   }
 }
