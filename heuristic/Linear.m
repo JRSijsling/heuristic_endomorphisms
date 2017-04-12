@@ -122,7 +122,7 @@ intrinsic SaturateLattice(FullLattice::., SubLattice::.) -> .
 
 MatrixSize := Min(#Rows(SubLattice), #Rows(Transpose(FullLattice)));
 
-SaturationMatrix, SatColumns := SubmatrixOfRank(SubLattice, MatrixSize, "Columns");
+SaturationMatrix, SatColumns := SubmatrixOfRank(SubLattice, MatrixSize : ColumnsOrRows := "Columns");
 LMat := Matrix(Rationals(), 0,MatrixSize, []);
 for row in Rows(FullLattice) do
     linearDependence := NumericalLeftSolve(SaturationMatrix, Matrix([[row[j] : j in SatColumns]]) );

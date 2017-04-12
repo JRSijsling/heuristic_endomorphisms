@@ -119,18 +119,17 @@ K, C, GensC := Explode(LatAlg);
 idemsC := [ [ Rationals() ! c : c in Eltseq(idem) ] : idem in idems ];
 GensC := [ [ Rationals() ! c : c in Eltseq(gen) ] : gen in GensC ];
 idemsRep := [ Eltseq(MatrixInBasis(idemC, GensC)) : idemC in idemsC ];
+
 n := #AsAlg;
 idemsAlg := [ &+[ idemRep[i] * AsAlg[i] : i in [1..n] ] : idemRep in idemsRep ];
 idemsRat := [ &+[ idemRep[i] * Rs[i] : i in [1..n] ] : idemRep in idemsRep ];
 idemsAn := [ &+[ idemRep[i] * As[i] : i in [1..n] ] : idemRep in idemsRep ];
-
-idems := [* idemsAlg, idemsRat, idemsAn *];
-return idems;
+return [* idemsAlg, idemsRat, idemsAn *];
 
 end intrinsic;
 
 
-intrinsic ProjectionFromIdempotent(idem::., P::.) -> List
+intrinsic ProjectionFromIdempotent(P::., idem::.) -> List
 {From an idempotent, extracts corresponding lattice and projection.}
     // Extract the complex field
     CC := BaseRing(P); RR := RealField(CC);
@@ -143,22 +142,28 @@ intrinsic ProjectionFromIdempotent(idem::., P::.) -> List
 
     PEllHugeSplit := SplitMatrix(PEllHuge);
 
-    PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient, "Rows"); // extract 2g independent rows
+    PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient : ColumnsOrRows := "Rows"); // extract 2g independent rows
     PEllBigSplit := SaturateLattice(PEllHugeSplit, PEllBigSplit); // ensure that these rows generate the full lattice
 
-    PEllBig := CombineMatrix(PEllBigSplit); // go back to the complex representation
+    PEllBig := CombineMatrix(PEllBigSplit, CC); // go back to the complex representation
 
-    PreliminaryLatticeMatrix := SubmatrixOfRank(PEllBig, gQuotient, "Columns"); // extract g columns (i.e. decide which projection to use)
+    PreliminaryLatticeMatrix, s0 := SubmatrixOfRank(PEllBig, gQuotient : ColumnsOrRows := "Columns"); // extract g columns (i.e. decide which projection to use)
 
     PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary before calling SaturateLattice
     PEllBig := Transpose(PEllBig);
     LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix));
+
+    rows := Rows(idem);
+    proj := Matrix([ rows[i] : i in s0 ]);
+
+    return [* LatticeMatrix, proj *];
 end intrinsic;
 
 
-intrinsic ProjectionFromIdempotents(idems::., P::.) -> List
+intrinsic ProjectionsFromIdempotents(P::., idems::.) -> List
 {From idempotents, extracts corresponding lattices and projections.}
 
-return [* ProjectionFromIdempotent(idem, P) : idem in idems *];
+// TODO: Transpose?
+return [* ProjectionFromIdempotent(P, idem) : idem in idems[3] *];
 
 end intrinsic;

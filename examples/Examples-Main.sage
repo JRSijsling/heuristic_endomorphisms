@@ -89,7 +89,7 @@ Dec = End.decomposition()
 print Dec
 print Dec.decomposition_field()
 print Dec.idempotents()
-#print Dec.projections()
+print Dec.projections()
 #print Dec.factors()
 #print Dec.verify()
 

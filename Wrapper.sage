@@ -192,7 +192,7 @@ class Decomposition:
     def projections(self):
         if not hasattr(self, "_projs_"):
             self._calculate_idempotents_()
-            self._projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_)
+            self._projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_list_)
         return self._projs_
 
     def factors(self):

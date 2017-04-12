@@ -90,6 +90,22 @@ end if;
 end intrinsic;
 
 
+intrinsic FractionalApproximation(a::FldReElt) -> FldRatElt
+{Fractional approximation of a real number a.}
+
+RR := Parent(a);
+M := Matrix(RR, [ [ 1 ], [ -a ] ]);
+K := IntegralLeftKernel(M); q := K[1,1] / K[1,2];
+if (RR ! Abs(q - a)) lt RR`epscomp then
+    return q;
+else
+    error Error("LLL not does return a sufficiently good fraction");
+end if;
+
+end intrinsic;
+
+
+
 intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::Fld) -> .
 {Finds an algebraic approximation of a as an element of K.}
 // TODO: This assumes that the extension is at most double.
