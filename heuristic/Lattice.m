@@ -33,7 +33,7 @@ L := BaseRing(AsAlg[1]);
 Gp, Gf, Gphi := AutomorphismGroup(L);
 
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
-Sort(~Hs, CompareGroups); Reverse(~Hs);
+Sort(~Hs, CompareGroups);// Reverse(~Hs);
 
 LatReps := [* *]; LatAlgs := [* *]; LatDescs := [* *];
 for H in Hs do

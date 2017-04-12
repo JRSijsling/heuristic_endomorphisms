@@ -59,7 +59,8 @@ class EndomorphismData:
     def lattice(self):
         if not hasattr(self, "_lat_dict_"):
             self._calculate_geometric_representations_()
-            self._lat_dict_ = dict_lattice(magma.EndomorphismLattice(self._geo_rep_list_))
+            self._lat_list_ = magma.EndomorphismLattice(self._geo_rep_list_)
+            self._lat_dict_ = dict_lattice(self._lat_list_)
         return Lattice(self)
 
     def rosati_involution(self, A):
@@ -72,20 +73,24 @@ class EndomorphismData:
 
     def verify_algebra(self):
         # TODO: Integrate over Davide and Edgar
-        return True
+        if not hasattr(self, "_alg_test_"):
+            self._alg_test_ = True
+        return self._alg_test_
 
     def verify_saturated(self):
-        self._calculate_geometric_representations_()
-        test, certificate =  magma.VerifySaturated(self._geo_rep_list_, self._P_, nvals = 2)
-        return test
+        if not hasattr(self, "_sat_test_"):
+            self._calculate_geometric_representations_()
+            self._sat_test_, self._sat_cert_ =  magma.VerifySaturated(self._geo_rep_list_, self._P_, nvals = 2)
+        return self._sat_test_
 
     def verify_representations(self):
         # TODO: Work with actual curve instead of normalization used when
-        # calculating period matrices
-        self._calculate_geometric_representations_()
-        XL, AsL, PL = magma.NonWeierstrassBasePoint(self.X, self._geo_rep_dict_['tangent'], nvals = 3)
-        test, certificate = magma.VerifyRepresentations(XL, AsL, PL, nvals = 2)
-        return test
+        # calculating period matrices. Store certificates
+        if not hasattr(self, "_rep_test_"):
+            self._calculate_geometric_representations_()
+            XL, AsL, PL = magma.NonWeierstrassBasePoint(self.X, self._geo_rep_dict_['tangent'], nvals = 3)
+            self._rep_test_, self._rep_cert_ = magma.VerifyRepresentations(XL, AsL, PL, nvals = 2)
+        return self._rep_test_
 
     def verify(self):
         return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
@@ -164,31 +169,34 @@ class Decomposition:
     def __init__(self, End):
         self.X = End.X
         self.g = End.g
-        self._lat_dict_ = End._lat_dict_
-        # TODO: take a smallest field over which everything occurs
+        self._P_ = End._P_
+        self._lat_list_ = End._lat_list_
 
     def __repr__(self):
         return repr_decomposition(self)
 
-    def field_of_definition(self):
-        if not hasattr(self, "_decomp_fod_"):
-            return 0
-        return 0
+    def decomposition_field(self):
+        if not hasattr(self, "_idems_"):
+            self._idems_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_)
+        return self._dec_field_
 
     def idempotents(self):
         if not hasattr(self, "_idems_"):
-            return 0
-        return 0
+            self._idems_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_)
+        return self._idems_
 
-    def putative_factors(self):
-        if not hasattr(self, "_factors_"):
-            self._decomp_fod_ = self.field_of_definition()
+    def projections(self):
+        if not hasattr(self, "_projs_"):
             self._idems_ = self.idempotents()
-            self._factors_ = magma.Factors(self._idems_)
+            self._projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_)
+        return self._projs_
+
+    def factors(self):
+        if not hasattr(self, "_factors_"):
+            self._factors_ = magma.FactorsFromProjections(self.X, self._projs_)
         return self._factors_
 
-    def verified_morphisms(self):
-        # TODO: Need column numbers, and make this work for any kind of factor.
+    def verify(self):
         if not hasattr(self, "_morphisms_"):
-            return 0
-        return 0
+            self._dec_test_, self._morphisms_ = magma.MorphismsFromFactorsAndProjections(self.X, self._factors_, self._projs_)
+        return self._dec_test_

@@ -37,12 +37,12 @@ h = x
 # Genus 3:
 f = x^7 + x^6 + x^5 + x^3 + x^2 + x
 h = x^4 + x^2 + 1
-# Case where [RR, CC] occurs:
-f = x^5 + x^4 + 2*x^3 + x^2 + x
-h = x^2 + x
 # Modular example:
 f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
 h = 0
+# Case where [RR, CC] occurs:
+f = x^5 + x^4 + 2*x^3 + x^2 + x
+h = x^2 + x
 
 X = HyperellipticCurve(f, h)
 
@@ -60,11 +60,11 @@ X = HyperellipticCurve(f, h)
 # The main functionality:
 End = EndomorphismData(X, 100, have_oldenburg = True)
 
-print "Geometric representations:"
-print End.period_matrix()
-print End.endomorphism_field()
-print End.geometric_representations()
-
+#print "Geometric representations:"
+#print End.period_matrix()
+#print End.endomorphism_field()
+#print End.geometric_representations()
+#
 #print "Over several fields:"
 #print End.geometric().representations()
 #print End.over_base().representations()
@@ -73,23 +73,23 @@ print End.geometric_representations()
 #print End.over_field(K).algebra()
 #print End.over_field(K).description()
 #print End.over_field(K).pretty_print()
-
+#
 #print "Examples of lattices:"
 #print End.lattice()
 #print End.lattice().representations()
 #print End.lattice().structures()
 #print End.lattice().descriptions()
-#print sagify_description(End.lattice().descriptions())
 #print End.lattice().pretty_print()
 
 #print "Verification:"
 #print End.verify()
 
-#print "Decomposition:"
-#Dec = End.decomposition()
-#print Dec
-#print Dec.field_of_definition()
-#print Dec.impotents()
+print "Decomposition:"
+Dec = End.decomposition()
+print Dec
+#print Dec.decomposition_field()
+#print Dec.idempotents()
+#print Dec.projections()
 #print Dec.factors()
 #print Dec.verify()
 
