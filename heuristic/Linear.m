@@ -104,7 +104,8 @@ end intrinsic;
 intrinsic MatrixInBasis(M::., Bs::SeqEnum) -> .
 {Writes M as a rational combination of the elements of B.}
 
-if Type(M[1][1,1]) eq FldRat then
+MSeq := Eltseq(M);
+if Type(MSeq[1]) eq FldRat then
     MM := Matrix([ Eltseq(M) ]);
     MBs := Matrix([ Eltseq(B) : B in Bs ]);
     return Matrix(Solution(MBs, MM));

@@ -3,8 +3,8 @@
   {
     Analytic.m
     Curves.m
-    FactorsProject.m
-    FactorsReconstruct.m
+    DecProjs.m
+    DecRecons.m
     Lattice.m
     Linear.m
     OverField.m
@@ -13,8 +13,8 @@
     Relative.m
     Recognition.m
     SatoTate.m
+    Saturate.m
     Structure.m
-    VerifySaturated.m
   }
   polarization
   {

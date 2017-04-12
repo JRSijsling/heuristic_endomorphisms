@@ -171,32 +171,38 @@ class Decomposition:
         self.g = End.g
         self._P_ = End._P_
         self._lat_list_ = End._lat_list_
+        # TODO: Deal with case where no decomposition exists automatically
 
     def __repr__(self):
         return repr_decomposition(self)
+    
+    def _calculate_idempotents_(self):
+        if not hasattr(self, "_idems_dict_"):
+            self._idems_list_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_, nvals = 2)
+            self._idems_dict_ = dict_rep(self._idems_list_)
 
     def decomposition_field(self):
-        if not hasattr(self, "_idems_"):
-            self._idems_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_)
+        self._calculate_idempotents_()
         return self._dec_field_
 
     def idempotents(self):
-        if not hasattr(self, "_idems_"):
-            self._idems_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_)
-        return self._idems_
+        self._calculate_idempotents_()
+        return self._idems_dict_['tangent']
 
     def projections(self):
         if not hasattr(self, "_projs_"):
-            self._idems_ = self.idempotents()
+            self._calculate_idempotents_()
             self._projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_)
         return self._projs_
 
     def factors(self):
         if not hasattr(self, "_factors_"):
+            self._projs_ = self.projections()
             self._factors_ = magma.FactorsFromProjections(self.X, self._projs_)
         return self._factors_
 
     def verify(self):
         if not hasattr(self, "_morphisms_"):
+            self._factors_ = self.factors()
             self._dec_test_, self._morphisms_ = magma.MorphismsFromFactorsAndProjections(self.X, self._factors_, self._projs_)
         return self._dec_test_
