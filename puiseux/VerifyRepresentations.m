@@ -10,8 +10,8 @@
  */
 
 
-intrinsic VerifyRepresentation(X::Crv, A::., P::Pt) -> .
-{Verifies representations and gives certificates.}
+intrinsic RepresentationCertificate(X::Crv, A::., P::Pt) -> .
+{Gives certificate.}
 
 if IsScalar(A) then
     return "Scalar: OK";
@@ -27,6 +27,6 @@ end intrinsic;
 intrinsic VerifyRepresentations(X::Crv, As::SeqEnum, P::Pt) -> List
 {Verifies representations and gives certificates.}
 
-return [* VerifyRepresentation(X, A, P) : A in As *];
+return true, [* RepresentationCertificate(X, A, P) : A in As *];
 
 end intrinsic;

@@ -83,7 +83,7 @@ print End.geometric_representations()
 #print End.lattice().pretty_print()
 
 #print "Verification:"
-#print End.verify_representations()
+#print End.verify()
 
 #print "Decomposition:"
 #Dec = End.decomposition()

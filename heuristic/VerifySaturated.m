@@ -22,10 +22,10 @@ ps := [ tup[1] : tup in Factorization(ind) ];
 for p in ps do
     test, R := VerifySaturatedAtPrime(GeoEndList, P, p);
     if not test then
-        return R;
+        return false, R;
     end if;
 end for;
-return true;
+return true, 0;
 
 end intrinsic;
 
@@ -46,7 +46,6 @@ for tup in [ tup : tup in CP | not &and[ c eq 0 : c in tup ] ] do
         end if;
     end if;
 end for;
-
-return true;
+return true, 0;
 
 end intrinsic;

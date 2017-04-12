@@ -76,14 +76,16 @@ class EndomorphismData:
 
     def verify_saturated(self):
         self._calculate_geometric_representations_()
-        return magma.VerifySaturated(self._geo_rep_list_, self._P_)
+        test, certificate =  magma.VerifySaturated(self._geo_rep_list_, self._P_, nvals = 2)
+        return test
 
     def verify_representations(self):
         # TODO: Work with actual curve instead of normalization used when
         # calculating period matrices
         self._calculate_geometric_representations_()
         XL, AsL, PL = magma.NonWeierstrassBasePoint(self.X, self._geo_rep_dict_['tangent'], nvals = 3)
-        return magma.VerifyRepresentations(XL, AsL, PL)
+        test, certificate = magma.VerifyRepresentations(XL, AsL, PL, nvals = 2)
+        return test
 
     def verify(self):
         return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
