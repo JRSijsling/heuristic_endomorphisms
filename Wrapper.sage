@@ -204,13 +204,13 @@ class Decomposition:
         return self._factors_
 
     def verify(self):
-        if not hasattr(self, "_morphisms_"):
+        if not hasattr(self, "_mors_"):
             self._factors_ = self.factors()
             self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
         return self._dec_test_
 
     def morphisms(self):
-        if not hasattr(self, "_morphisms_"):
+        if not hasattr(self, "_mors_"):
             self._factors_ = self.factors()
             self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
         return self._mors_
