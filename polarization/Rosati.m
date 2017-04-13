@@ -1,28 +1,31 @@
 /***
  *  Polarizations and Rosati involutions
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
 
-function StandardSymplecticMatrix(g);
 
-A := ScalarMatrix(g, 0);
-B := ScalarMatrix(g, -1);
-C := -B;
-D := A;
+intrinsic StandardSymplecticMatrix(g::RngIntElt) -> .
+{Standard symplectic 2 g x 2 g matrix.}
+
+A := ScalarMatrix(g, 0); B := ScalarMatrix(g, -1); C := -B; D := A;
 return VerticalJoin(HorizontalJoin(A, B), HorizontalJoin(C, D));
 
-end function;
+end intrinsic;
 
 
-function RosatiInvolution(AsAlg, As, Rs, A);
-// Rosati involution
+intrinsic RosatiInvolution(GeoEndList::List, A::.) -> .
+{Returns the Rosati involution of A.}
 
+AsAlg, Rs, As := Explode(GeoEndList);
 if IsExact(Parent(A)) then
     B := AsAlg;
-    s := Eltseq(MatrixRatInBasisOverNF(A, B));
+    s := Eltseq(MatrixInBasis(A, B));
 else
     B := As;
     s := Eltseq(MatrixInBasis(A, B));
@@ -35,14 +38,13 @@ sdagger := Eltseq(MatrixInBasis(Rdagger, Rs));
 Adagger := &+[ sdagger[i] * B[i] : i in [1..#Rs] ];
 return Adagger;
 
-end function;
+end intrinsic;
 
 
-function DegreeEstimate(AsAlg, As, Rs, A);
-// Round because of non-exact case
-// Alternatively, could use Rdagger instead of Adagger
+intrinsic DegreeEstimate(GeoEndList::List, A::.) -> .
+{Estimates degree of corresponding endomorphism.}
 
-Adagger := RosatiInvolution(AsAlg, As, Rs, A);
+Adagger := RosatiInvolution(GeoEndList, A);
 tr := Trace(A * Adagger) * Factorial(#Rows(A) - 1);
 if IsExact(Parent(A)) then
     return (Integers() ! tr);
@@ -50,4 +52,4 @@ else
     return Round(tr);
 end if;
 
-end function;
+end intrinsic;

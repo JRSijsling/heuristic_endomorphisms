@@ -1,11 +1,11 @@
 *.swp
 *~
 *.sage.py
+*.pyc
 *.sig
 package/database/Add_To_Database*
 package/database/gce*
 database/Add_To_Database*
 database/gce*
 odds_and_ends/*
-#python generated files
-__init__.pyc
+TODO.txt

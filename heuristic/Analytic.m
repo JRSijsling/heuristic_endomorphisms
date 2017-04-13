@@ -1,136 +1,94 @@
 /***
- *  Finding an approximate basis for the geometric endomorphism ring through LLL
+ *  Finding an approximate basis for the geometric endomorphism ring
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
  */
 
-function ComplexStructure(P);
-// Input:   A period matrix of dimension 2g x g.
-// Output:  A 2g by 2g matrix left multiplication by which represents
-//          multiplication by i on the basis furnished by the columns.
+
+intrinsic ComplexStructure(P::.) -> .
+{Gives the complex structure that corresponds to the period matrix P.}
+
+CC := BaseRing(P); RR := RealField(CC);
+PSplit := SplitMatrix(P); iPSplit := SplitMatrix(CC.1 * P);
+return NumericalLeftSolve(PSplit, iPSplit);
+
+end intrinsic;
+
+
+intrinsic RationalIsogenyEquations(JP::., JQ::.) -> .
+{Given two complex structures JP and JQ, determines the corresponding equations satisfied by an isogeny between the two corresponding abelian varieties.}
 
 // Basic invariants
-k := BaseRing(P);
-i := k.1;
-
-// Splitting both P and i*P
-PSplit := SplitPeriodMatrix(P);
-iPSplit := SplitPeriodMatrix(i * Matrix(k, P));
-J := NumericalLeftSolve(PSplit, iPSplit);
-
-return J;
-
-end function;
-
-
-function RationalEndomorphismEquations(J);
-// Input:   A matrix J over RR of dimension 2g x 2g, representing multiplication
-//          by i.
-// Output:  The corresponding equations for the entries of a commuting matrix in
-//          the rational representation, as a matrix of which we take the left
-//          kernel; later we take integral such solutions, that like J will act
-//          on the left.
-
-// Basic invariants
-k := BaseRing(J);
-g := #Rows(J) div 2;
-n := 4 * g^2;
-
+RR := BaseRing(JP);
+gP := #Rows(JP) div 2; gQ := #Rows(JQ) div 2;
+n := 4 * gP * gQ;
 // Building a formal matrix corresponding to all possible integral
 // transformations of the lattice
-R := PolynomialRing(k, n);
+R := PolynomialRing(RR, n);
 vars := GeneratorsSequence(R);
-Ma := Matrix(R, 2 * g, 2 * g, vars);
-
+Ma := Matrix(R, 2 * gP, 2 * gQ, vars);
 // Condition that integral transformation preserve the complex structure
-Comm := Eltseq(J * Ma - Ma * J);
-
+Comm := Eltseq(JP * Ma - Ma * JQ);
 // Splitting previous linear equations by formal variable
-M := Matrix([[MonomialCoefficient(c, var) : c in Comm] : var in vars]);
+return Matrix(RR, [ [MonomialCoefficient(c, var) : c in Comm] : var in vars ]);
 
-return M;
-
-end function;
+end intrinsic;
 
 
-function AnalyticRepresentation(R, P : J := 0, P0, s0, epsinv := epsinv0);
-// Input:   A matrix R giving the rational representation of an endomorphism,
-//          along with the period matrix P. Extra arguments speed up the
-//          computation.
-// Output:  The analytic representation A of the corresponding endomorphism,
-//          acting on the right. So R * P = P * A.
+intrinsic AnalyticRepresentationIsogeny(R::., P::., Q::.) -> .
+{Given a rational representation R and two period matrices P and Q, finds an analytic representation of that same isogeny.}
 
-// Calculate additional data if necessary
-if IsZero(J) then
-    J := ComplexStructure(P);
-    P0, s0 := InvertibleSubmatrix(P : epsinv := epsinv);
-end if;
-
-// Passing from rational to analytic by the invertible submatrix;
-// this could be improved by taking the most stable of these
+// FIXME: We may not want to recalculate this every time and pass on P0 and s0
+// as data. On the other hand, this is not a huge deal.
+P0, s0 := InvertibleSubmatrix(P);
 R := Matrix(BaseRing(P), R);
-RowsRP := Rows(R * P);
-RP0 := Matrix([RowsRP[i] : i in s0]);
-
+RowsRQ := Rows(R * Q);
+RQ0 := Matrix(BaseRing(P), [ Eltseq(RowsRQ[i]) : i in s0 ]);
 // Invert and return; transposes intervene because of right action
-return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RP0)));
+return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RQ0)));
 
-end function;
-
-
-function PeriodMatrixHyperelliptic(f, h)
-// Input:   Two polynomials f and h over the rationals, reals or CC.
-// Output:  The corresponding period matrix.
-
-g := 4*f + h^2;
-J := AnalyticJacobian(g);
-return Transpose(BigPeriodMatrix(J));
-
-end function;
+end intrinsic;
 
 
-function GeometricEndomorphismBasisFromPeriodMatrix(P : epscomp := epscomp0,
-    epsLLL := epsLLL0, epsinv := epsinv0)
-// Input:   A period matrix of dimension 2g x g.
-// Output:  An approximate basis of the corresponding endomorphism ring,
-//          returned in both analytic and rational representations.
+intrinsic GeometricIsogenyBasisApproximations(P::., Q::.) -> .
+{Starting from period matrices P and Q, determines isogenies between the corresponding abelian varieties.}
 
-// Optimization and PEL data used to be inserted here; add later
-//P, T := OptimizedPeriodMatrix(P0);
-//E := TransformPELData(E0, T);
-
-// Setting up the equations
-g := #Rows(Transpose(P));
-J := ComplexStructure(P);
-P0, s0 := InvertibleSubmatrix(P : epsinv := epsinv);
-M := RationalEndomorphismEquations(J);
+// Basic invariants
+gP := #Rows(Transpose(P)); gQ := #Rows(Transpose(Q));
+JP := ComplexStructure(P); JQ := ComplexStructure(Q);
+// FIXME: Understand why this fails
+//JP := Transpose(JP); JQ := Transpose(JQ);
+M := RationalIsogenyEquations(JP, JQ);
 
 // Determination of approximate endomorphisms by LLL
-K := IntegralLeftKernel(M : epsLLL := epsLLL);
+K := IntegralLeftKernel(M);
 
 // Deciding which rows to keep
+RR := BaseRing(JP);
 Rs := [];
 for r in Rows(K) do
-    alpha := Matrix(Rationals(), 2*g, 2*g, Eltseq(r));
-
+    alpha := Matrix(Rationals(), 2*gQ, 2*gP, Eltseq(r));
     // Culling the correct transformations from holomorphy condition
-    Comm := alpha * J - J * alpha;
-    if &and([Abs(c) lt epscomp : c in Eltseq(Comm)]) then
+    Comm := JP * alpha - alpha * JQ;
+    if &and([ (RR ! Abs(c)) lt RR`epscomp : c in Eltseq(Comm) ]) then
         Append(~Rs, alpha);
     end if;
 end for;
 
-As := [AnalyticRepresentation(R, P : J := J, P0 := P0, s0 := s0,
-    epsinv := epsinv) : R in Rs];
+As := [ AnalyticRepresentationIsogeny(R, P, Q) : R in Rs ];
+return [* As, Rs *];
 
-// The end result is the actions As on the tangent space,
-// which are the duals of the actions on the differentials.
-// These are represented as a right multiplication because I see vectors as
-// rows, just like Magma and Sage.
-// The action the Rs is on the right, and in the end we always have
-// R * P = P * A .
-return As, Rs;
+end intrinsic;
 
-end function;
+
+intrinsic GeometricEndomorphismBasisApproximations(P::.) -> .
+{Starting from a period matrix P, determines the endomorphisms of the corresponding abelian variety.}
+
+return GeometricIsogenyBasisApproximations(P, P);
+
+end intrinsic;

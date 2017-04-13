@@ -1,5 +1,5 @@
 """
- *  Initialization
+ *  Bound functionality
  *
  *  Copyright (C) 2016-2017
  *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
@@ -9,10 +9,5 @@
  *  See LICENSE.txt for license details.
 """
 
-from sage.all import load
-
-import os
-__endodir__ = os.getcwd() + '/heuristic_endomorphisms/'
-
-from sage.all import *
-load(__endodir__ + "Initialize.sage");
+maxP = 100                                                  # largest prime to test
+extensionBounds = [1,2,12,12]                               # maximal degree for the minimal field of definition of a splitting, as a function of the genus

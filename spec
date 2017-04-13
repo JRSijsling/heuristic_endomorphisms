@@ -1,18 +1,33 @@
 {
+  heuristic
+  {
+    Analytic.m
+    Curves.m
+    DecFactors.m
+    DecCorresps.m
+    DecProjs.m
+    Lattice.m
+    Linear.m
+    OverField.m
+    Periods.m
+    Precision.m
+    Relative.m
+    Recognition.m
+    SatoTate.m
+    Saturate.m
+    Structure.m
+    VerifyRep.m
+  }
+  polarization
+  {
+    Rosati.m
+  }
   puiseux
   {
-    LocalInfo.m
-    FractionalCRT.m
-    Divisor.m
     Cantor.m
-    FindPoint.m
-  }
-  splitting
-  {
-    LocalInfo.m
-    FractionalCRT.m
     Divisor.m
-    Cantor.m
     FindPoint.m
+    FractionalCRT.m
+    LocalInfo.m
   }
 }

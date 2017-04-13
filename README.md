@@ -1,11 +1,9 @@
 # Description
 
-
 This repository contains a mix of Magma, Pari and Sage code for calculating a heuristic (and usually correct) approximation of the endomorphism algebras and rings of Jacobian varieties of hyperelliptic curves.
 For now, the code assumes the curves involved to be defined over QQ, and most of it additionally assumes that we are in genus 2.
 
 # Installation
-
 
 An installation of both Magma and Sage is required to run this code. 
 
@@ -29,16 +27,13 @@ sys.path.append('[PATH]')
 ```
 the Sage initialization file (typically found in  `~/.sage/init.sage`).
 
-
-
 ### 2. Using `load()`
 By going to `[PATH]/heuristic_endomorphisms` directory and typing
 ```
 load('Initialize.sage')
 ```
 
-
-### 3.Loaded at startup 
+### 3. Loaded at startup 
 If you prefer, you can have Sage to load every time you start Sage by adding the following lines to the Sage initialization file (typically found in ~/.sage/init.sage):
 ```
 __endodir__ = '[PATH]/heuristic_endomorphisms'  
@@ -61,7 +56,7 @@ A sample run is given in `Examples.sage`.
 # A bug fix
 
 
-It is highly recommended (though not absolutely necessary) to fix a Magma bug before using this package. In old version the file `magma/package/Algebra/AlgQuat/interface.m` had the following as line 145:
+It is highly recommended to fix a Magma bug before using this package. In old version the file `magma/package/Algebra/AlgQuat/interface.m` had the following as line 145:
 ```
 c := [Trace(theta), Norm(theta)];
 ```
@@ -71,4 +66,3 @@ cpol := MinimalPolynomial(theta);
 assert Degree(cpol) eq 2;  
 c := [Coefficient(cpol,1), Coefficient(cpol, 0)];
 ```
-

@@ -1,28 +1,31 @@
 """
- *  Initialization of the Sage part of the package
+ *  Initialization
  *
- *  Copyright (C) 2016, 2017 Edgar Costa, Jeroen Sijsling
- *                                       (jeroen.sijsling@uni-ulm.de)
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
  *  See LICENSE.txt for license details.
 """
 
-import os
-# The following line is a bad solution:
 if not '__endodir__' in globals():
-    __endodir__ = os.getenv("PWD") + "/"
-# The following line is a lazy solution:
+    raise ImportError("Please set a value for __endodir__")
+
+import os
+cur = os.getcwd()
+
+os.chdir(__endodir__)
 magma.chdir(__endodir__)
-magma.load('Initialize.m')
 
-# NOTE: The end user should only overwrite these options in Wrapper.sage
-prec = 300
-epscomp = 10^(-prec + 30)
-epsLLL = 5^(-prec + 7)
-epsinv = 2^(-prec + 30)
-Bound = 48
+magma.load('~/.magmarc')
+magma.AttachSpec('spec')
 
-load(__endodir__ + 'heuristic/Recognition.sage')
-load(__endodir__ + 'heuristic/Canonize.sage')
-load(__endodir__ + 'heuristic/Decomposition.sage')
-load(__endodir__ + 'heuristic/Conversion.sage')
-load(__endodir__ + 'Wrapper.sage')
+load('heuristic/Relative.sage')
+load('heuristic/PrettyPrint.sage')
+load('Wrapper.sage')
+
+import bounds as Bounds
+
+os.chdir(cur)
+magma.chdir(cur)
