@@ -9,7 +9,7 @@
  *  See LICENSE.txt for license details.
 """
 
-def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ):
+def DiscriminantBound(LPolys, alreadyTwisted = false ):
     # returns a pair (type, bound), where type is one of "Z", "RM",
     # "QuadraticCM", "FullCM" and bound is a bound on the discriminant of the
     # field of endomorphisms
@@ -21,7 +21,7 @@ def DiscriminantBound(LPolys, conductor, alreadyTwisted = false ):
     RM = true
 
     for p in range (2,maxP):
-      if is_prime(p) and LPolys[p] <> 0 :
+      if LPolys[p] <> 0 :
         q = LPolys[p]
         g = q.degree() / 2
         extDegree = extensionBounds[g]

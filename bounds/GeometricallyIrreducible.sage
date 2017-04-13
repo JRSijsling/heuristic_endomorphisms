@@ -9,9 +9,9 @@
  *  See LICENSE.txt for license details.
 """
 
-def IsGeometricallyIrreducible(LPolys, conductor):
+def IsGeometricallyIrreducible(LPolys):
     for p in range (2,maxP):                                # loop over primes
-      if is_prime(p) and conductor % p <> 0 :               # ensure p is of good reduction
+      if LPolys[p] <> 0 :               # ensure p is of good reduction
        # print "Testing p =",p
        q = LPolys[p]
        g = q.degree() / 2
