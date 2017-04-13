@@ -10,15 +10,7 @@
  */
 
 
-// TODO: Make possible without lattice?
-
-
-intrinsic IdempotentDenominator(R::.) -> RngIntElt
-{Degree of an idempotent or projection morphism.}
-
-return LCM([ Denominator(c) : c in Eltseq(R) ]);
-
-end intrinsic;
+// TODO: Make possible without lattice? Transpose? Latter prolly not.
 
 
 intrinsic IdempotentsFromLattice(Lat::List) -> .
@@ -53,8 +45,7 @@ K, factors_QQ := Explode(LatDesc);
 num_idems := 0;
 for factor_QQ in factors_QQ do
     albert, _, d, disc := Explode(factor_QQ);
-    // TODO: the usual nastyness with powers of quaternion algebra is again not
-    // covered.
+    // TODO: the usual nastyness with powers of a quaternion algebra is again not covered.
     if albert in ["II", "IV"] then
         if disc eq 1 then
             num_idems +:= d;
@@ -129,41 +120,58 @@ return [* idemsAlg, idemsRat, idemsAn *];
 end intrinsic;
 
 
-intrinsic ProjectionFromIdempotent(P::., idem::.) -> List
+intrinsic ProjectionFromIdempotent(P::., idem::List) -> List
 {From an idempotent, extracts corresponding lattice and projection.}
-    // Extract the complex field
-    CC := BaseRing(P); RR := RealField(CC);
+    
+idem_alg, idem_rat, idem_app := Explode(idem);
+// Extract the complex field
+CC := BaseRing(P); RR := RealField(CC);
 
-    // Create analytic idempotent and project:
-    PEllHuge := P * idem;
+// Create analytic idempotent and project:
+PEllHuge := P * idem_app;
 
-    // Compute rank of projection
-    gQuotient := NumericalRank(PEllHuge : Epsilon := RR`epsinv);
+// Compute rank of projection
+gQuotient := NumericalRank(PEllHuge : Epsilon := RR`epsinv);
 
-    PEllHugeSplit := SplitMatrix(PEllHuge);
+PEllHugeSplit := SplitMatrix(PEllHuge);
 
-    PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient : ColumnsOrRows := "Rows"); // extract 2g independent rows
-    PEllBigSplit := SaturateLattice(PEllHugeSplit, PEllBigSplit); // ensure that these rows generate the full lattice
+PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient : ColumnsOrRows := "Rows"); // extract 2g independent rows
+PEllBigSplit := SaturateLattice(PEllHugeSplit, PEllBigSplit); // ensure that these rows generate the full lattice
 
-    PEllBig := CombineMatrix(PEllBigSplit, CC); // go back to the complex representation
+PEllBig := CombineMatrix(PEllBigSplit, CC); // go back to the complex representation
 
-    PreliminaryLatticeMatrix, s0 := SubmatrixOfRank(PEllBig, gQuotient : ColumnsOrRows := "Columns"); // extract g columns (i.e. decide which projection to use)
+PreliminaryLatticeMatrix, s0 := SubmatrixOfRank(PEllBig, gQuotient : ColumnsOrRows := "Columns"); // extract g columns (i.e. decide which projection to use)
 
-    PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary before calling SaturateLattice
-    PEllBig := Transpose(PEllBig);
-    LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix));
+PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary before calling SaturateLattice
+PEllBig := Transpose(PEllBig);
+LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix));
 
-    rows := Rows(idem);
-    proj := Matrix([ rows[i] : i in s0 ]);
+rows_alg := Rows(idem_alg); proj_alg := Matrix([ rows_alg[i] : i in s0 ]);
+rows_rat := Rows(idem_rat); proj_rat := Matrix([ rows_rat[i] : i in s0 ]);
+rows_app := Rows(idem_app); proj_app := Matrix([ rows_app[i] : i in s0 ]);
+proj := [* proj_alg, proj_rat, proj_app *];
 
-    return [* LatticeMatrix, proj *];
+return [* LatticeMatrix, proj *];
 end intrinsic;
 
 
 intrinsic ProjectionsFromIdempotents(P::., idems::.) -> List
 {From idempotents, extracts corresponding lattices and projections.}
 
-// TODO: Transpose?
-return [* ProjectionFromIdempotent(P, idem) : idem in idems[3] *];
+lats_projs := [* *];
+for i:=1 to #idems[1] do
+    idem_alg := idems[1][i]; idem_rat := idems[2][i]; idem_app := idems[3][i];
+    idem := [* idem_alg, idem_rat, idem_app *];
+    Append(~lats_projs, ProjectionFromIdempotent(P, idem));
+end for;
+return lats_projs;
+
+end intrinsic;
+
+
+intrinsic IdempotentDenominator(R::.) -> RngIntElt
+{Degree of an idempotent or projection morphism.}
+
+return LCM([ Denominator(c) : c in Eltseq(R) ]);
 
 end intrinsic;

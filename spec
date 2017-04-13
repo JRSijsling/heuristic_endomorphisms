@@ -3,8 +3,8 @@
   {
     Analytic.m
     Curves.m
+    DecFactors.m
     DecProjs.m
-    DecRecons.m
     Lattice.m
     Linear.m
     OverField.m

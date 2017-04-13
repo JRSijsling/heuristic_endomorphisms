@@ -11,9 +11,10 @@
 
 
 intrinsic FactorReconstructG1(P::., K::Fld) -> .
-{Reconstructs elliptic curve factor.}
+{Reconstructs elliptic curve factor from a period lattice.}
 
-CC := Parent(P[1,1]); RR := RealField(CC);
+P := Eltseq(P);
+CC := Parent(P[1]); RR := RealField(CC);
 g4CC := 120 * (1/P[1])^4 * ZetaFunction(RR, 4) * Eisenstein(4, P);
 g6CC := 280 * (1/P[1])^6 * ZetaFunction(RR, 6) * Eisenstein(6, P);
 g4 := AlgebraizeElementInRelativeField(g4CC, K);
@@ -31,7 +32,7 @@ intrinsic TwistDifferentialBasis(P::., X::.) -> .
 K := BaseRing(X);
 CC := Parent(P[1,1]); RCC := PolynomialRing(CC);
 f, h := HyperellipticPolynomials(X);
-// TODO: Move to keyword arguments?
+// TODO: Move iota to keyword arguments?
 fCC := EmbedAtInfinitePlace(f, K`iota, RCC); hCC := EmbedAtInfinitePlace(h, K`iota, RCC);
 Q := PeriodMatrix(fCC, hCC);
 AsRs := GeometricIsogenyBasisApproximations(P, Q); A := AsRs[1][1];
@@ -51,7 +52,8 @@ for pol in pols do
     end if;
 end for;
 
-WA := AlgebraizeMatrixInRelativeField(sqrtCC * A);
+WA := AlgebraizeMatrixInRelativeField(sqrtCC * A, K);
+g := 4*f + h^2;
 R<x> := Parent(g);
 g := Evaluate(g, (WA[1,1]*x + WA[1,2])/(WA[2,1]*x + WA[2,2]));
 return HyperellipticCurve(g / d);
@@ -79,15 +81,17 @@ return X;
 end intrinsic;
 
 
-intrinsic Factors(Lats::List, K::Fld) -> List
+intrinsic FactorsFromProjections(projs::List) -> List
 {Recovers algebraic expressions for the factors.}
 
 Facs := [* *];
-for Lat in Lats do
-    if #Rows(Lat) eq 1 then
-        Append(~Facs, FactorReconstructG1(Lat, K));
-    elif #Rows(Lat) eq 2 then
-        Append(~Facs, FactorReconstructG2(Lat, K));
+for proj in projs do
+    lat := proj[1]; K := BaseRing(proj[2][1]);
+    g := #Rows(Transpose(lat));
+    if g eq 1 then
+        Append(~Facs, FactorReconstructG1(lat, K));
+    elif g eq 2 then
+        Append(~Facs, FactorReconstructG2(lat, K));
     else
         Append(~Facs, "");
     end if;

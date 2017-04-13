@@ -192,17 +192,17 @@ class Decomposition:
     def projections(self):
         if not hasattr(self, "_projs_"):
             self._calculate_idempotents_()
-            self._projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_list_)
-        return self._projs_
+            self._lats_projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_list_)
+        return self._lats_projs_
 
     def factors(self):
         if not hasattr(self, "_factors_"):
-            self._projs_ = self.projections()
-            self._factors_ = magma.FactorsFromProjections(self.X, self._projs_)
+            self._lats_projs_ = self.projections()
+            self._factors_ = magma.FactorsFromProjections(self._lats_projs_)
         return self._factors_
 
     def verify(self):
         if not hasattr(self, "_morphisms_"):
             self._factors_ = self.factors()
-            self._dec_test_, self._morphisms_ = magma.MorphismsFromFactorsAndProjections(self.X, self._factors_, self._projs_)
+            self._dec_test_, self._morphisms_ = magma.MorphismsFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_)
         return self._dec_test_
