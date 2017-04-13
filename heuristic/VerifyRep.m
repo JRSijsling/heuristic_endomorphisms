@@ -18,7 +18,7 @@ if IsScalar(A) then
 else
     // TODO: Add theoretical lower bounds (but for now we can experiment)
     LowerBound := 1;
-    return DivisorFromMatrixSplit(X, P, Transpose(A) : LowerBound := LowerBound);
+    return DivisorFromMatrixSplit(X, P, X, P, Transpose(A) : LowerBound := LowerBound);
 end if;
 
 end intrinsic;

@@ -122,7 +122,7 @@ end intrinsic;
 
 intrinsic ProjectionFromIdempotent(P::., idem::List) -> List
 {From an idempotent, extracts corresponding lattice and projection.}
-    
+
 idem_alg, idem_rat, idem_app := Explode(idem);
 // Extract the complex field
 CC := BaseRing(P); RR := RealField(CC);
@@ -165,13 +165,5 @@ for i:=1 to #idems[1] do
     Append(~lats_projs, ProjectionFromIdempotent(P, idem));
 end for;
 return lats_projs;
-
-end intrinsic;
-
-
-intrinsic IdempotentDenominator(R::.) -> RngIntElt
-{Degree of an idempotent or projection morphism.}
-
-return LCM([ Denominator(c) : c in Eltseq(R) ]);
 
 end intrinsic;

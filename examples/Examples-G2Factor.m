@@ -9,6 +9,8 @@
  *  See LICENSE.txt for license details.
  */
 
+// TODO: This still needs a whole lot of debugging
+
 AttachSpec("../spec");
 
 prec := 300;
@@ -24,7 +26,10 @@ JCC := AnalyticJacobian(XCC);
 PBig := BigPeriodMatrix(JCC);
 PSmall := SmallPeriodMatrix(JCC);
 
-result := HyperellipticCurveFromBigPeriodMatrixG2(PBig, PSmall);
+P := Transpose(PeriodMatrix(fCC));
+SetInfinitePlace(QQ, InfinitePlaces(QQ)[1]);
+
+result := FactorReconstructG2(P, QQ);
 print f;
 print result;
 

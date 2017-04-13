@@ -88,6 +88,8 @@ class EndomorphismData:
         # calculating period matrices. Store certificates
         if not hasattr(self, "_rep_test_"):
             self._calculate_geometric_representations_()
+            # TODO: May want to hide this explicit base extension, as in fact
+            # we do later on when decomposing. TBD
             XL, AsL, PL = magma.NonWeierstrassBasePoint(self.X, self._geo_rep_dict_['tangent'], nvals = 3)
             self._rep_test_, self._rep_cert_ = magma.VerifyRepresentations(XL, AsL, PL, nvals = 2)
         return self._rep_test_
@@ -175,7 +177,7 @@ class Decomposition:
 
     def __repr__(self):
         return repr_decomposition(self)
-    
+
     def _calculate_idempotents_(self):
         if not hasattr(self, "_idems_dict_"):
             self._idems_list_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_, nvals = 2)
@@ -204,5 +206,11 @@ class Decomposition:
     def verify(self):
         if not hasattr(self, "_morphisms_"):
             self._factors_ = self.factors()
-            self._dec_test_, self._morphisms_ = magma.MorphismsFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_)
+            self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
         return self._dec_test_
+
+    def morphisms(self):
+        if not hasattr(self, "_morphisms_"):
+            self._factors_ = self.factors()
+            self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
+        return self._mors_

@@ -75,9 +75,7 @@ end function;
 function FractionalCRTQQ(rs, prs)
 
 rs := [ Integers() ! r : r in rs ];
-n := CRT(rs, prs);
-prod := &*prs;
-M := Matrix([ [ 1, n, prod ] ]);
+M := Matrix([ [ 1, CRT(rs, prs), &*prs ] ]);
 Lat := Lattice(Kernel(Transpose(M)));
 v := ShortestVectors(Lat)[1];
 return -v[1]/v[2];
@@ -105,8 +103,7 @@ end function;
 
 function ReduceConstantSplit(x, p, rt)
 
-FF := FiniteField(p);
-seq := Eltseq(x);
+FF := FiniteField(p); seq := Eltseq(x);
 return &+[ (FF ! seq[i]) * rt^(i - 1) : i in [1..#seq] ];
 
 end function;
@@ -128,8 +125,7 @@ end function;
 
 function ReducePolynomialSplit(f, p, rt);
 
-FF := FiniteField(p);
-R_red := PolynomialRing(FF, Rank(Parent(f)));
+FF := FiniteField(p); R_red := PolynomialRing(FF, Rank(Parent(f)));
 f_red := &+[ ReduceConstantSplit(MonomialCoefficient(f, mon), p, rt) * Monomial(R_red, Exponents(mon)) : mon in Monomials(f) ];
 if Rank(Parent(f)) eq 1 then
     return PolynomialRing(FF) ! f_red;
@@ -141,8 +137,7 @@ end function;
 
 function ReduceRationalFunctionSplit(q, p, rt);
 
-FF := FiniteField(p);
-R_red := PolynomialRing(FF, Rank(Parent(q)));
+FF := FiniteField(p); R_red := PolynomialRing(FF, Rank(Parent(q)));
 num_red := R_red ! ReducePolynomialSplit(Numerator(q), p, rt);
 den_red := R_red ! ReducePolynomialSplit(Denominator(q), p, rt);
 return num_red / den_red;
@@ -152,8 +147,7 @@ end function;
 
 function ReduceBasisOfDifferentialsSplit(B, p, rt)
 
-FF := FiniteField(p);
-K_red := RationalFunctionField(FF, Rank(Parent(B[1])));
+FF := FiniteField(p); K_red := RationalFunctionField(FF, Rank(Parent(B[1])));
 return [ K_red ! ReduceRationalFunctionSplit(b, p, rt) : b in B ];
 
 end function;
@@ -161,8 +155,7 @@ end function;
 
 function ReduceAffinePatchSplit(X, p, rt);
 
-FF := FiniteField(p);
-R_red := PolynomialRing(FF, Rank(CoordinateRing(Ambient(X))));
+FF := FiniteField(p); R_red := PolynomialRing(FF, Rank(CoordinateRing(Ambient(X))));
 DEs_red := [ R_red ! ReducePolynomialSplit(DE, p, rt) : DE in DefiningEquations(X) ];
 return Curve(Scheme(AffineSpace(R_red), DEs_red));
 
@@ -170,22 +163,28 @@ end function;
 
 
 function ReduceCurveSplit(X, p, rt)
-/* Only gives an affine patch (which is enough for our algorithms) */
+/* NOTE: This only gives an affine patch (which is enough for our algorithms) */
 
 U := ReduceAffinePatchSplit(X`U, p, rt);
-U`is_hyp := X`is_hyp; U`is_planar := X`is_planar; U`is_smooth := X`is_smooth;
+U`is_hyperelliptic := X`is_hyperelliptic; U`is_planar := X`is_planar; U`is_smooth := X`is_smooth;
 U`g := X`g; U`is_plane_quartic := X`is_plane_quartic;
 U`U := U;
 U`P0 := U ! ReducePointSplit(X`P0, p, rt);
-U`A := Ambient(U`U); U`R := CoordinateRing(U`A); U`F := BaseRing(U`R);
-U`K := FieldOfFractions(U`R);
+U`patch_index := X`patch_index;
+U`A := Ambient(U`U); U`R := CoordinateRing(U`A);
+if X`is_hyperelliptic and (X`patch_index eq 3) then
+    U`x := U`R.2; U`y := U`R.1;
+else
+    U`x := U`R.1; U`y := U`R.2;
+end if;
+U`F := BaseRing(U`R); U`K := FieldOfFractions(U`R);
 U`DEs := DefiningEquations(U`U);
 U`unif_index := X`unif_index; U`unif := (U`R).(U`unif_index);
 U`OurB := ReduceBasisOfDifferentialsSplit(X`OurB, p, rt);
 U`NormB := ReduceBasisOfDifferentialsSplit(X`NormB, p, rt);
 U`T := ReduceMatrixSplit(X`T, p, rt);
 if U`is_planar then
-    U`cantor_eqs := [* ReducePolynomialSplit(cantor_eq, p, rt) : cantor_eq in X`cantor_eqs *];
+    U`cantor_equations := [* ReducePolynomialSplit(cantor_eq, p, rt) : cantor_eq in X`cantor_equations *];
 end if;
 U`initialized := true;
 return U;

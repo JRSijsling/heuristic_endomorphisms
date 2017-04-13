@@ -84,7 +84,7 @@ for D in Ds do
     if IsTotallyReal(F) then
         if d eq 1 then
             DescFactorQQ := [* "I", FDesc, d, 1 *];
-        
+
         elif d eq 2 then
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Integers() ! Norm(DQFin);
@@ -93,10 +93,10 @@ for D in Ds do
             else
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
-        
+
         elif d eq 3 then
             DescFactorQQ := [* "II", FDesc, d, -1 *];
-        
+
         else
             /* FIXME: We do not know what happens here, even when using the
              * extended Albert classification that I have applied. Testing for
