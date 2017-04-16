@@ -24,4 +24,6 @@ load(__boundsdir__ + "GeometricallyIrreducible.sage");
 load(__boundsdir__ + "EndomorphismRankBound.sage")
 load(__boundsdir__ + "NonIsogenous.sage")
 load(__boundsdir__ + "Genus2Factors.sage")
-load(__boundsdir__ + "Test.sage")
+load(__boundsdir__ + "PointCounting.sage")
+load(__boundsdir__ + "NonSquareCM.sage")
+load(__boundsdir__ + "ProductsEC.sage")

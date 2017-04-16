@@ -9,23 +9,24 @@
  *  See LICENSE.txt for license details.
 """
 
-def EndomorphismRankBound ( LPolys, conductor, genus, provenReducible = false, provenQM = false ) :
-    if genus > 3 :
+def CurveRankBound ( C ) :
+    End = EndomorphismData(C, 100, have_oldenburg = true)
+    genus = End.g
+
+    if genus > 2 :
         raise ValueError("The genus is too large")
 
-    if genus==2 and provenQM :
-        return 4;                                                   # quaternion algebra case
+    LPolys = ComputeLPolys(C)
+    Dec = End.decomposition()
 
-    Irreducible = IsGeometricallyIrreducible(LPolys, conductor)
+    Irreducible = IsGeometricallyIrreducible(LPolys)
+    ProvenReducible = len(Dec.idempotents()) > 1
+    
+    if ProvenReducible and Irreducible:
+	raise ValueError("The Jacobian is geometrically irreducible, but a projection to an elliptic curve has been found (?)")
 
-    if not Irreducible and genus == 3 :
-        raise NotImplementedError("Reducible threefold")
-
-    if Irreducible and provenReducible :
-        raise ValueError("The Jacobian is geometrically irreducible, but provenReducible is set to True")
-
-    if Irreducible :
-        Type, DiscBound = DiscriminantBound( LPolys, conductor )
+    if Irreducible :						# this covers ZZ, RM, CM
+        Type, DiscBound = DiscriminantBound( LPolys )
         if Type == "Z" :
             return 1;
         if Type == "Quadratic" :
@@ -34,5 +35,19 @@ def EndomorphismRankBound ( LPolys, conductor, genus, provenReducible = false, p
             return genus;
         if Type == "FullCM" :
             return 2*genus;
+     
+    if ProvenReducible :
+	return RankBoundProductEC(LPolys);
+
+    # if we got here, the lower bound part of the computation *should* have proven that we have QM.
+    # We just need to (1) check that (how?) and 
+    # (2) prove that we are not the square of an elliptic curve with CM.
+
+    if IsGeometricallyNotSquareOfCM( LPolys ) :
+	    return 4;             
+    else :
+	    return 8;
+
 
     raise NotImplementedError()
+
