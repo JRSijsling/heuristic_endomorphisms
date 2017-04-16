@@ -1,6 +1,6 @@
 def ComputeLPolys(C):
 	return SmallJac(C)
-	
+
 #    f,h = C.hyperelliptic_polynomials()
 #    d = discriminant(4*f+h^2)
 #    LPolys = [0 for p in range(2,maxP)]
@@ -46,7 +46,7 @@ def SmallJac(C):
 				a2 = LP[2];
 				a1 = LP[3];
 				LPolys[p] = x^6 + a3*x^5+a2*x^4+a1*x^3+p*a2*x^2+p^2*a3*x+p^3;
-	
+
 			if g==2 :
 				a2 = LP[1];
 				a1 = LP[2];
@@ -55,5 +55,5 @@ def SmallJac(C):
 			if g==1 :
 				a1 = LP[1];
 				LPolys[p] = x^2 + a1*x+p;
-		
+
 	return LPolys;

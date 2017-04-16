@@ -33,8 +33,7 @@ CC := BaseRing(P); RCC := PolynomialRing(CC);
 f, h := HyperellipticPolynomials(X);
 // TODO: Move iota to keyword arguments?
 fCC := EmbedAtInfinitePlace(f, K`iota, RCC); hCC := EmbedAtInfinitePlace(h, K`iota, RCC);
-gCC := 4*fCC + hCC^2;
-Q := Transpose(PeriodMatrix(gCC));
+Q := Transpose(PeriodMatrix(fCC, hCC));
 AsRs := GeometricIsogenyBasisApproximations(P, Q); A := AsRs[1][1];
 
 // TODO: In general we will need a function to test for lattice isomorphism. It
@@ -76,7 +75,7 @@ g2sCC := G2Invariants(HyperellipticCurve(fCC));
 g2s := [ AlgebraizeElementInRelativeField(g2CC, K) : g2CC in g2sCC ];
 X := HyperellipticCurveFromG2Invariants(g2s);
 // TODO: This only works over QQ but seems crucial...
-X := ReducedMinimalWeierstrassModel(X);
+//X := ReducedMinimalWeierstrassModel(X);
 X := TwistDifferentialBasis(X, P);
 return X;
 

@@ -21,7 +21,7 @@ def CurveRankBound ( C ) :
 
     Irreducible = IsGeometricallyIrreducible(LPolys)
     ProvenReducible = len(Dec.idempotents()) > 1
-    
+
     if ProvenReducible and Irreducible:
 	raise ValueError("The Jacobian is geometrically irreducible, but a projection to an elliptic curve has been found (?)")
 
@@ -35,16 +35,16 @@ def CurveRankBound ( C ) :
             return genus;
         if Type == "FullCM" :
             return 2*genus;
-     
+
     if ProvenReducible :
 	return RankBoundProductEC(LPolys);
 
     # if we got here, the lower bound part of the computation *should* have proven that we have QM.
-    # We just need to (1) check that (how?) and 
+    # We just need to (1) check that (how?) and
     # (2) prove that we are not the square of an elliptic curve with CM.
 
     if IsGeometricallyNotSquareOfCM( LPolys ) :
-	    return 4;             
+	    return 4;
     else :
 	    return 8;
 

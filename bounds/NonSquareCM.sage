@@ -13,7 +13,7 @@ def IsGeometricallyNotSquareOfCM(LPolys):
     g = 2						    # only for surfaces
     CMDisc = -1
     for p in range (2,maxP):                                # loop over primes
-      if LPolys[p] <> 0 :               			
+      if LPolys[p] <> 0 :
         q = LPolys[p]
         q = twistPolynomial(q, 2*extensionBounds[g])
 

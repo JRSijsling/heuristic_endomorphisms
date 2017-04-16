@@ -18,7 +18,7 @@ def RankBoundProductEC(LPolys):
     IsSquare = true
 
     for p in range (2,maxP):
-      if LPolys[p] <> 0 :               			
+      if LPolys[p] <> 0 :
         q = LPolys[p]
         q = twistPolynomial(q, 2*extensionBounds[g])
 
@@ -32,9 +32,9 @@ def RankBoundProductEC(LPolys):
     FoundDifferentDiscriminants = false
     Initialized = false
     Discriminants = {}
-    
+
     for p in range (2,maxP):
-      if LPolys[p] <> 0 :               			
+      if LPolys[p] <> 0 :
         q = LPolys[p]
         q = twistPolynomial(q, 2*extensionBounds[g])
 	if(q.is_square() == false) :

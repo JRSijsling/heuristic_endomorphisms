@@ -74,7 +74,7 @@ def TestEC() :
     LPolys1 = ComputeLPolys(E1)
     LPolys2 = ComputeLPolys(E2)
 
-	
+
     #d = E1.discriminant() * E2.discriminant()
     #for p in range(2,maxP) :
     #    if is_prime(p) and d%p != 0 :
