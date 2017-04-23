@@ -12,15 +12,15 @@
 # Adds endomorphism data to a file of colon-separated lines
 
 # Specify index of defining polynomials:
-fh_index = 2
+fh_index = 3
 # Precision (not below 200 please):
-prec = 300
+prec = 100
 
 import os, shutil
 
 # Specify input and output:
-inputfile = 'gce_genus3_hyperelliptic_cond-input.txt'
-outputfile = 'gce_genus3_hyperelliptic_cond-output.txt'
+inputfile = 'gce_1000000-input.txt'
+outputfile = 'gce_1000000-output.txt'
 
 # Ambient ring needed for substitution:
 R.<x> = PolynomialRing(QQ)
@@ -41,11 +41,10 @@ with open(inputfile) as inputstream:
             h = R(pol_list[1])
             X = HyperellipticCurve(f, h)
             try:
-                End = EndomorphismData(X, prec = prec)
-                Lat = End.lattice()
-                Lat_str = repr(End._lat_[1])
-                outputstream.write(linestart + ':' + Lat_str.replace('\n', '').replace(' ', '') + '\n')
+                End = EndomorphismData(X, prec = prec, have_oldenburg = True)
+                P = End.period_matrix()
+                #Lat_desc = End.lattice().descriptions()
+                #outputstream.write(linestart + ':' + str(Lat_desc[1][len(Lat_desc[1])]) + '\n')
             except:
                 print "Error"
                 outputstream.write(linestart + ':' + 'Error' + '\n')
-

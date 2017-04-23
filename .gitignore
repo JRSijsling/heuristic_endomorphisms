@@ -3,10 +3,12 @@
 *.sage.py
 *.pyc
 *.sig
+*.ropeproject*
 package/database/Add_To_Database*
 package/database/gce*
 database/Add_To_Database*
 database/gce*
 odds_and_ends/*
-TODO.txt
 oldenburg/*
+intrinsics_inventory.txt
+TODO.txt

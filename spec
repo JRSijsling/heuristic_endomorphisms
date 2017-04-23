@@ -1,22 +1,25 @@
 {
   heuristic
   {
-    Analytic.m
-    Curves.m
-    DecFactors.m
-    DecCorresps.m
-    DecProjs.m
-    Lattice.m
-    Linear.m
-    OverField.m
-    Periods.m
     Precision.m
     Relative.m
     Recognition.m
-    SatoTate.m
-    Saturate.m
+    Curves.m
+    Periods.m
+    Linear.m
+    Analytic.m
+
+    OverField.m
     Structure.m
+    SatoTate.m
+    Lattice.m
+    Sagify.m
+
+    VerifySat.m
     VerifyRep.m
+    DecProjs.m
+    DecFactors.m
+    DecCorresps.m
   }
   polarization
   {

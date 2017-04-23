@@ -16,39 +16,39 @@
 intrinsic IdempotentsFromLattice(Lat::List) -> .
 {Finds idempotents over the smallest possible field by running over Lat.}
 
-LatReps, LatAlgs, LatDescs := Explode(Lat);
-GeoLatRep := LatReps[#LatReps]; GeoLatAlg := LatAlgs[#LatReps]; GeoLatDesc := LatDescs[#LatReps];
-num_idems_geo := NumberOfIdempotentsFromLatticeEntry(GeoLatRep, GeoLatAlg, GeoLatDesc);
+GeoStructure := Lat[#Lat][2];
+num_idems_geo := NumberOfIdempotentsFromStructure(GeoStructure);
 
 // Potentially computes final entry two times but who cares
-n := #LatReps; i := 1;
+n := #Lat; i := 1;
 while i le n do
-    LatRep := LatReps[i]; LatAlg := LatAlgs[i]; LatDesc := LatDescs[i];
-    num_idems := NumberOfIdempotentsFromLatticeEntry(LatRep, LatAlg, LatDesc);
+    Structure := Lat[i][2];
+    num_idems := NumberOfIdempotentsFromStructure(Structure);
     if num_idems eq num_idems_geo then
         break;
     end if;
     i +:= 1;
 end while;
 
-idems := IdempotentsFromLatticeEntry(LatRep, LatAlg, LatDesc);
+idems := IdempotentsFromStructure(Structure);
 K := BaseRing(idems[1][1]);
 return idems, K;
 
 end intrinsic;
 
 
-intrinsic NumberOfIdempotentsFromLatticeEntry(LatRep::List, LatAlg::List, LatDesc::List) -> List
+intrinsic NumberOfIdempotentsFromStructure(Structure::List) -> RngIntElt
 {Finds number of idempotents.}
 
-K, factors_QQ := Explode(LatDesc);
+LatRep, LatAlg, LatDesc := Explode(Structure);
+factors_QQ := LatDesc[1];
 num_idems := 0;
 for factor_QQ in factors_QQ do
-    albert, _, d, disc := Explode(factor_QQ);
+    albert, _, dim_sqrt, disc := Explode(factor_QQ);
     // TODO: the usual nastyness with powers of a quaternion algebra is again not covered.
     if albert in ["II", "IV"] then
         if disc eq 1 then
-            num_idems +:= d;
+            num_idems +:= dim_sqrt;
         end if;
     else
         num_idems +:= 1;
@@ -59,15 +59,16 @@ return num_idems;
 end intrinsic;
 
 
-intrinsic IdempotentsFromLatticeEntry(LatRep::List, LatAlg::List, LatDesc::List) -> List
+intrinsic IdempotentsFromStructure(Structure::List) -> List
 {Finds idempotents.}
 
-K, AsAlg, Rs, As := Explode(LatRep);
-K, C, GensC := Explode(LatAlg);
+LatRep, LatAlg, LatDesc := Explode(Structure);
+AsAlg, Rs, As := Explode(LatRep);
+C, GensC := Explode(LatAlg);
 
 Ds := DirectSumDecomposition(C);
 idems_C := &cat[ IdempotentsFromFactor(D, C) : D in Ds ];
-idems_rep := MatricesFromIdempotents(idems_C, LatRep, LatAlg, LatDesc);
+idems_rep := MatricesFromIdempotents(idems_C, Structure);
 return idems_rep;
 
 end intrinsic;
@@ -101,11 +102,12 @@ return [ C ! D ! 1 ];
 end intrinsic;
 
 
-intrinsic MatricesFromIdempotents(idems, LatRep, LatAlg, LatDesc) -> List
+intrinsic MatricesFromIdempotents(idems::SeqEnum, Structure::List) -> List
 {Recovers matrices corresponding to idems.}
 
-K, AsAlg, Rs, As := Explode(LatRep);
-K, C, GensC := Explode(LatAlg);
+LatRep, LatAlg, LatDesc := Explode(Structure);
+AsAlg, Rs, As := Explode(LatRep);
+C, GensC := Explode(LatAlg);
 
 idemsC := [ [ Rationals() ! c : c in Eltseq(idem) ] : idem in idems ];
 GensC := [ [ Rationals() ! c : c in Eltseq(gen) ] : gen in GensC ];

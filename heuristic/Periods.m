@@ -19,8 +19,12 @@ intrinsic PeriodMatrix(eqsCC::SeqEnum : HaveOldenburg := false) -> AlgMatElt
 
 RCC := Parent(eqsCC[1]);
 if #GeneratorsSequence(RCC) eq 1 then
-    fCC, hCC := Explode(eqsCC);
-    gCC := 4*fCC + hCC^2;
+    if #eqsCC eq 2 then
+        fCC, hCC := Explode(eqsCC);
+        gCC := 4*fCC + hCC^2;
+    else
+        gCC := Explode(eqsCC);
+    end if;
     if not HaveOldenburg then
         JCC := AnalyticJacobian(gCC);
         return Transpose(Matrix(BaseRing(gCC), BigPeriodMatrix(JCC)));
@@ -31,9 +35,11 @@ elif #GeneratorsSequence(RCC) eq 2 then
     SCC<x0,x1,x2> := Parent(F); CC := BaseRing(SCC); RCC<x,y> := PolynomialRing(CC, 2);
     h := hom<SCC -> RCC | [x,y,1]>; f := h(F);
     if not HaveOldenburg then
-        return 0;
+        return "No functionality for plane curves available";
     end if;
     return Transpose(Matrix(BaseRing(F), PeriodMatrix(f)));
+else
+    return "No functionality for general curves available";
 end if;
 
 end intrinsic;

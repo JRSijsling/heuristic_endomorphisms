@@ -55,7 +55,6 @@ A sample run is given in `Examples.sage`.
 
 # A bug fix
 
-
 It is highly recommended to fix a Magma bug before using this package. In old version the file `magma/package/Algebra/AlgQuat/interface.m` had the following as line 145:
 ```
 c := [Trace(theta), Norm(theta)];
@@ -66,3 +65,5 @@ cpol := MinimalPolynomial(theta);
 assert Degree(cpol) eq 2;  
 c := [Coefficient(cpol,1), Coefficient(cpol, 0)];
 ```
+
+# Some notes on the code

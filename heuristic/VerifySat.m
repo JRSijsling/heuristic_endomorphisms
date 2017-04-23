@@ -1,8 +1,8 @@
 // TODO: Generalize to isogenies
 
-intrinsic VerifySaturated(GeoEndList::List, P::.) -> BoolElt
+intrinsic VerifySaturated(GeoEndList::List, P::.) -> BoolElt, SeqEnum
 {Verifies whether the endomorphism ring is saturated in the algebra found so far.}
-// Optional argument if lattice was calculated already
+// TODO: Optional argument if lattice was calculated already?
 
 Rs := GeoEndList[2];
 // Creation of relevant algebras
@@ -22,15 +22,15 @@ ps := [ tup[1] : tup in Factorization(ind) ];
 for p in ps do
     test, R := VerifySaturatedAtPrime(GeoEndList, P, p);
     if not test then
-        return false, R;
+        return false, [ R ];
     end if;
 end for;
-return true, 0;
+return true, [ ];
 
 end intrinsic;
 
 
-intrinsic VerifySaturatedAtPrime(GeoEndList::List, P::., p::RngIntElt) -> BoolElt
+intrinsic VerifySaturatedAtPrime(GeoEndList::List, P::., p::RngIntElt) -> BoolElt, SeqEnum
 {Verifies whether the endomorphism ring is saturated in the algebra found so far, looking only at the prime p.}
 
 Rs := GeoEndList[2];
@@ -42,10 +42,10 @@ for tup in [ tup : tup in CP | not &and[ c eq 0 : c in tup ] ] do
     if &and[ c in Integers() : c in Eltseq(R) ] then
         D := JP*R - R*JP;
         if &and[ (RR ! Abs(d)) lt RR`epscomp : d in Eltseq(D) ] then
-            return false, R;
+            return false, [ R ];
         end if;
     end if;
 end for;
-return true, 0;
+return true, [ ];
 
 end intrinsic;

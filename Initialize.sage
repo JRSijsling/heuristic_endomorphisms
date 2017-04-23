@@ -22,6 +22,8 @@ magma.load('~/.magmarc')
 magma.AttachSpec('spec')
 
 load('heuristic/Relative.sage')
+load('heuristic/Reprs.sage')
+load('heuristic/Dicts.sage')
 load('heuristic/PrettyPrint.sage')
 load('Wrapper.sage')
 

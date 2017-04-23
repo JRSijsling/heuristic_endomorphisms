@@ -9,6 +9,7 @@
  *  See LICENSE.txt for license details.
  */
 
+
 intrinsic CurveType(X::Crv) -> MonStgElt
 {String that gives type.}
 

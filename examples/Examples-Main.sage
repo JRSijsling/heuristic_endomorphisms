@@ -9,6 +9,8 @@
  *  See LICENSE.txt for license details.
 """
 
+load("../Initialize.sage")
+
 # Hyperelliptic tests:
 R.<x> = PolynomialRing(QQ)
 #F.<r> = NumberField(x^2 - 2)
@@ -41,7 +43,6 @@ h = R(0)
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 
-
 # Stupid split case
 # f = x^6+x^2+1
 # h = 0
@@ -61,39 +62,40 @@ X = HyperellipticCurve(f, h)
 #X = Curve(P2.subscheme(F))
 
 # The main functionality:
-End = EndomorphismData(X, 100, have_oldenburg = True)
+End = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
 print "Geometric representations:"
-print End.period_matrix()
+#print End.period_matrix()
 print End.endomorphism_field()
 print End.geometric_representations()
 
 print "Over several fields:"
-print End.geometric().representations()
-print End.over_base().representations()
+#print End.geometric().representation()
+#print End.over_base().representation()
 K.<r> = NumberField(x^2 - 2)
-print End.over_field(K).representations()
-print End.over_field(K).algebra()
-print End.over_field(K).description()
-print End.over_field(K).pretty_print()
+overK = End.over_field(K)
+print K
+#print overK.representation()
+#print overK.algebra()
+#print overK.description()
+print overK.pretty_print()
 
 print "Examples of lattices:"
-print End.lattice()
-print End.lattice().representations()
-print End.lattice().structures()
-print End.lattice().descriptions()
+#print End.lattice()
+#print End.lattice().representations()
+#print End.lattice().algebras()
+#print End.lattice().descriptions()
 print End.lattice().pretty_print()
 
-print "Verification:"
-print End.verify()
+#print "Verification:"
+#print End.verify()
 
-print "Decomposition:"
-Dec = End.decomposition()
-print Dec
-print Dec.decomposition_field()
-print Dec.idempotents()
-print Dec.projections()
-print Dec.factors()
-print Dec.verify()
-print Dec.morphisms()
-
+#print "Decomposition:"
+#Dec = End.decomposition()
+#print Dec
+#print Dec.decomposition_field()
+#print Dec.idempotents()
+#print Dec.projections()
+#print Dec.factors()
+#print Dec.verify()
+#print Dec.morphisms()

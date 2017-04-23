@@ -57,11 +57,10 @@ class EndomorphismData:
         return OverField(self, K = K)
 
     def lattice(self):
-        if not hasattr(self, "_lat_dict_"):
+        if not hasattr(self, "_lat_"):
             self._calculate_geometric_representations_()
-            self._lat_list_ = magma.EndomorphismLattice(self._geo_rep_list_)
-            self._lat_dict_ = dict_lattice(self._lat_list_)
-        return Lattice(self)
+            self._lat_ = Lattice(self)
+        return self._lat_
 
     def rosati_involution(self, A):
         self._calculate_geometric_representations_()
@@ -89,7 +88,7 @@ class EndomorphismData:
         if not hasattr(self, "_rep_test_"):
             self._calculate_geometric_representations_()
             # TODO: May want to hide this explicit base extension, as in fact
-            # we do later on when decomposing. TBD
+            # we do later on when decomposing.
             XL, AsL, PL = magma.NonWeierstrassBasePoint(self.X, self._geo_rep_dict_['tangent'], nvals = 3)
             self._rep_test_, self._rep_cert_ = magma.VerifyRepresentations(XL, AsL, PL, nvals = 2)
         return self._rep_test_
@@ -98,30 +97,9 @@ class EndomorphismData:
         return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
 
     def decomposition(self):
-        if not hasattr(self, "_lat_dict_"):
-            self._lat_dict_ = self.lattice()
+        if not hasattr(self, "_lat_"):
+            self._lat_ = self.lattice()
         return Decomposition(self)
-
-class Lattice:
-    def __init__(self, End):
-        self.X = End.X
-        self.g = End.g
-        self._lat_dict_ = End._lat_dict_
-
-    def __repr__(self):
-        return repr_lattice(self)
-
-    def representations(self):
-        return [ rep['tangent'] for rep in self._lat_dict_['representations'] ]
-
-    def structures(self):
-        return self._lat_dict_['algebras']
-
-    def descriptions(self):
-        return self._lat_dict_['descriptions']
-
-    def pretty_print(self):
-        return pretty_print_lattice(self._lat_dict_['descriptions'], self.g, 'K', 'x')
 
 class OverField:
     def __init__(self, End, K = "geometric"):
@@ -129,50 +107,101 @@ class OverField:
         self.g = End.g
         self.base_field = End.base_field
         self._geo_rep_list_ = End._geo_rep_list_
-        self._geo_rep_dict_ = End._geo_rep_dict_
         if K == "geometric":
             self.field = End.endomorphism_field()
         elif K == "base":
             self.field = self.base_field
         else:
             self.field = magma(K)
+        self._list_ = magma.EndomorphismStructure(self._geo_rep_list_, self.field)
+        self._desc_ = desc_structure(self._list_)
+
+    def _calculate_dictionary_(self):
+        if not hasattr(self, "_dict_"):
+            self._dict_ = dict_structure(self._list_)
 
     def __repr__(self):
         return repr_over_field(self)
 
-    def representations(self):
-        if not hasattr(self, "_struct_"):
-            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
-        return self._struct_['representation']['tangent']
+    def full(self):
+        self._calculate_dictionary_()
+        return self._dict_
 
-    # NOTE: Using the Magma functionality EndomorphismAlgebraAndDescription
-    # it is straightforward to get versions that do not calculate the Sato-Tate
-    # group, which could sometimes give a slight performance gain.
-    # Alternatively, it could be a flag whether to include this group or not.
-    # Arguably, including Sato-Tate by default violates modularity.
-    # Yet for now I see no supremely cogent reason to modify the current
-    # approach, which always calculates the Sato-Tate group in one go.
+    def representation(self):
+        self._calculate_dictionary_()
+        return self._dict_['representation']['tangent']
+
     def algebra(self):
-        if not hasattr(self, "_struct_"):
-            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
-        return self._struct_['algebra']
+        self._calculate_dictionary_()
+        return self._dict_['algebra']
 
     def description(self):
-        if not hasattr(self, "_struct_"):
-            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
-        return self._struct_['description']
+        self._calculate_dictionary_()
+        return self._dict_['description']
 
     def pretty_print(self):
-        if not hasattr(self, "_struct_"):
-            self._struct_ = dict_structure(magma.EndomorphismStructure(self._geo_rep_list_, self.field))
-        return pretty_print_over_field(self._struct_['description'], self.g, 'K')
+        return pretty_print_over_field_description(self._desc_, self.g, 'K')
+
+class Lattice:
+    def __init__(self, End):
+        self.X = End.X
+        self.g = End.g
+        self._geo_rep_list_ = End._geo_rep_list_
+        self._list_ = magma.EndomorphismLattice(self._geo_rep_list_)
+        self._desc_ = desc_lattice(self._list_)
+
+    def _calculate_dictionary_(self):
+        if not hasattr(self, "_dict_"):
+            self._dict_ = dict_lattice(self._list_)
+
+    def __repr__(self):
+        return repr_lattice(self)
+
+    def full(self):
+        self._calculate_dictionary_()
+        return self._dict_
+
+    # TODO: The upcoming functions are boilerplate
+    def representations(self):
+        self._calculate_dictionary_()
+        list_to_fill = [ ]
+        for dict_pair in self._dict_:
+            dict_to_fill = dict()
+            dict_to_fill['field'] = dict_pair['field']['magma']
+            dict_to_fill['representation'] = dict_pair['structure']['representation']['tangent']
+            list_to_fill.append(dict_to_fill)
+        return list_to_fill
+
+    def algebras(self):
+        self._calculate_dictionary_()
+        list_to_fill = [ ]
+        for dict_pair in self._dict_:
+            dict_to_fill = dict()
+            dict_to_fill['field'] = dict_pair['field']['magma']
+            dict_to_fill['algebra'] = dict_pair['structure']['algebra']
+            list_to_fill.append(dict_to_fill)
+        return list_to_fill
+
+    def descriptions(self):
+        self._calculate_dictionary_()
+        list_to_fill = [ ]
+        for dict_pair in self._dict_:
+            dict_to_fill = dict()
+            dict_to_fill['field'] = dict_pair['field']['magma']
+            dict_to_fill['description'] = dict_pair['structure']['description']
+            list_to_fill.append(dict_to_fill)
+        return list_to_fill
+
+    def pretty_print(self):
+        #return self._desc_
+        return pretty_print_lattice_description(self._desc_, self.g, 'K', 'x')
 
 class Decomposition:
     def __init__(self, End):
         self.X = End.X
         self.g = End.g
         self._P_ = End._P_
-        self._lat_list_ = End._lat_list_
+        self._lat_list_ = End._lat_._list_
         # TODO: Deal with case where no decomposition exists automatically
 
     def __repr__(self):
@@ -203,14 +232,15 @@ class Decomposition:
             self._factors_ = magma.FactorsFromProjections(self._lats_projs_)
         return self._factors_
 
-    def verify(self):
+    def _calculate_morphisms_(self):
         if not hasattr(self, "_mors_"):
             self._factors_ = self.factors()
             self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
+
+    def verify(self):
+        self._calculate_morphisms_()
         return self._dec_test_
 
     def morphisms(self):
-        if not hasattr(self, "_mors_"):
-            self._factors_ = self.factors()
-            self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
+        self._calculate_morphisms_()
         return self._mors_
