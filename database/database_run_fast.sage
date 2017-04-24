@@ -14,13 +14,13 @@
 # Specify index of defining polynomials:
 fh_index = 3
 # Precision (not below 200 please):
-prec = 100
+prec = 300
 
 import os, shutil
 
 # Specify input and output:
-inputfile = 'gce_1000000-input.txt'
-outputfile = 'gce_1000000-output.txt'
+inputfile = 'gce_1000000_unmatched-input.txt'
+outputfile = 'gce_1000000_unmatched-output.txt'
 
 # Ambient ring needed for substitution:
 R.<x> = PolynomialRing(QQ)
