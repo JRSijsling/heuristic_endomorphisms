@@ -64,7 +64,7 @@ return AnalyticRepresentationIsogeny(R, P, P);
 end intrinsic;
 
 
-intrinsic GeometricIsogenyBasisApproximations(P::., Q::.) -> .
+intrinsic GeometricIsogenyRepresentationPartial(P::., Q::.) -> SeqEnum
 {Starting from period matrices P and Q, determines isogenies between the corresponding abelian varieties.}
 
 // Basic invariants
@@ -79,25 +79,57 @@ M := RationalIsogenyEquations(JP, JQ);
 Ker := IntegralLeftKernel(M);
 
 // Deciding which rows to keep
-RR := BaseRing(JP); gensHom := [];
+RR := BaseRing(JP); gens := [ ];
 for r in Rows(Ker) do
     genHom := Matrix(Rationals(), 2*gP, 2*gQ, Eltseq(r));
     // Culling the correct transformations from holomorphy condition
     Comm := JP * ChangeRing(genHom, RR) - ChangeRing(genHom, RR) * JQ;
     if &and([ (RR ! Abs(c)) lt RR`epscomp : c in Eltseq(Comm) ]) then
-        Append(~gensHom, genHom);
+        genApp := AnalyticRepresentationEndomorphism(genHom, P);
+        Append(~gens, [* genApp, genHom *]);
     end if;
 end for;
-
-gensTan := [ AnalyticRepresentationEndomorphism(genHom, P) : genHom in gensHom ];
-return [* gensTan, gensHom *];
+return gens;
 
 end intrinsic;
 
 
-intrinsic GeometricEndomorphismBasisApproximations(P::.) -> .
+intrinsic GeometricEndomorphismRepresentationPartial(P::.) -> .
 {Starting from a period matrix P, determines the endomorphisms of the corresponding abelian variety.}
 
-return GeometricIsogenyBasisApproximations(P, P);
+return GeometricIsogenyRepresentationPartial(P, P);
+
+end intrinsic;
+
+
+// TODO: Also for isogenies, naming issues
+intrinsic GeometricEndomorphismRepresentation(P::., F::Fld : Bound := Infinity()) -> .
+{Starting from a period matrix P, determines the endomorphisms of the corresponding abelian variety.}
+
+gensPart := GeometricEndomorphismRepresentationPartial(P);
+gensPol := RelativeMinimalPolynomialsPartial(gensPart, F);
+// TODO: Use Bound?
+L := RelativeSplittingField(gensPol);
+gens := [ ];
+for gen in gensPart do
+    genApp, genHom := Explode(gen);
+    genTan := AlgebraizeMatrixInRelativeField(genApp, L);
+    Append(~gens, [* genTan, genHom, genApp *]);
+end for;
+return gens;
+
+end intrinsic;
+
+
+intrinsic GeometricEndomorphismRepresentationRecognition(gensPart::SeqEnum, L::Fld) -> .
+{Final recognition step of the previous algorithm. Use when delegating to Sage.}
+
+gens := [ ];
+for gen in gensPart do
+    genApp, genHom := Explode(gen);
+    genTan := AlgebraizeMatrixInRelativeField(genApp, L);
+    Append(~gens, [* genTan, genHom, genApp *]);
+end for;
+return gens;
 
 end intrinsic;

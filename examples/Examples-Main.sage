@@ -61,36 +61,37 @@ X = HyperellipticCurve(f, h)
 #X = Curve(P2.subscheme(F))
 
 # The main functionality:
-End = EndomorphismData(X, prec = 300, have_oldenburg = True)
+Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
-print "Geometric representations:"
-#print End.period_matrix()
-print End.endomorphism_field()
-print End.geometric_representations()
+print "Period matrix:"
+#print Endo.period_matrix()
 
-print "Over several fields:"
-#print End.geometric().representation()
-#print End.over_base().representation()
-K.<r> = NumberField(x^2 - 2)
-overK = End.over_field(K)
-print K
-#print overK.representation()
-#print overK.algebra()
-#print overK.description()
-print overK.pretty_print()
+print "Field of definition:"
+print Endo.endomorphism_field()
 
-print "Examples of lattices:"
-#print End.lattice()
-#print End.lattice().representations()
-#print End.lattice().algebras()
-#print End.lattice().descriptions()
-print End.lattice().pretty_print()
+#print "Over several fields:"
+##print Endo.geometric().representation()
+##print Endo.over_base().representation()
+#K.<r> = NumberField(x^2 - 2)
+#overK = Endo.over_field(K)
+#print K
+##print overK.representation()
+##print overK.algebra()
+##print overK.description()
+#print overK.pretty_print()
+#
+#print "Examples of lattices:"
+##print Endo.lattice()
+##print Endo.lattice().representations()
+##print Endo.lattice().algebras()
+##print Endo.lattice().descriptions()
+#print Endo.lattice().pretty_print()
 
 #print "Verification:"
-#print End.verify()
+#print Endo.verify()
 
 #print "Decomposition:"
-#Dec = End.decomposition()
+#Dec = Endo.decomposition()
 #print Dec
 #print Dec.decomposition_field()
 #print Dec.idempotents()

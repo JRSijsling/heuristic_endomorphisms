@@ -10,26 +10,34 @@
  */
 
 
-intrinsic EndomorphismBasis(GeoEndList::List, GalK::List) -> List
+intrinsic EndomorphismBasis(GeoEndoRep::SeqEnum, GalK::List) -> SeqEnum
 {Extracts basis over subfield determines by a list of automorphisms.}
 
-AsAlg, Rs, As := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
-GensH, Gphi := Explode(GalK);
-K := FixedField(L, [ Gphi(gen) : gen in GensH ]);
+gensTan := [ gen[1] : gen in GeoEndoRep ];
+gensHom := [ gen[2] : gen in GeoEndoRep ];
+gensApp := [ gen[3] : gen in GeoEndoRep ];
+L := BaseRing(gensTan[1]);
 
-if #GensH eq 0 then
-    return GeoEndList;
+// Done if we are dealing with the rationals
+if Type(L) eq FldRat then
+    return GeoEndoRep;
+end if;
+
+gensH, Gphi := Explode(GalK);
+K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
+// Done if we are dealing with the full extension
+if #gensH eq 0 then
+    return GeoEndoRep;
 end if;
 
 // The vector space representing the full endomorphism algebra
-n := #AsAlg;
+n := #gensTan;
 Ker := VectorSpace(Rationals(), n);
 // Successively filter by writing down the conditions for a matrix to be fixed
 // under a given generator
-for gen in GensH do
-    sigma := Gphi(gen);
-    Msigma := Matrix([MatrixInBasis(ConjugateMatrix(sigma, A), AsAlg) : A in AsAlg]);
+for genH in gensH do
+    sigma := Gphi(genH);
+    Msigma := Matrix([ MatrixInBasis(ConjugateMatrix(sigma, genTan), genTans) : genTan in genTans ]);
     Msigma -:= IdentityMatrix(Rationals(), n);
     Ker meet:= Kernel(Msigma);
 end for;
@@ -40,23 +48,26 @@ Lat := PureLattice(Lattice(Matrix(Basis(Ker))));
 B := Basis(Lat);
 
 // Constructing said basis
-AsAlg := [ &+[ b[i] * AsAlg[i] : i in [1..n] ] : b in B ];
-Rs    := [ &+[ b[i] * Rs[i]    : i in [1..n] ] : b in B ];
-As    := [ &+[ b[i] * As[i]    : i in [1..n] ] : b in B ];
-AsAlg := [ Matrix(K, A) : A in AsAlg ];
-return [* AsAlg, Rs, As *];
+gens := [ ];
+for b in B do
+    genTan := &+[ b[i] * gensTan[i] : i in [1..n] ];
+    // Coercion to subfield
+    genTan := Matrix(K, genTan);
+    genHom := &+[ b[i] * gensHom[i] : i in [1..n] ];
+    genApp := &+[ b[i] * gensApp[i] : i in [1..n] ];
+    Append(~gens, [* genTan, genHom, genApp *]);
+end for;
+return gens;
 
 end intrinsic;
 
 
-intrinsic EndomorphismBasis(GeoEndList::List, K::Fld) -> List
+intrinsic EndomorphismBasis(GeoEndoRep::SeqEnum, K::Fld) -> SeqEnum
 {Extracts basis over a general field.}
 
-AsAlg, As, Rs := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
-
+L := BaseRing(GeoEndoRep[1][1]);
 GalK := SubgroupGeneratorsUpToConjugacy(L, K);
-return EndomorphismBasis(GeoEndList, GalK);
+return EndomorphismBasis(GeoEndoRep, GalK);
 
 end intrinsic;
 

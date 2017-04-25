@@ -42,7 +42,7 @@ AsRs := GeometricIsogenyBasisApproximations(P, Q); A := AsRs[1][1];
 // will also need to be verified... also, we could get a triple extension here.
 // The code is relatively ugly in order to avoid this. We would like to take
 // another relative splitting field. Anyway.
-pols := RelativeMinimalPolynomials(Eltseq(A), K);
+pols := [ RelativeMinimalPolynomial(c, K) : c in Eltseq(A) ];
 sqrtCC := CC ! 1; d := 1;
 for pol in pols do
     if Degree(pol) eq 2 then

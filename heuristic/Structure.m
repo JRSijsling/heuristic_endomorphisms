@@ -10,34 +10,33 @@
  */
 
 
-intrinsic EndomorphismStructure(GeoEndList::List, GalK::List) -> List
+intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, GalK::List) -> List
 {Gives the endomorphism structure over the subfield corresponding to GalK, starting from a list of representations.}
 
-EndoReps := EndomorphismBasis(GeoEndList, GalK);
-EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
-EndoStruct := [* EndoReps, EndoAlg, EndoDesc *];
-SatoTate := SatoTateGroup(GeoEndList, GalK); Append(~EndoDesc, SatoTate);
-return [* EndoReps, EndoAlg, EndoDesc *];
+EndoRep := EndomorphismBasis(GeoEndoRep, GalK);
+EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoRep);
+// TODO: Think about next step and its arguments
+SatoTate := SatoTateGroup(EndoRep, GeoEndoRep, GalK); Append(~EndoDesc, SatoTate);
+EndoStruct := [* EndoRep, EndoAlg, EndoDesc *];
+return EndoStruct;
 
 end intrinsic;
 
 
-intrinsic EndomorphismStructure(GeoEndList::List, K::Fld) -> List
+intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, K::Fld) -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}
 
-AsAlg, As, Rs := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
-
+L := BaseRing(GeoEndoRep[1][1]);
 GalK := SubgroupGeneratorsUpToConjugacy(L, K);
-return EndomorphismStructure(GeoEndList, GalK);
+return EndomorphismStructure(GeoEndoRep, GalK);
 
 end intrinsic;
 
 
-intrinsic EndomorphismAlgebraAndDescription(EndList::List) -> List
+intrinsic EndomorphismAlgebraAndDescription(EndoRep::SeqEnum) -> List
 {Gives the endomorphism structure, starting from a list of representations.}
 
-Rs := EndList[2];
+gensHom := [ gen[2] : gen in EndoRep ];
 // Creation of relevant algebras
 g := #Rows(Rs[1]) div 2;
 // Ambient matrix algebra, plus generators of the endomorphism ring
@@ -61,9 +60,7 @@ end intrinsic;
 
 intrinsic EndomorphismAlgebraQQ(C::AlgAss : Optimize := true) -> .
 {Decribes the factors of endomorphism algebra.}
-// FIXME: Right now a non-Optimized version is not yet easily accessible from
-// Sage. On the other hand, it is not a big operation, so I hav not spent time
-// on this.
+// NOTE: Set Optimize to false if this ever becomes a problem (very unlikely)
 
 // Central decomposition
 Ds := DirectSumDecomposition(C);

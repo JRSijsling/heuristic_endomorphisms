@@ -59,18 +59,15 @@ end while;
 end intrinsic;
 
 
-intrinsic RelativeMinimalPolynomials(L::SeqEnum, F::Fld) -> SeqEnum
+intrinsic RelativeMinimalPolynomialsPartial(gens::SeqEnum, F::Fld) -> SeqEnum
 {Polynomializes matrices.}
 
-return [ RelativeMinimalPolynomial(a, F) : a in L ] ;
-
-end intrinsic;
-
-
-intrinsic RelativeMinimalPolynomialsMatrices(As::SeqEnum, F::Fld) -> SeqEnum
-{Polynomializes matrices.}
-
-return &cat[ RelativeMinimalPolynomials(Eltseq(A), F) : A in As ];
+pols := [ ];
+for gen in gens do
+    pols_new := [ RelativeMinimalPolynomial(c, F) : c in Eltseq(gen[1]) ];
+    pols cat:= pols_new;
+end for;
+return pols;
 
 end intrinsic;
 
@@ -141,15 +138,5 @@ intrinsic AlgebraizeMatrixInRelativeField(A::., K::Fld) -> AlgMatElt
 {Algebraizes a matrix.}
 
 return Matrix([ [ AlgebraizeElementInRelativeField(c, K) : c in Eltseq(row) ] : row in Rows(A) ]);
-
-end intrinsic;
-
-
-intrinsic GeometricEndomorphismBasis(Approxs::List, K::Fld) -> List
-{Final algebraization step.}
-
-As, Rs := Explode(Approxs);
-AsAlg := [ AlgebraizeMatrixInRelativeField(A, K) : A in As ];
-return [* AsAlg, Rs, As *];
 
 end intrinsic;

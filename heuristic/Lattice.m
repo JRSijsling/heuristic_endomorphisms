@@ -25,28 +25,31 @@ end if;
 end function;
 
 
-intrinsic EndomorphismLattice(GeoEndList::List) -> List
+intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum) -> SeqEnum
 {Returns the lattice of endomorphisms by (conjugacy class of) subfield.}
 
-AsAlg, Rs, As := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
+gensTan := [ gen[1] : gen in GeoEndoRep ];
+gensHom := [ gen[2] : gen in GeoEndoRep ];
+gensApp := [ gen[3] : gen in GeoEndoRep ];
+L := BaseRing(gensTan[1]);
 Gp, Gf, Gphi := AutomorphismGroup(L);
 
+// TODO: Reverse or not (we want to calculate the geometric case first and can always reverse later)
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
 Sort(~Hs, CompareGroups); Reverse(~Hs);
 
-Lat := [* *];
+Lat := [ ];
 for H in Hs do
     OverK := [* *];
-    GensH := Generators(H); GalK := [* GensH, Gphi *];
-    K := FixedField(L, [ Gphi(gen) : gen in GensH ]);
+    gensH := Generators(H); GalK := [* gensH, Gphi *];
+    K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
     // TODO: Indicate class group and treat the relative case (scaffolding in place).
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
-    K_desc := [* K_seq, K *]; Append(~OverK, K_desc);
-    Append(~OverK, EndomorphismStructure(GeoEndList, GalK));
+    K_desc := [* K_seq, K *];
+    Append(~OverK, K_desc);
+    Append(~OverK, EndomorphismStructure(GeoEndoRep, GalK));
     Append(~Lat, OverK);
 end for;
-
 return Lat;
 
 end intrinsic;

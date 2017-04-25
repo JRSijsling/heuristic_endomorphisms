@@ -81,11 +81,14 @@ def dict_field(field):
     return dict_to_fill
 
 def dict_rep(rep):
-    dict_to_fill = dict()
-    dict_to_fill['tangent'] = rep[_index_dict_['tangent']]
-    dict_to_fill['homology'] = rep[_index_dict_['homology']]
-    dict_to_fill['approx'] = rep[_index_dict_['approx']]
-    return dict_to_fill
+    dicts = [ ]
+    for tup in rep:
+        dict_to_fill = dict()
+        dict_to_fill['tangent'] = tup[_index_dict_['tangent']]
+        dict_to_fill['homology'] = tup[_index_dict_['homology']]
+        dict_to_fill['approx'] = tup[_index_dict_['approx']]
+        dicts.append(dict_to_fill)
+    return dicts
 
 def dict_alg(rep):
     dict_to_fill = dict()
