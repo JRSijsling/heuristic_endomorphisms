@@ -1,3 +1,15 @@
+/***
+ *  Sage version of raw Magma data
+ *
+ *  Copyright (C) 2016-2017
+ *            Edgar Costa      (edgarcosta@math.dartmouth.edu)
+ *            Davide Lombardo  (davide.lombardo@math.u-psud.fr)
+ *            Jeroen Sijsling  (jeroen.sijsling@uni-ulm.de)
+ *
+ *  See LICENSE.txt for license details.
+ */
+
+
 intrinsic SagifyDescription(obj::.) -> MonStgElt
 {Converts the description into a list that, when evaluated in Sage, corresponds
 with the old list.}

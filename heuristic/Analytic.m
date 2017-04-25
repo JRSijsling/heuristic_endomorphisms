@@ -31,9 +31,9 @@ n := 4 * gP * gQ;
 // transformations of the lattice
 R := PolynomialRing(RR, n);
 vars := GeneratorsSequence(R);
-Ma := Matrix(R, 2 * gP, 2 * gQ, vars);
+M := Matrix(R, 2 * gP, 2 * gQ, vars);
 // Condition that integral transformation preserve the complex structure
-Comm := Eltseq(ChangeRing(JP, R) * Ma - Ma * ChangeRing(JQ, R));
+Comm := Eltseq(ChangeRing(JP, R) * M - M * ChangeRing(JQ, R));
 // Splitting previous linear equations by formal variable
 return Matrix(RR, [ [MonomialCoefficient(c, var) : c in Comm] : var in vars ]);
 
@@ -41,7 +41,7 @@ end intrinsic;
 
 
 intrinsic AnalyticRepresentationIsogeny(R::., P::., Q::.) -> .
-{Given a rational representation R and two period matrices P and Q, finds an analytic representation of that same isogeny.}
+{Given a rational representation R of an isogeny and two period matrices P and Q, finds an analytic representation of that same isogeny.}
 
 // FIXME: We may not want to recalculate this every time and pass on P0 and s0
 // as data. On the other hand, this is not a huge deal.
@@ -52,6 +52,14 @@ RowsRQ := Rows(R * Q);
 RQ0 := Matrix(BaseRing(P), [ Eltseq(RowsRQ[i]) : i in s0 ]);
 // Invert and return; transposes intervene because of right action
 return Transpose(NumericalLeftSolve(Transpose(P0), Transpose(RQ0)));
+
+end intrinsic;
+
+
+intrinsic AnalyticRepresentationEndomorphism(R::., P::.) -> .
+{Given a rational representation R of an endomorphism and a period matrix P, finds an analytic representation of that same endomorphism.}
+
+return AnalyticRepresentationIsogeny(R, P, P);
 
 end intrinsic;
 
@@ -68,21 +76,21 @@ JP := ComplexStructure(P); JQ := ComplexStructure(Q);
 M := RationalIsogenyEquations(JP, JQ);
 
 // Determination of approximate endomorphisms by LLL
-K := IntegralLeftKernel(M);
+Ker := IntegralLeftKernel(M);
 
 // Deciding which rows to keep
-RR := BaseRing(JP); Rs := [];
-for r in Rows(K) do
-    alpha := Matrix(Rationals(), 2*gP, 2*gQ, Eltseq(r));
+RR := BaseRing(JP); gensHom := [];
+for r in Rows(Ker) do
+    genHom := Matrix(Rationals(), 2*gP, 2*gQ, Eltseq(r));
     // Culling the correct transformations from holomorphy condition
-    Comm := JP * ChangeRing(alpha, RR) - ChangeRing(alpha, RR) * JQ;
+    Comm := JP * ChangeRing(genHom, RR) - ChangeRing(genHom, RR) * JQ;
     if &and([ (RR ! Abs(c)) lt RR`epscomp : c in Eltseq(Comm) ]) then
-        Append(~Rs, alpha);
+        Append(~gensHom, genHom);
     end if;
 end for;
 
-As := [ AnalyticRepresentationIsogeny(R, P, Q) : R in Rs ];
-return [* As, Rs *];
+gensTan := [ AnalyticRepresentationEndomorphism(genHom, P) : genHom in gensHom ];
+return [* gensTan, gensHom *];
 
 end intrinsic;
 

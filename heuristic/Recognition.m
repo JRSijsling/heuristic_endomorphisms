@@ -80,7 +80,7 @@ intrinsic FractionalApproximation(a::FldComElt) -> FldRatElt
 
 CC := Parent(a); RR := RealField(CC);
 M := Matrix(RR, [ [ 1 ], [ -Real(a) ] ]);
-K := IntegralLeftKernel(M); q := K[1,1] / K[1,2];
+Ker := IntegralLeftKernel(M); q := Ker[1,1] / Ker[1,2];
 if (RR ! Abs(q - a)) lt RR`epscomp then
     return q;
 else
@@ -103,7 +103,6 @@ else
 end if;
 
 end intrinsic;
-
 
 
 intrinsic AlgebraizeElementInRelativeField(a::FldComElt, K::Fld) -> .

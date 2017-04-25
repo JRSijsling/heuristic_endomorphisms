@@ -13,8 +13,8 @@
     Structure.m
     SatoTate.m
     Lattice.m
-    Sagify.m
 
+    Sagify.m
     VerifySat.m
     VerifyRep.m
     DecProjs.m

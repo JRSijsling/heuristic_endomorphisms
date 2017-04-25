@@ -15,7 +15,8 @@
 
 
 intrinsic PeriodMatrix(eqsCC::SeqEnum : HaveOldenburg := false) -> AlgMatElt
-{Computes a (big) period matrix of the curve defined by the polynomials eqsCC.}
+{Computes a (big) period matrix of the curve defined by the complex polynomials
+eqsCC.}
 
 RCC := Parent(eqsCC[1]);
 if #GeneratorsSequence(RCC) eq 1 then

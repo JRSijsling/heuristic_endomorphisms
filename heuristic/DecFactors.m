@@ -10,6 +10,8 @@
  */
 
 
+// TODO: Singular, expert last one
+
 intrinsic FactorReconstructG1(P::., K::Fld) -> .
 {Reconstructs elliptic curve factor from a period lattice.}
 

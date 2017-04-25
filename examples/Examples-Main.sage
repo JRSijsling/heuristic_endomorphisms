@@ -40,8 +40,8 @@ h = x
 f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
 h = R(0)
 # Stupid split case
- f = x^6 + x^2 + 1
- h = 0
+f = x^6 + x^2 + 1
+h = 0
 # Test case where [RR, CC] occurs:
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x

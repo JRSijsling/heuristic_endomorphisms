@@ -10,8 +10,11 @@
  */
 
 
+// TODO: Make singular, use new data structure indices
+// Export first
+
 intrinsic CorrespondencesFromFactorsAndProjections(X::Crv, facs::List, projs::List) -> List
-{Determines morphisms and verifies.}
+{Determines morphisms from factors and analytic projections.}
 
 Mors := [* *];
 for i:=1 to #facs do
