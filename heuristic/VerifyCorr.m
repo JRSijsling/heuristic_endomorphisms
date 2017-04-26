@@ -22,7 +22,7 @@ g := 4*f + h^2; Y := HyperellipticCurve(g);
 /* We could look for points in the extension, but that typically takes too much
  * time, so we restrict to the base */
 Qs := RationalPoints(Y : Bound := Bound);
-Qs_nW := [ Q : Q in RationalPoints(Y : Bound := Bound) | not IsWeierstrassPlace(Place(Q)) ];
+Qs_nW := [ Q : Q in Qs | not IsWeierstrassPlace(Place(Q)) ];
 Qs_nW := [ Q : Q in Qs_nW | Q[3] ne 0 ];
 
 if #Qs_nW ne 0 then
@@ -55,16 +55,44 @@ return P;
 end intrinsic;
 
 
-intrinsic NonWeierstrassBasePointHyperelliptic(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
+intrinsic NonWeierstrassBasePointPlane(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
 
-error "Not implemented yet for plane curves";
-return 0;
+Ps := RationalPoints(X);
+Ps_nW := [ P : P in Ps | not IsWeierstrassPlace(Place(P)) ];
+if #Ps_nW ne 0 then
+    Hts := [ Maximum([ Height(c) : c in Eltseq(P) ]) : P in Ps_nW ];
+    min, ind := Minimum(Hts);
+    L := K;
+    P := Ps_nW[ind];
+    return P;
+end if;
+
+f := DefiningPolynomial(X);
+R<x,y,z> := PolynomialRing(K, 3);
+S<t> := PolynomialRing(K);
+
+/* Find non-Weierstrass point: */
+n0 := 0;
+while true do
+    h := hom< R -> S | [ -n0, t, 1 ]>;
+    Fac := Factorization(h(f));
+    for tup in Fac do
+        L := NumberField(tup[1]);
+        rt := Roots(h(f), L)[1][1];
+        XL := ChangeRing(X, L);
+        P := XL ! [ -n0, rt, 1 ];
+        if not IsWeierstrassPlace(Place(P)) then
+            return P;
+        end if;
+    end for;
+    n0 +:= 1;
+end while;
 
 end intrinsic;
 
 
-intrinsic NonWeierstrassBasePointHyperelliptic(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
+intrinsic NonWeierstrassBasePoint(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
 
 if Type(X) eq CrvHyp then
