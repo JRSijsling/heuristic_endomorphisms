@@ -21,7 +21,17 @@ return EndoStructBase;
 end intrinsic;
 
 
-intrinsic EndomorphismStructureBase(GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> List
+intrinsic EndomorphismStructureBase(GeoEndoRep::SeqEnum, K::Fld) -> List
+{Gives the endomorphism structure over the subfield K, starting from a list of representations.}
+
+L := BaseRing(GeoEndoRep[1][1]);
+GalK := SubgroupGeneratorsUpToConjugacy(L, K);
+return EndomorphismStructureBase(GeoEndoRep, GalK);
+
+end intrinsic;
+
+
+intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> List
 {Gives the endomorphism structure over the subfield corresponding to GalK, starting from a list of representations.}
 
 EndoStructBase := EndomorphismStructureBase(GeoEndoRep, GalK);
@@ -49,9 +59,10 @@ intrinsic EndomorphismAlgebraAndDescriptionBase(EndoRep::SeqEnum) -> List
 
 gensHom := [ gen[2] : gen in EndoRep ];
 // Creation of relevant algebras
-g := #Rows(Rs[1]) div 2;
+g := #Rows(gensHom[1]) div 2;
 // Ambient matrix algebra, plus generators of the endomorphism ring
-A := Algebra(MatrixRing(Rationals(), 2*g)); GensA := [ A ! Eltseq(R) : R in Rs ];
+A := Algebra(MatrixRing(Rationals(), 2*g));
+GensA := [ A ! Eltseq(genHom) : genHom in gensHom ];
 // As a subalgebra
 B := sub<A | GensA>; GensB := [ B ! gen : gen in GensA ];
 // As an associative algebra

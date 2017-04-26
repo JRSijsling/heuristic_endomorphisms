@@ -114,12 +114,12 @@ class OverField:
         self._list_ = magma.EndomorphismStructure(self._geo_rep_list_, self.field)
         self._desc_ = desc_structure(self._list_)
 
+    def __repr__(self):
+        return repr_over_field(self)
+
     def _calculate_dictionary_(self):
         if not hasattr(self, "_dict_"):
             self._dict_ = dict_structure(self._list_)
-
-    def __repr__(self):
-        return repr_over_field(self)
 
     def full(self):
         self._calculate_dictionary_()

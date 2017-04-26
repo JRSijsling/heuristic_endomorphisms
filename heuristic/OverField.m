@@ -37,7 +37,7 @@ Ker := VectorSpace(Rationals(), n);
 // under a given generator
 for genH in gensH do
     sigma := Gphi(genH);
-    Msigma := Matrix([ MatrixInBasis(ConjugateMatrix(sigma, genTan), genTans) : genTan in genTans ]);
+    Msigma := Matrix([ MatrixInBasis(ConjugateMatrix(sigma, genTan), gensTan) : genTan in gensTan ]);
     Msigma -:= IdentityMatrix(Rationals(), n);
     Ker meet:= Kernel(Msigma);
 end for;

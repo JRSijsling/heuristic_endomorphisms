@@ -41,13 +41,14 @@ Lat := [ ];
 // The code of this first (geometric) step is a copy of that below except for
 // shorthand extraction. Of course it could be simpler, but there is no time
 // loss as a result.
+H := Hs[1];
 OverK := [* *];
 gensH := Generators(H); GalK := [* gensH, Gphi *];
 K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
 // TODO: Indicate class group and treat the relative case (scaffolding in place).
 K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
 K_desc := [* K_seq, K *];
-EndoStruct := EndomorphismStructure(GeoEndoRep, GalK : Shorthand := Shorthand);
+EndoStruct := EndomorphismStructure(GeoEndoRep, GalK);
 Append(~OverK, K_desc);
 Append(~OverK, EndoStruct);
 Append(~Lat, OverK);
