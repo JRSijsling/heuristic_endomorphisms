@@ -10,20 +10,31 @@
  */
 
 
-intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, GalK::List) -> List
+intrinsic EndomorphismStructureBase(GeoEndoRep::SeqEnum, GalK::List) -> List
 {Gives the endomorphism structure over the subfield corresponding to GalK, starting from a list of representations.}
 
-EndoRep := EndomorphismBasis(GeoEndoRep, GalK);
-EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoRep);
-// TODO: Think about next step and its arguments
-SatoTate := SatoTateGroup(EndoRep, GeoEndoRep, GalK); Append(~EndoDesc, SatoTate);
+EndoRep := EndomorphismRepresentation(GeoEndoRep, GalK);
+EndoAlg, EndoDesc := EndomorphismAlgebraAndDescriptionBase(EndoRep);
+EndoStructBase := [* EndoRep, EndoAlg, EndoDesc *];
+return EndoStructBase;
+
+end intrinsic;
+
+
+intrinsic EndomorphismStructureBase(GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> List
+{Gives the endomorphism structure over the subfield corresponding to GalK, starting from a list of representations.}
+
+EndoStructBase := EndomorphismStructureBase(GeoEndoRep, GalK);
+EndoRep, EndoAlg, EndoDesc := Explode(EndoStructBase);
+SatoTate := SatoTateGroup(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
+Append(~EndoAlg, SatoTate); Append(~EndoDesc, SatoTate);
 EndoStruct := [* EndoRep, EndoAlg, EndoDesc *];
 return EndoStruct;
 
 end intrinsic;
 
 
-intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, K::Fld) -> List
+intrinsic EndomorphismStructure(GeoEndoRep::SeqEnum, K::Fld : Shorthand := "") -> List
 {Gives the endomorphism structure over the subfield K, starting from a list of representations.}
 
 L := BaseRing(GeoEndoRep[1][1]);
@@ -33,7 +44,7 @@ return EndomorphismStructure(GeoEndoRep, GalK);
 end intrinsic;
 
 
-intrinsic EndomorphismAlgebraAndDescription(EndoRep::SeqEnum) -> List
+intrinsic EndomorphismAlgebraAndDescriptionBase(EndoRep::SeqEnum) -> List
 {Gives the endomorphism structure, starting from a list of representations.}
 
 gensHom := [ gen[2] : gen in EndoRep ];
@@ -47,18 +58,18 @@ B := sub<A | GensA>; GensB := [ B ! gen : gen in GensA ];
 C := AssociativeAlgebra(B); GensC := [ C ! gen : gen in GensB ];
 
 EndoAlg := [* *]; EndoDesc := [* *];
-EndoAlgQQ, EndoDescQQ := EndomorphismAlgebraQQ(C);
+EndoAlgQQ, EndoDescQQ := EndomorphismAlgebraQQBase(C);
 Append(~EndoAlg, EndoAlgQQ); Append(~EndoDesc, EndoDescQQ);
-EndoAlgZZ, EndoDescZZ := EndomorphismAlgebraZZ(C, GensC);
+EndoAlgZZ, EndoDescZZ := EndomorphismAlgebraZZBase(C, GensC);
 Append(~EndoAlg, EndoAlgZZ); Append(~EndoDesc, EndoDescZZ);
-EndoAlgRR, EndoDescRR := EndomorphismAlgebraRR(C, EndoDescQQ);
+EndoAlgRR, EndoDescRR := EndomorphismAlgebraRRBase(C, EndoDescQQ);
 Append(~EndoAlg, EndoAlgRR); Append(~EndoDesc, EndoDescRR);
 return EndoAlg, EndoDesc;
 
 end intrinsic;
 
 
-intrinsic EndomorphismAlgebraQQ(C::AlgAss : Optimize := true) -> .
+intrinsic EndomorphismAlgebraQQBase(C::AlgAss : Optimize := true) -> .
 {Decribes the factors of endomorphism algebra.}
 // NOTE: Set Optimize to false if this ever becomes a problem (very unlikely)
 
@@ -128,13 +139,14 @@ return C, EndoDescQQ;
 end intrinsic;
 
 
-intrinsic EndomorphismAlgebraRR(C::AlgAss, EndoDescQQ::List) -> .
+intrinsic EndomorphismAlgebraRRBase(C::AlgAss, EndoDescQQ::List) -> .
 {Decribes the factors of endomorphism algebra tensored with RR.}
 
 EndoDescRR := [ ];
 for DescFactorQQ in EndoDescQQ do
     AlbertType := DescFactorQQ[1];
     e := #DescFactorQQ[2] - 1;
+
     if AlbertType eq "I" then
         EndoDescRR cat:= [ "RR" : i in [1..e] ];
     elif AlbertType eq "II" then
@@ -143,6 +155,7 @@ for DescFactorQQ in EndoDescQQ do
         EndoDescRR cat:= [ "HH" : i in [1..e] ];
     elif AlbertType eq "II or III" then
         EndoDescRR cat:= [ "M_2 (RR) or HH" : i in [1..e] ];
+
     elif AlbertType eq "IV" then
         d := DescFactorQQ[3];
         if d eq 1 then
@@ -158,7 +171,7 @@ return EndoDescRR, EndoDescRR;
 end intrinsic;
 
 
-intrinsic EndomorphismAlgebraZZ(C::AlgAss, GensC::SeqEnum : Optimize := true) -> .
+intrinsic EndomorphismAlgebraZZBase(C::AlgAss, GensC::SeqEnum : Optimize := true) -> .
 {Describes of the endomorphism ring.}
 
 // Calculating index

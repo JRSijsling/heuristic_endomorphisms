@@ -9,24 +9,67 @@
  *  See LICENSE.txt for license details.
  */
 
+intrinsic SatoTateGroup(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> MonStgElt
+{Determines Sato-Tate group by subgroup of Galois group.}
 
-intrinsic SatoTateGroupG2(EndList::List, GeoEndList::List, GalK::List) -> MonStgElt
+g := #Rows(EndoStructBase[1][1][1]);
+if g eq 2 then
+    return SatoTateGroupG2(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
+else
+    // TODO: Add other cases when they appear.
+    return "undef";
+end if;
+
+end intrinsic;
+
+
+intrinsic SatoTateGroup(EndoStructBase::List, GeoEndoRep::SeqEnum, K::Fld : Shorthand := "") -> MonStgElt
+{Determines Sato-Tate group over K.}
+
+L := BaseRing(EndoStructBase[1][1][1]);
+GalK := SubgroupGeneratorsUpToConjugacy(L, K);
+return SatoTateGroup(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
+
+end intrinsic;
+
+
+intrinsic SatoTateGroupG2(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> MonStgElt
 {Determines the Sato-Tate group in genus 2.}
 
-GeoEndoAlg, GeoEndoDesc := EndomorphismAlgebraAndDescription(GeoEndList);
-desc_RR_geo := GeoEndoAlg[3];
-Shorthand := SatoTateShorthandG2(desc_RR_geo);
-
-EndoReps := EndomorphismBasis(GeoEndList, GalK);
-EndoAlg, EndoDesc := EndomorphismAlgebraAndDescription(EndoReps);
-desc_RR := EndoAlg[3];
-
-AsAlg, Rs, As := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
+L := BaseRing(GeoEndoRep[1][1]);
 GensH, Gphi := Explode(GalK);
 H := sub< Domain(Gphi) | GensH >;
+
+// First case: we are already over the geometric field.
+// It suffices to calculate the shorthand and we do not have to manipulate the
+// geometric representation.
+if #H eq 1 then
+    Shorthand := SatoTateShorthandG2(EndoStructBase);
+    if Shorthand eq "A" then
+        return "USp(4)";
+    elif Shorthand eq "B" then
+        return "G_{3,3}";
+    elif Shorthand eq "C" then
+        return "G_{1,3}";
+    elif Shorthand eq "D" then
+        return "F";
+    elif Shorthand eq "E" then
+        return "E_1";
+    elif Shorthand eq "F" then
+        return "C_1";
+    end if;
+end if;
+
+// Determine the Shorthand if needed:
+if Shorthand eq "" then
+    GeoEndoStructBase := EndomorphismStructureBase(GeoEndoRep);
+    Shorthand := SatoTateShorthandG2(GeoEndoStructBase);
+end if;
+desc_RR := EndoStructBase[3][3];
 K := FixedField(L, H);
 
+// Usually the shorthand and endomorphism structure of the base field determine
+// everything; in the rare cases where they do not we recalculate a bit.
 if Shorthand eq "A" then
     return "USp(4)";
 
@@ -96,9 +139,8 @@ elif Shorthand eq "F" then
             // See Fité--Kedlaya--Rotger--Sutherland (4.3) for the next step
             H_prime := Center(H); GensH_prime := Generators(H_prime);
             GalK_prime := [* GensH_prime, Gphi *];
-            EndoReps_prime := EndomorphismBasis(GeoEndList, GalK_prime);
-            EndoAlg_prime, EndoDesc_prime := EndomorphismAlgebraAndDescription(EndoReps_prime);
-            desc_RR_prime := EndoAlg_prime[3];
+            EndoStruct_prime := EndomorphismStructureBase(GeoEndoRep, GalK_prime);
+            desc_RR_prime := EndoStruct_prime[3][3];
             if desc_RR_prime eq ["M_2 (RR)"] then
                 return "D_{6,1}";
             elif desc_RR_prime eq ["HH"] then
@@ -138,9 +180,8 @@ elif Shorthand eq "F" then
             // Here we take the unique subgroup of order 2:
             H_prime := Subgroups(H : OrderEqual := 2)[1]`subgroup; GensH_prime := Generators(H_prime);
             GalK_prime := [* GensH_prime, Gphi *];
-            EndoReps_prime := EndomorphismBasis(GeoEndList, GalK_prime);
-            EndoAlg_prime, EndoDesc_prime := EndomorphismAlgebraAndDescription(EndoReps_prime);
-            desc_RR_prime := EndoAlg_prime[3];
+            EndoStruct_prime := EndomorphismStructureBase(GeoEndoRep, GalK_prime);
+            desc_RR_prime := EndoStruct_prime[3][3];
             if desc_RR_prime eq ["M_2 (RR)"] then
                 return "C_{6,1}";
             elif desc_RR_prime eq ["HH"] then
@@ -151,7 +192,7 @@ elif Shorthand eq "F" then
             // In this case it suffices to check whether the polynomial that
             // defines the center of the geometric endomorphism ring in fact
             // has a root in the ground field:
-            f := DefiningPolynomial(BaseRing(GeoEndoAlg[1]));
+            f := DefiningPolynomial(L);
             if HasRoot(f, K) then
                 return "D_2";
             else
@@ -198,9 +239,24 @@ error Error("All cases in SatoTateGroupG2 fell through");
 end intrinsic;
 
 
-intrinsic SatoTateShorthandG2(desc_RR::SeqEnum) -> MonStgElt
+intrinsic SatoTateShorthand(GeoEndoStructBase::List) -> MonStgElt
 {Finds the letter describing the neutral connected component of the Sato-Tate group.}
 
+g := #Rows(GeoEndoStructBase[1][1][1]);
+if g eq 2 then
+    return SatoTateShorthandG2(GeoEndoStructBase);
+else
+    // TODO: Add other cases when they appear.
+    return "undef";
+end if;
+
+end intrinsic;
+
+
+intrinsic SatoTateShorthandG2(GeoEndoStructBase::List) -> MonStgElt
+{Finds the letter describing the neutral connected component of the Sato-Tate group.}
+
+descRR := GeoEndoStructBase[3][3];
 case desc_RR:
     when ["RR"]:       return "A";
     when ["RR", "RR"]: return "B";
@@ -211,33 +267,5 @@ case desc_RR:
     when ["M_2 (CC)"]: return "F";
     else: error Error("Shorthand algorithm obtains contradiction with classification");
 end case;
-
-end intrinsic;
-
-
-intrinsic SatoTateGroup(GeoEndList::List, GalK::List) -> List
-{Determines Sato-Tate group by subgroup of Galois group.}
-
-AsAlg, Rs, As := Explode(GeoEndList);
-g := #Rows(AsAlg[1]);
-
-if g eq 2 then
-    return SatoTateGroupG2(GeoEndList, GalK);
-else
-    // TODO: Add other cases when they appear.
-    return "";
-end if;
-
-end intrinsic;
-
-
-intrinsic SatoTateGroup(GeoEndList::List, K::Fld) -> List
-{Determines Sato-Tate group over K.}
-
-AsAlg, As, Rs := Explode(GeoEndList);
-L := BaseRing(AsAlg[1]);
-
-GalK := SubgroupGeneratorsUpToConjugacy(L, K);
-return SatoTateGroup(GeoEndList, GalK);
 
 end intrinsic;

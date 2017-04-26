@@ -103,7 +103,7 @@ end intrinsic;
 
 
 // TODO: Also for isogenies, naming issues
-intrinsic GeometricEndomorphismRepresentation(P::., F::Fld : Bound := Infinity()) -> .
+intrinsic GeometricEndomorphismRepresentation(P::., F::Fld : Bound := Infinity()) -> SeqEnum
 {Starting from a period matrix P, determines the endomorphisms of the corresponding abelian variety.}
 
 gensPart := GeometricEndomorphismRepresentationPartial(P);

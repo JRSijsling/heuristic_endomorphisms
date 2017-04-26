@@ -10,7 +10,7 @@
  */
 
 
-intrinsic EndomorphismBasis(GeoEndoRep::SeqEnum, GalK::List) -> SeqEnum
+intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, GalK::List) -> SeqEnum
 {Extracts basis over subfield determines by a list of automorphisms.}
 
 gensTan := [ gen[1] : gen in GeoEndoRep ];
@@ -62,12 +62,12 @@ return gens;
 end intrinsic;
 
 
-intrinsic EndomorphismBasis(GeoEndoRep::SeqEnum, K::Fld) -> SeqEnum
+intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, K::Fld) -> SeqEnum
 {Extracts basis over a general field.}
 
 L := BaseRing(GeoEndoRep[1][1]);
 GalK := SubgroupGeneratorsUpToConjugacy(L, K);
-return EndomorphismBasis(GeoEndoRep, GalK);
+return EndomorphismRepresentation(GeoEndoRep, GalK);
 
 end intrinsic;
 

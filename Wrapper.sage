@@ -28,7 +28,7 @@ class EndomorphismData:
         return self._P_
 
     def _calculate_geometric_representations_(self):
-        if not hasattr(self, "_geo_rep_dict_"):
+        if not hasattr(self, "_geo_rep_list_"):
             self._P_ = self.period_matrix()
             _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
             _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.base_field)
@@ -127,7 +127,7 @@ class OverField:
 
     def representation(self):
         self._calculate_dictionary_()
-        return self._dict_['representation']['tangent']
+        return magma([ gen['tangent'] for gen in self._dict_['representation'] ])
 
     def algebra(self):
         self._calculate_dictionary_()
@@ -159,14 +159,13 @@ class Lattice:
         self._calculate_dictionary_()
         return self._dict_
 
-    # TODO: The upcoming functions are boilerplate
     def representations(self):
         self._calculate_dictionary_()
         list_to_fill = [ ]
         for dict_pair in self._dict_:
             dict_to_fill = dict()
             dict_to_fill['field'] = dict_pair['field']['magma']
-            dict_to_fill['representation'] = dict_pair['structure']['representation']['tangent']
+            dict_to_fill['representation'] =  magma([ gen['tangent'] for gen in dict_pair['structure']['representation'] ])
             list_to_fill.append(dict_to_fill)
         return list_to_fill
 
@@ -191,7 +190,6 @@ class Lattice:
         return list_to_fill
 
     def pretty_print(self):
-        #return self._desc_
         return pretty_print_lattice_description(self._desc_, self.g, 'K', 'x')
 
 class Decomposition:

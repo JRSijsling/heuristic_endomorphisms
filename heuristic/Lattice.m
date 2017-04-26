@@ -34,20 +34,35 @@ gensApp := [ gen[3] : gen in GeoEndoRep ];
 L := BaseRing(gensTan[1]);
 Gp, Gf, Gphi := AutomorphismGroup(L);
 
-// TODO: Reverse or not (we want to calculate the geometric case first and can always reverse later)
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
-Sort(~Hs, CompareGroups); Reverse(~Hs);
+Sort(~Hs, CompareGroups);
 
 Lat := [ ];
-for H in Hs do
+// The code of this first (geometric) step is a copy of that below except for
+// shorthand extraction. Of course it could be simpler, but there is no time
+// loss as a result.
+OverK := [* *];
+gensH := Generators(H); GalK := [* gensH, Gphi *];
+K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
+// TODO: Indicate class group and treat the relative case (scaffolding in place).
+K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
+K_desc := [* K_seq, K *];
+EndoStruct := EndomorphismStructure(GeoEndoRep, GalK : Shorthand := Shorthand);
+Append(~OverK, K_desc);
+Append(~OverK, EndoStruct);
+Append(~Lat, OverK);
+Shorthand := SatoTateShorthand(EndoStruct);
+
+for H in Hs[2..#Hs] do
     OverK := [* *];
     gensH := Generators(H); GalK := [* gensH, Gphi *];
     K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
     // TODO: Indicate class group and treat the relative case (scaffolding in place).
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
     K_desc := [* K_seq, K *];
+    EndoStruct := EndomorphismStructure(GeoEndoRep, GalK : Shorthand := Shorthand);
     Append(~OverK, K_desc);
-    Append(~OverK, EndomorphismStructure(GeoEndoRep, GalK));
+    Append(~OverK, EndoStruct);
     Append(~Lat, OverK);
 end for;
 return Lat;

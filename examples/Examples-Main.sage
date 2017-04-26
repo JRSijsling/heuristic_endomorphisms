@@ -79,7 +79,7 @@ print Endo.endomorphism_field()
 ##print overK.algebra()
 ##print overK.description()
 #print overK.pretty_print()
-#
+
 #print "Examples of lattices:"
 ##print Endo.lattice()
 ##print Endo.lattice().representations()

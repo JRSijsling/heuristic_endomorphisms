@@ -26,8 +26,9 @@ _index_dict_['homology'] = 2
 _index_dict_['approx'] = 3
 # Magma indices for algebra key
 _index_dict_['alg_QQ'] = 1
-_index_dict_['gens_ZZ'] = 2
-_index_dict_['desc_RR'] = 3
+_index_dict_['alg_ZZ'] = 2
+_index_dict_['alg_RR'] = 3
+_index_dict_['alg_ST'] = 4
 # Sage indices for description key
 _index_dict_['factors_QQ'] = 0
 _index_dict_['desc_ZZ'] = 1
@@ -93,8 +94,9 @@ def dict_rep(rep):
 def dict_alg(rep):
     dict_to_fill = dict()
     dict_to_fill['alg_QQ'] = rep[_index_dict_['alg_QQ']]
-    dict_to_fill['gens_ZZ'] = rep[_index_dict_['gens_ZZ']]
-    dict_to_fill['desc_RR'] = rep[_index_dict_['desc_RR']]
+    dict_to_fill['alg_ZZ'] = rep[_index_dict_['alg_ZZ']]
+    dict_to_fill['alg_RR'] = rep[_index_dict_['alg_RR']]
+    dict_to_fill['alg_ST'] = rep[_index_dict_['alg_ST']]
     return dict_to_fill
 
 def dict_description(desc):
