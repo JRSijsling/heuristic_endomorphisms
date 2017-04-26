@@ -90,14 +90,15 @@ EndoDescQQ := [* *];
 for D in Ds do
     DescFactorQQ := [* *];
     E1 := AlgebraOverCenter(D);
-    F := ClearFieldDenominator(BaseRing(E1));
+    F := BaseRing(E1);
+    E2 := ChangeRing(E1, F);
+    F := ClearFieldDenominator(F);
     if (Type(F) eq FldNum and Optimize) then
         F := OptimizedRepresentation(F);
         F := ClearFieldDenominator(F);
     end if;
     FDesc := Eltseq(MinimalPolynomial(F.1));
     FDesc := [ Integers() ! c : c in FDesc ];
-    E2 := ChangeRing(E1, F);
 
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then

@@ -28,7 +28,7 @@ return CC;
 end intrinsic;
 
 
-intrinsic SetEpscomp(CC::FldCom, epscomp::.)
+intrinsic SetEpsComp(CC::FldCom, epscomp::.)
 {Modifies epscomp.}
 
 RR := RealField(CC);
@@ -39,7 +39,7 @@ end intrinsic;
 
 
 intrinsic SetEpsLLL(CC::FldCom, epsLLL::.)
-{Modifies epslll.}
+{Modifies epsLLL.}
 
 RR := RealField(CC);
 CC`epsLLL := CC ! epsLLL;
@@ -48,7 +48,7 @@ RR`epsLLL := RR ! epsLLL;
 end intrinsic;
 
 
-intrinsic SetEpsinv(CC::FldCom, epsinv::.)
+intrinsic SetEpsInv(CC::FldCom, epsinv::.)
 {Modifies epsinv.}
 
 RR := RealField(CC);

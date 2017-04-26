@@ -44,7 +44,11 @@ Lat := [ ];
 H := Hs[1];
 OverK := [* *];
 gensH := Generators(H); GalK := [* gensH, Gphi *];
-K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
+if Type(L) eq FldRat then
+    K := L;
+else
+    K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
+end if;
 // TODO: Indicate class group and treat the relative case (scaffolding in place).
 K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
 K_desc := [* K_seq, K *];

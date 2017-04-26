@@ -58,7 +58,7 @@ def pretty_print_field(desc_field):
         D = b**2 - 4*a*c
         return 'QQ (sqrt(%s))' % D.squarefree_part()
     else:
-        return 'QQ [x] / (%s)' % pretty_print_polynomial_list(desc_field)
+        return 'QQ [x] / (%s)' % pretty_print_polynomial_list(desc_field, 'x')
 
 def statements_all(desc, genus, str_field):
     statements= [ ]
@@ -128,21 +128,21 @@ def statement_factor_QQ(factor_QQ):
 def statement_factor_ZZ_maximal(factor_QQ, desc_ZZ, str_field):
     albert_type = factor_QQ[_index_dict_['albert_type']]
     field_pretty = pretty_print_field(factor_QQ[_index_dict_['base_field']])
-    ring_pretty = pretty_print_ring(factor_QQ[_index_dict_['base_field']])
-    index = desc_ZZ[_index_dict_['index']]
+    ring_pretty = pretty_print_ring(factor_QQ[_index_dict_['base_field']], 1)
     disc = factor_QQ[_index_dict_['disc']]
     dim_sqrt = factor_QQ[_index_dict_['dim_sqrt']]
     if albert_type == 'I':
-        return '%s' % (field_pretty, index)
+        return '%s' % ring_pretty
     elif albert_type == 'II':
         # TODO: Next line in greater generality over PIDs
-        if (disc == 1) and (index == 1) and field_pretty == 'QQ':
-            return 'M_%s (%s)' % (dim_sqrt, ring_pretty, index)
-    elif albert_type == 'IV' and (index == 1):
-        if (disc == 1) and (index == 1) and field_pretty == 'QQ':
-            return 'M_%s (%s)' % (dim_sqrt, ring_pretty, index)
-    else:
-        return 'Max (%s)' % statement_factor_QQ(factor_QQ)
+        if (disc == 1) and field_pretty == 'QQ':
+            return 'M_%s (%s)' % (dim_sqrt, ring_pretty)
+    elif albert_type == 'IV':
+        if dim_sqrt == 1:
+            return '%s' % ring_pretty
+        elif (disc == 1) and field_pretty == 'QQ':
+            return 'M_%s (%s)' % (dim_sqrt, ring_pretty)
+    return 'Max (%s)' % statement_factor_QQ(factor_QQ)
 
 def statement_factors_ZZ_index(factors_QQ, desc_ZZ, str_field):
     index = desc_ZZ[_index_dict_['index']]
@@ -179,7 +179,7 @@ def statement_eichler(desc, genus, str_field):
     if len(factors_QQ) == 1:
         factor_QQ = factors_QQ[0]
         albert_type = factor_QQ[_index_dict_['albert_type']]
-        is_eichler = desc_ZZ['is_eichler']
+        is_eichler = desc_ZZ[_index_dict_['is_eichler']]
         if albert_type != 'I' and is_eichler == 1:
             return "(Eichler)"
     return ""

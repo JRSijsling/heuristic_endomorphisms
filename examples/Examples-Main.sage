@@ -11,45 +11,47 @@
 
 load("../Initialize.sage")
 
-# Hyperelliptic tests:
+# Hyperelliptic tests
 R.<x> = PolynomialRing(QQ)
 #F.<r> = NumberField(x^2 - 2)
 #R.<x> = PolynomialRing(F)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 
-# Debug largest genus 2 case:
-f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
-h = R(0)
-# Debug RM over QQ:
-f = -x^5
-h = x^3 + x + 1
-# Debug splitting functionality:
-f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
-h = x
-# Debug (TODO: FindPoint):
-#f = 3*x^3 - 2*x^2 + 6*x + 2
-#h = x^3 + x
-# Debug (TODO: Subfield):
-#f = x^4 + x^3 + 2*x^2 + x + 1
-#h = x^3 + x^2 + x + 1
-# Debug (TODO: Point returned is wrong):
-#f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
-#h = 0
-# Debug genus 2 factor:
-f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
-h = R(0)
-# Stupid split case
-f = x^6 + x^2 + 1
-h = 0
-# Test case where [RR, CC] occurs:
+# Test case
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
-
+# RM over QQ
+f = -x^5
+h = x^3 + x + 1
+# Stupid split case
+f = x^6 + x^2 + 1
+h = R(0)
+# Genus 2 factor
+f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
+h = R(0)
+# Splitting functionality
+f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
+h = x
+# FindPoint
+f = 3*x^3 - 2*x^2 + 6*x + 2
+h = x^3 + x
+# Subfield
+f = x^4 + x^3 + 2*x^2 + x + 1
+h = x^3 + x^2 + x + 1
+# Wrong point
+f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
+h = 0
+# Largest genus 2 case
+f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
+h = R(0)
+# QM
+f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
+h = R(0)
 
 X = HyperellipticCurve(f, h)
 
-## Plane tests:
+## Plane tests
 #P2.<x,y,z> = ProjectiveSpace(QQ, 2)
 #F = x^4 - 3*x^3*y + 3*x^3*z + 3*x^2*y^2 + 4*x^2*y*z + x^2*z^2 + 2*x*y^3 + 4*x*y^2*z + x*y*z^2 - x*z^3 - 2*y^4 + 4*y^3*z - 2*y^2*z^2 + 3*y*^3 - 2*z^4
 #F = x^4 - 2*x^3*y + 14*x^2*y^2 - 16*x^2*y*z + 110*x^2*z^2 - 13*x*y^3 + 16*x*y^2*z - 110*x*y*z^2 + 52*y^4 - 4*y^3*z + 1199*y^2*z^2 + 3905*z^4
@@ -57,10 +59,10 @@ X = HyperellipticCurve(f, h)
 #a = 2
 #b = 3
 #F = b*z^4 + z*(x^3+y^3) + a*z^2*x*y + x^2*y^2
-## The main functionality:
+## The main functionality
 #X = Curve(P2.subscheme(F))
 
-# The main functionality:
+# The main functionality
 Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
 print "Period matrix:"
