@@ -49,6 +49,12 @@ h = R(0)
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
 
+# Test case
+#F.<r> = NumberField(x^2 - 2)
+#R.<x> = PolynomialRing(F)
+#f = x^5 + x + r
+#h = R(0)
+
 X = HyperellipticCurve(f, h)
 
 ## Plane tests

@@ -79,29 +79,31 @@ return K;
 end intrinsic;
 
 
-intrinsic EmbedAtInfinitePlace(f::RngUPolElt, iota::., RCC::RngUPol) -> RngUPolElt
+intrinsic EmbedAtInfinitePlace(f::RngUPolElt, RCC::RngUPol) -> RngUPolElt
 {Embeds the polynomial f in R into RCC via the infinite place iota.}
 
 if IsZero(f) then
     return RCC ! 0;
 else
+    F := BaseRing(f);
     prec := Precision(BaseRing(RCC));
     mons := Monomials(f);
-    return &+[ Evaluate(MonomialCoefficient(f, mon), iota : Precision := prec) * RCC.1^Degree(mon) : mon in mons ];
+    return &+[ Evaluate(MonomialCoefficient(f, mon), F`iota : Precision := prec) * RCC.1^Degree(mon) : mon in mons ];
 end if;
 
 end intrinsic;
 
 
-intrinsic EmbedAtInfinitePlace(f::RngMPolElt, iota::., RCC::RngMPol) -> RngMPolElt
+intrinsic EmbedAtInfinitePlace(f::RngMPolElt, RCC::RngMPol) -> RngMPolElt
 {Embeds the polynomial f in R into RCC via the infinite place iota.}
 
 if IsZero(f) then
     return RCC ! 0;
 else
+    F := BaseRing(f);
     prec := Precision(BaseRing(RCC));
     mons := Monomials(f);
-    return &+[ Evaluate(MonomialCoefficient(f, mon), iota : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];
+    return &+[ Evaluate(MonomialCoefficient(f, mon), F`iota : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];
 end if;
 
 end intrinsic;
@@ -122,7 +124,7 @@ if d eq 1 then
 else
     RCC := PolynomialRing(CC, d);
 end if;
-fsCC := [ EmbedAtInfinitePlace(f, F`iota, RCC) : f in fs ];
+fsCC := [ EmbedAtInfinitePlace(f, RCC) : f in fs ];
 return fsCC;
 
 end intrinsic;

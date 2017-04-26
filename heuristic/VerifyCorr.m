@@ -58,6 +58,9 @@ end intrinsic;
 intrinsic NonWeierstrassBasePointPlane(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
 
+// TODO: We can do a bit better in the case where there is a rational point by
+// taking lines through it.
+
 Ps := RationalPoints(X);
 Ps_nW := [ P : P in Ps | not IsWeierstrassPlace(Place(P)) ];
 if #Ps_nW ne 0 then
@@ -72,16 +75,46 @@ f := DefiningPolynomial(X);
 R<x,y,z> := PolynomialRing(K, 3);
 S<t> := PolynomialRing(K);
 
-/* Find non-Weierstrass point: */
+/* If there is a rational point, then take lines through it: */
+if #Ps ne 0 then
+    P0 := Ps[1];
+    x0, y0, z0 := Explode(Eltseq(P0));
+    n0 := 0;
+    while true do
+        if z0 ne 0 then
+            h := hom< R -> S | [ n0*t + x0, t + y0, z0 ]>;
+        else
+            h := hom< R -> S | [ n0*t + x0, y0, t + z0 ]>;
+        end if;
+        Fac := Factorization(h(f));
+        for tup in Fac do
+            fac := tup[1];
+            L := NumberField(fac);
+            rt := Roots(fac, L)[1][1];
+            XL := ChangeRing(X, L);
+            if z0 ne 0 then
+                P := XL ! [ n0*rt + x0, rt + y0, z0 ];
+            else
+                P := XL ! [ n0*rt + x0, y0, rt + z0 ];
+            end if;
+            if not IsWeierstrassPlace(Place(P)) then
+                return P;
+            end if;
+        end for;
+        n0 +:= 1;
+    end while;
+end if;
+
+/* Otherwise lines through (0,0,1): */
 n0 := 0;
 while true do
-    h := hom< R -> S | [ -n0, t, 1 ]>;
+    h := hom< R -> S | [ n0, t, 1 ]>;
     Fac := Factorization(h(f));
     for tup in Fac do
         L := NumberField(tup[1]);
         rt := Roots(h(f), L)[1][1];
         XL := ChangeRing(X, L);
-        P := XL ! [ -n0, rt, 1 ];
+        P := XL ! [ n0, rt, 1 ];
         if not IsWeierstrassPlace(Place(P)) then
             return P;
         end if;
