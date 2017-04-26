@@ -27,8 +27,6 @@ load('heuristic/Dicts.sage')
 load('heuristic/PrettyPrint.sage')
 load('Wrapper.sage')
 
-# import bounds as Bounds
-
 __boundsdir__ = os.getcwd() + '/bounds/'
 
 from sage.all import *
@@ -44,8 +42,6 @@ load(__boundsdir__ + "Genus2Factors.sage")
 load(__boundsdir__ + "PointCounting.sage")
 load(__boundsdir__ + "NonSquareCM.sage")
 load(__boundsdir__ + "ProductsEC.sage")
-
-
 
 os.chdir(cur)
 magma.chdir(cur)

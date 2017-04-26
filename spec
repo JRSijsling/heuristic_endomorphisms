@@ -16,7 +16,7 @@
 
     Sagify.m
     VerifySat.m
-    VerifyRep.m
+    VerifyCorr.m
     DecProjs.m
     DecFactors.m
     DecCorresps.m
@@ -29,7 +29,6 @@
   {
     Cantor.m
     Divisor.m
-    FindPoint.m
     FractionalCRT.m
     LocalInfo.m
   }

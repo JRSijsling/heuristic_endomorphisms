@@ -19,15 +19,18 @@ return VerticalJoin(HorizontalJoin(A, B), HorizontalJoin(C, D));
 end intrinsic;
 
 
-intrinsic RosatiInvolution(GeoEndList::List, A::.) -> .
+intrinsic RosatiInvolution(GeoEndoRep::SeqEnum, A::.) -> .
 {Returns the Rosati involution of A.}
 
-AsAlg, Rs, As := Explode(GeoEndList);
+gensTan := [ gen[1] : gen in GeoEndoRep ];
+gensHom := [ gen[2] : gen in GeoEndoRep ];
+gensApp := [ gen[3] : gen in GeoEndoRep ];
+Rs := gensHom;
 if IsExact(Parent(A)) then
-    B := AsAlg;
+    B := gensTan;
     s := Eltseq(MatrixInBasis(A, B));
 else
-    B := As;
+    B := gensApp;
     s := Eltseq(MatrixInBasis(A, B));
     s := [ Round(c) : c in s ];
 end if;
@@ -41,10 +44,10 @@ return Adagger;
 end intrinsic;
 
 
-intrinsic DegreeEstimate(GeoEndList::List, A::.) -> .
+intrinsic DegreeEstimate(GeoEndoRep::SeqEnum, A::.) -> .
 {Estimates degree of corresponding endomorphism.}
 
-Adagger := RosatiInvolution(GeoEndList, A);
+Adagger := RosatiInvolution(GeoEndoRep, A);
 tr := Trace(A * Adagger) * Factorial(#Rows(A) - 1);
 if IsExact(Parent(A)) then
     return (Integers() ! tr);

@@ -42,6 +42,11 @@ _index_dict_['disc'] = 3
 # Sage indices for desc_ZZ key
 _index_dict_['index'] = 0
 _index_dict_['is_eichler'] = 1
+# Decomposition. Note the compatility of the first field with what went before.
+_index_dict_['field'] = 1
+_index_dict_['idem'] = 2
+_index_dict_['factor'] = 3
+_index_dict_['proj'] = 4
 
 def sagify_description(desc_list):
     return eval(repr(magma.SagifyDescription(desc_list)))

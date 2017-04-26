@@ -18,9 +18,6 @@ R.<x> = PolynomialRing(QQ)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 
-# Test case
-f = x^5 + x^4 + 2*x^3 + x^2 + x
-h = x^2 + x
 # RM over QQ
 f = -x^5
 h = x^3 + x + 1
@@ -48,6 +45,9 @@ h = R(0)
 # QM
 f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
 h = R(0)
+# Test case
+f = x^5 + x^4 + 2*x^3 + x^2 + x
+h = x^2 + x
 
 X = HyperellipticCurve(f, h)
 
@@ -65,11 +65,16 @@ X = HyperellipticCurve(f, h)
 # The main functionality
 Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
-print "Period matrix:"
+#print "Period matrix:"
 #print Endo.period_matrix()
 
 print "Field of definition:"
 print Endo.endomorphism_field()
+
+#print "Testing Rosati and degree bound:"
+#A = Endo._geo_rep_list_[2][1]
+#print Endo.rosati_involution(A)
+#print Endo.degree_estimate(A)
 
 print "Over several fields:"
 #print Endo.geometric().representation()
