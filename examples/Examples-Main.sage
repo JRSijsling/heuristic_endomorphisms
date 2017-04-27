@@ -54,6 +54,7 @@ h = R(0)
 #h = R(0)
 
 X = HyperellipticCurve(f, h)
+Xs = [ X ]
 
 ## Plane tests
 #P2.<x,y,z> = ProjectiveSpace(QQ, 2)
@@ -65,74 +66,73 @@ X = HyperellipticCurve(f, h)
 #F = b*z^4 + z*(x^3+y^3) + a*z^2*x*y + x^2*y^2
 ## The main functionality
 #X = Curve(P2.subscheme(F))
+#Xs = [ X ]
 
 # LMFDB tests:
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, 0, 0, 1]), R([]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2, -8, -10, -5, 0, 1]), R([0, 0, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2]), R([0, 0, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, 1]), R([1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, -1]), R([1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 3, 6, 7, 6, 3, 1]), R([0, 1, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1]), R([1, 1, 1, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 2, 2, 1]), R([1, 1, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 1, -3, 2]), R([1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 1, 1]), R([1, 1, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1, 0, 2, 0, -2, 0, 1]), R([]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1, 0, 1]), R([]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1]), R([1, 0, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 0, -1, 1]), R([]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 0, 0, 1]), R([1, 0, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 1]), R([1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-7, 0, 0, 0, 1]), R([0, 1, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 0, 1]), R([1, 0, 0, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 1, 2, 1, 1]), R([1, 1, 1, 1]))
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 1, 1]), R([1, 0, 0, 1]))
-X = C
+Xs = [ ]
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, 0, 0, 1]), R([])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2, -8, -10, -5, 0, 1]), R([0, 0, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2]), R([0, 0, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, -1]), R([1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 3, 6, 7, 6, 3, 1]), R([0, 1, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1]), R([1, 1, 1, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 2, 2, 1]), R([1, 1, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 1, -3, 2]), R([1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 1, 1]), R([1, 1, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1, 0, 2, 0, -2, 0, 1]), R([])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1, 0, 1]), R([])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1]), R([1, 0, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 0, -1, 1]), R([])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 0, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-7, 0, 0, 0, 1]), R([0, 1, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 1, 2, 1, 1]), R([1, 1, 1, 1])); Xs.append(C)
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 1, 1]), R([1, 0, 0, 1])); Xs.append(C)
 
-# TODO: Algebraization problem
-#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -4, 6, 0, -3, 1]), R([]))
+for X in Xs:
+    # The main functionality
+    Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
-# The main functionality
-Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
+    #print "Period matrix:"
+    #print Endo.period_matrix()
 
-#print "Period matrix:"
-#print Endo.period_matrix()
+    print "Field of definition:"
+    print Endo.endomorphism_field()
 
-print "Field of definition:"
-print Endo.endomorphism_field()
+    #print "Testing Rosati and degree bound:"
+    #A = Endo._geo_rep_list_[2][1]
+    #print Endo.rosati_involution(A)
+    #print Endo.degree_estimate(A)
 
-#print "Testing Rosati and degree bound:"
-#A = Endo._geo_rep_list_[2][1]
-#print Endo.rosati_involution(A)
-#print Endo.degree_estimate(A)
+    print "Over several fields:"
+    #print Endo.geometric().representation()
+    #print Endo.over_base().representation()
+    K.<s> = NumberField(x^2 - 2)
+    overK = Endo.over_field(K)
+    print K
+    #print overK.representation()
+    #print overK.algebra()
+    #print overK.description()
+    print overK.pretty_print()
 
-print "Over several fields:"
-#print Endo.geometric().representation()
-#print Endo.over_base().representation()
-K.<s> = NumberField(x^2 - 2)
-overK = Endo.over_field(K)
-print K
-#print overK.representation()
-#print overK.algebra()
-#print overK.description()
-print overK.pretty_print()
+    print "Examples of lattices:"
+    #print Endo.lattice()
+    #print Endo.lattice().representations()
+    #print Endo.lattice().algebras()
+    #print Endo.lattice().descriptions()
+    print Endo.lattice().pretty_print()
 
-print "Examples of lattices:"
-#print Endo.lattice()
-#print Endo.lattice().representations()
-#print Endo.lattice().algebras()
-#print Endo.lattice().descriptions()
-print Endo.lattice().pretty_print()
+    #print "Verification:"
+    #print Endo.verify()
 
-#print "Verification:"
-#print Endo.verify()
-
-#print "Decomposition:"
-#Dec = Endo.decomposition()
-#print Dec
-#print Dec.decomposition_field()
-#print Dec.idempotents()
-#print Dec.projections()
-#print Dec.factors()
-#print Dec.verify()
-#print Dec.morphisms()
+    #print "Decomposition:"
+    #Dec = Endo.decomposition()
+    #print Dec
+    #print Dec.decomposition_field()
+    #print Dec.idempotents()
+    #print Dec.projections()
+    #print Dec.factors()
+    #print Dec.verify()
+    #print Dec.morphisms()

@@ -26,4 +26,13 @@ print AlgebraizeElementInRelativeField(aCC, K);
 print Eltseq(s);
 print Eltseq(Eltseq(s)[1]);
 
+R<x> := PolynomialRing(Rationals());
+pols :=
+[
+x^2 + 1, x^2 + 4, x^2 + 1, x^2 + 1, x^2 + 2, x^2 + 1/2, x^2 - 2, x^2 - 2, x^2 - 1/2, x^2 - 2, x - 1, x, x, x - 1, x, x
+];
+
+print pols;
+print RelativeSplittingFieldExtra(pols);
+
 exit;
