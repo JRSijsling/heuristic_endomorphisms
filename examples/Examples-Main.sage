@@ -11,10 +11,8 @@
 
 load("../Initialize.sage")
 
-# Hyperelliptic tests
+# Hyperelliptic tests over QQ
 R.<x> = PolynomialRing(QQ)
-#F.<r> = NumberField(x^2 - 2)
-#R.<x> = PolynomialRing(F)
 
 # Curve input: specify g and h in its equation y^2 + h y = g.
 
@@ -42,17 +40,17 @@ h = 0
 # Largest genus 2 case
 f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
 h = R(0)
-# QM
-f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
-h = R(0)
 # Test case
 f = x^5 + x^4 + 2*x^3 + x^2 + x
 h = x^2 + x
+# QM
+f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
+h = R(0)
 
-# Test case
-#F.<r> = NumberField(x^2 - 2)
+# Hyperelliptic tests over extension
+#F.<r> = NumberField(x^2 - 5)
 #R.<x> = PolynomialRing(F)
-#f = x^5 + x + r
+#f = x^5 + r*x^3 + x
 #h = R(0)
 
 X = HyperellipticCurve(f, h)
@@ -67,6 +65,32 @@ X = HyperellipticCurve(f, h)
 #F = b*z^4 + z*(x^3+y^3) + a*z^2*x*y + x^2*y^2
 ## The main functionality
 #X = Curve(P2.subscheme(F))
+
+# LMFDB tests:
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, 0, 0, 1]), R([]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2, -8, -10, -5, 0, 1]), R([0, 0, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2]), R([0, 0, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, 1]), R([1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, -1]), R([1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 3, 6, 7, 6, 3, 1]), R([0, 1, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1]), R([1, 1, 1, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 2, 2, 1]), R([1, 1, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 1, -3, 2]), R([1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 1, 1]), R([1, 1, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1, 0, 2, 0, -2, 0, 1]), R([]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1, 0, 1]), R([]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1]), R([1, 0, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 0, -1, 1]), R([]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 0, 0, 1]), R([1, 0, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 1]), R([1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-7, 0, 0, 0, 1]), R([0, 1, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 0, 1]), R([1, 0, 0, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 1, 2, 1, 1]), R([1, 1, 1, 1]))
+R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 1, 1]), R([1, 0, 0, 1]))
+X = C
+
+# TODO: Algebraization problem
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -4, 6, 0, -3, 1]), R([]))
 
 # The main functionality
 Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
@@ -85,7 +109,7 @@ print Endo.endomorphism_field()
 print "Over several fields:"
 #print Endo.geometric().representation()
 #print Endo.over_base().representation()
-K.<r> = NumberField(x^2 - 2)
+K.<s> = NumberField(x^2 - 2)
 overK = Endo.over_field(K)
 print K
 #print overK.representation()

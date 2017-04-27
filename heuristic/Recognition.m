@@ -18,6 +18,7 @@ intrinsic RelativeMinimalPolynomial(a::FldComElt, F::Fld) -> RngUPolElt
 // store it as part of the structure of F.
 degF := Degree(F); R<x> := PolynomialRing(F);
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
+RCC := PolynomialRing(CC);
 
 // NOTE: Here height is a parameter to play with.
 degf := 0; height := 1; height0 := 100;
@@ -48,7 +49,8 @@ while true do
             Fac := Factorization(f);
             for tup in Fac do
                 g := tup[1];
-                if (RR ! Abs(Evaluate(g, a))) lt RR`epscomp then
+                gCC := EmbedAtInfinitePlace(g, RCC);
+                if RR ! Abs(Evaluate(gCC, a)) lt RR`epscomp then
                     return g;
                 end if;
             end for;
@@ -118,13 +120,11 @@ M := Transpose(Matrix(CC, [ MLine ]));
 // Now split and take an IntegralLeftKernel
 MSplit := SplitMatrix(M);
 Ker := IntegralLeftKernel(MSplit);
-print Ker;
 for row in Rows(Ker) do
     den := row[#Eltseq(row)];
     if den ne 0 then
         sCC := &+[ &+[ row[i*degF + j + 1]*genF^j : j in [0..(degF - 1)] ] * genK^i : i in [0..(degK - 1)] ] / den;
         // Check correct to given precision
-        print Abs(sCC - a);
         if (RR ! Abs(sCC - a)) lt RR`epscomp then
             s := &+[ &+[ row[i*degF + j + 1]*F.1^j : j in [0..(degF - 1)] ] * K.1^i : i in [0..(degK - 1)] ] / den;
             return s;

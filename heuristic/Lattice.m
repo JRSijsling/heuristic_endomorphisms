@@ -25,7 +25,7 @@ end if;
 end function;
 
 
-intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum) -> SeqEnum
+intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum : Optimize := false) -> SeqEnum
 {Returns the lattice of endomorphisms by (conjugacy class of) subfield.}
 
 gensTan := [ gen[1] : gen in GeoEndoRep ];
@@ -49,6 +49,13 @@ if Type(L) eq FldRat then
 else
     K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
 end if;
+
+K := ClearFieldDenominator(K);
+if (Type(K) eq FldNum and Optimize) then
+    K := OptimizedRepresentation(K);
+    K := ClearFieldDenominator(K);
+end if;
+
 // TODO: Indicate class group and treat the relative case (scaffolding in place).
 K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
 K_desc := [* K_seq, K *];
@@ -62,6 +69,13 @@ for H in Hs[2..#Hs] do
     OverK := [* *];
     gensH := Generators(H); GalK := [* gensH, Gphi *];
     K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
+
+    K := ClearFieldDenominator(K);
+    if (Type(K) eq FldNum and Optimize) then
+        K := OptimizedRepresentation(K);
+        K := ClearFieldDenominator(K);
+    end if;
+
     // TODO: Indicate class group and treat the relative case (scaffolding in place).
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
     K_desc := [* K_seq, K *];

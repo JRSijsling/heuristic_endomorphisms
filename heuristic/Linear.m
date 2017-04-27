@@ -96,22 +96,16 @@ end intrinsic;
 intrinsic ConjugateMatrix(sigma::Map, M::.) -> .
 {Transforms the matrix M by the field automorphism sigma.}
 
-return Matrix([[sigma(elt) : elt in Eltseq(row)] : row in Rows(M)]);
+return Matrix([ [ sigma(elt) : elt in Eltseq(row) ] : row in Rows(M) ]);
 
 end intrinsic;
 
 
 intrinsic MatrixInBasis(M::., Bs::SeqEnum) -> .
-{Writes M as a rational combination of the elements of B.}
+{Writes M as a combination of the elements of B over the rationals, provided that we are only two levels above.}
 
-MSeq := Eltseq(M);
-if Type(MSeq[1]) eq FldRat then
-    MM := Matrix([ Eltseq(M) ]);
-    MBs := Matrix([ Eltseq(B) : B in Bs ]);
-    return Matrix(Solution(MBs, MM));
-end if;
-MM := Matrix([&cat[Eltseq(m) : m in Eltseq(M)]]);
-MBs := Matrix([&cat[Eltseq(b) : b in Eltseq(B)] : B in Bs]);
+MBs := Matrix(Rationals(), [ &cat[ &cat[ Eltseq(c) : c in Eltseq(b) ] : b in Eltseq(B) ] : B in Bs ]);
+MM := Matrix(Rationals(), [ &cat[ &cat[ Eltseq(c) : c in Eltseq(m) ] : m in Eltseq(M) ] ]);
 return Matrix(Solution(MBs, MM));
 
 end intrinsic;

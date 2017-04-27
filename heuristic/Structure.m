@@ -195,20 +195,25 @@ test, ind := IsSquare(DOC / DOM);
 Ds := DirectSumDecomposition(C);
 if #Ds eq 1 then
     E1, f1 := AlgebraOverCenter(C);
-    F := ClearFieldDenominator(BaseRing(E1));
-    if (Type(F) eq FldNum and Optimize) then
-        F := OptimizedRepresentation(F);
-        F := ClearFieldDenominator(F);
-    end if;
-    E2, f2 := ChangeRing(E1, F);
+    //F := ClearFieldDenominator(BaseRing(E1));
+    //if (Type(F) eq FldNum and Optimize) then
+    //    F := OptimizedRepresentation(F);
+    //    F := ClearFieldDenominator(F);
+    //end if;
+    //E2, f2 := ChangeRing(E1, F);
+    F := BaseRing(E1);
+    E2 := E1;
     test, d := IsSquare(Dimension(E2));
-    if d eq 2 then
+    if d eq 2 and Type(F) eq FldRat then
         test, Q, f3 := IsQuaternionAlgebra(E2);
         if test then
-            f := f1 * f2 * f3;
+            //f := f1 * f2 * f3;
+            f := f1 * f3;
             OO := QuaternionOrder([ f(gen) : gen in GensC ]);
             if IsEichler(OO) then
                 return GensC, [ Integers() ! ind, 1 ];
+            else
+                return GensC, [ Integers() ! ind, 0 ];
             end if;
         end if;
     end if;

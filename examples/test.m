@@ -12,4 +12,18 @@ X := Curve(Scheme(P2, f));
 P := NonWeierstrassBasePoint(X, Rationals());
 print Parent(P[1]);
 
+R<x> := PolynomialRing(Rationals());
+F<r> := NumberFieldExtra(x^2 - 2);
+R<x> := PolynomialRing(F);
+K<s> := NumberFieldExtra(x^2 - (1 + r));
+print K;
+
+prec := 500; CC<I> := ComplexFieldExtra(prec);
+aCC := CC ! Evaluate(s, K`iota : Precision := prec);
+print RelativeMinimalPolynomial(aCC, F);
+print AlgebraizeElementInRelativeField(aCC, K);
+
+print Eltseq(s);
+print Eltseq(Eltseq(s)[1]);
+
 exit;

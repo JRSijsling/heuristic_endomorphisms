@@ -148,11 +148,11 @@ def statement_factors_ZZ_index(factors_QQ, desc_ZZ, str_field):
     index = desc_ZZ[_index_dict_['index']]
     if len(factors_QQ) == 1:
         factor_QQ = factors_QQ[0]
-        desc_field = factor_QQ[_index_dict_['base_field']]
-        statement = pretty_print_ring(desc_field, index)
-    else:
-        statement = "Sub (End (J_%s) ox QQ, %s)" % (str_field, index)
-    return statement
+        albert_type = factor_QQ[_index_dict_['albert_type']]
+        if albert_type == 'I':
+            desc_field = factor_QQ[_index_dict_['base_field']]
+            return pretty_print_ring(desc_field, index)
+    return "Sub (End (J_%s) ox QQ, %s)" % (str_field, index)
 
 def statement_sato_tate_group(desc, genus, str_field):
     sato_tate = desc[_index_dict_['sato_tate']]
@@ -180,8 +180,10 @@ def statement_eichler(desc, genus, str_field):
         factor_QQ = factors_QQ[0]
         albert_type = factor_QQ[_index_dict_['albert_type']]
         is_eichler = desc_ZZ[_index_dict_['is_eichler']]
-        if albert_type != 'I' and is_eichler == 1:
+        if is_eichler == 1:
             return "(Eichler)"
+        elif is_eichler == 0:
+            return "(non-Eichler)"
     return ""
 
 def statement_gl2(desc, genus, str_field):
@@ -197,10 +199,10 @@ def statement_gl2(desc, genus, str_field):
 
 def statement_simple(desc, genus, str_field):
     factors_QQ = desc[_index_dict_['factors_QQ']]
-    if not len(factors_QQ) == 1:
+    if len(factors_QQ) == 1:
         factor_QQ = factors_QQ[0]
         dim_sqrt = factor_QQ[_index_dict_['dim_sqrt']]
         disc = factor_QQ[_index_dict_['disc']]
-        if dim_sqrt > 1 and disc != 1:
+        if dim_sqrt == 1 or disc != 1:
             return "simple"
     return "not simple"
