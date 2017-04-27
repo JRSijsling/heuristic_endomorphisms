@@ -94,7 +94,7 @@ M := Matrix(Integers(), [ [ b[i] : b in BOK ] cat [ KroneckerDelta(1, i)*n ] cat
 Lat := Lattice(Kernel(Transpose(M)));
 v := ShortestVectors(Lat)[1];
 if v[#BOK + 1] eq 0 then
-    return 0;
+    error "Division by zero";
 end if;
 return K ! ( (-1/v[#BOK + 1]) * &+[ v[i] * BOK[i] : i in [1..#BOK] ] );
 

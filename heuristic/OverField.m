@@ -113,7 +113,6 @@ else
     // Case where we need to go down all the way
     GalK := [* Generators(Gp), Gphi *];
 end if;
-
 return GalK;
 
 end intrinsic;

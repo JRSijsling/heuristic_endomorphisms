@@ -36,11 +36,11 @@ elif #GeneratorsSequence(RCC) eq 2 then
     SCC<x0,x1,x2> := Parent(F); CC := BaseRing(SCC); RCC<x,y> := PolynomialRing(CC, 2);
     h := hom<SCC -> RCC | [x,y,1]>; f := h(F);
     if not HaveOldenburg then
-        return "No functionality for plane curves available";
+        error "No functionality for plane curves available";
     end if;
     return Transpose(Matrix(BaseRing(F), PeriodMatrix(f)));
 else
-    return "No functionality for general curves available";
+    error "No functionality for general curves available";
 end if;
 
 end intrinsic;

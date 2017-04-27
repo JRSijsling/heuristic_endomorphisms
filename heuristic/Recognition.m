@@ -13,9 +13,10 @@
 intrinsic RelativeMinimalPolynomial(a::FldComElt, F::Fld) -> RngUPolElt
 {Determines a relative minimal polynomial of the element a with respect to the stored infinite place of F.}
 
-// NOTE: The speed of this relies on Magma storing the evaluation of a
-// generator (called iota below). It seems to do this well. Otherwise we should
-// store it as part of the structure of F.
+// NOTE: This algorithm will always terminate, but the result may be nonsense
+// if the element is rather transcendent. There should be a better way to
+// terminate but for now I do not see how.
+
 degF := Degree(F); R<x> := PolynomialRing(F);
 CC := Parent(a); RR := RealField(CC); prec := Precision(CC);
 RCC := PolynomialRing(CC);
