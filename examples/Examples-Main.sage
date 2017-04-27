@@ -37,7 +37,7 @@ h = x^3 + x^2 + x + 1
 # Wrong point
 f = x^6 - 8*x^4 - 8*x^3 + 8*x^2 + 12*x - 8
 h = 0
-# Largest genus 2 case
+# Largest genus 2 case (takes a LOT of time)
 f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
 h = R(0)
 # QM
@@ -125,6 +125,7 @@ for X in Xs:
     print Endo.lattice().pretty_print()
 
     print "Verification:"
+    print Endo.dimension_algebra()
     #print Endo.base_point()
     #A = Endo._geo_rep_dict_[2]['tangent']
     #print A

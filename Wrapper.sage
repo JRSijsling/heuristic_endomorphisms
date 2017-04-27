@@ -64,6 +64,9 @@ class EndomorphismData:
     def degree_estimate(self, A):
         return magma.DegreeEstimate(self._geo_rep_list_, A)
 
+    def dimension_algebra(self):
+        return len(self._geo_rep_list_)
+
     def verify_algebra(self):
         # TODO: Integrate over Davide and Edgar
         self._test_alg_ = True
