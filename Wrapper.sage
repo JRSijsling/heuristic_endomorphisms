@@ -80,6 +80,7 @@ class EndomorphismData:
 
     def correspondence(self, A):
         P = self.base_point()
+        # TODO: Add bounds
         test, cert = magma.Correspondence(self.X, P, self.X, P, A, nvals = 2)
         return cert
 

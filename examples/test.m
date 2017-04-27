@@ -31,8 +31,13 @@ pols :=
 [
 x^2 + 1, x^2 + 4, x^2 + 1, x^2 + 1, x^2 + 2, x^2 + 1/2, x^2 - 2, x^2 - 2, x^2 - 1/2, x^2 - 2, x - 1, x, x, x - 1, x, x
 ];
-
-print pols;
 print RelativeSplittingFieldExtra(pols);
+
+R<x> := PolynomialRing(Rationals());
+K<r> := NumberField(x^2 - 2);
+L<s> := NumberField(x^2 - 3);
+M, phiK, phiK := RelativeCompositum(K, K);
+M, phiK, phiL := RelativeCompositum(K, L);
+print phiL;
 
 exit;

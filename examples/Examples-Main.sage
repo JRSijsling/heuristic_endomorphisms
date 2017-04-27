@@ -40,12 +40,12 @@ h = 0
 # Largest genus 2 case
 f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
 h = R(0)
-# Test case
-f = x^5 + x^4 + 2*x^3 + x^2 + x
-h = x^2 + x
 # QM
 f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
 h = R(0)
+# Test case
+f = x^5 + x^4 + 2*x^3 + x^2 + x
+h = x^2 + x
 
 # Hyperelliptic tests over extension
 #F.<r> = NumberField(x^2 - 5)
@@ -69,27 +69,27 @@ Xs = [ X ]
 #Xs = [ X ]
 
 # LMFDB tests:
-Xs = [ ]
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, 0, 0, 1]), R([])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2, -8, -10, -5, 0, 1]), R([0, 0, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2]), R([0, 0, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, -1]), R([1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 3, 6, 7, 6, 3, 1]), R([0, 1, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1]), R([1, 1, 1, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 2, 2, 1]), R([1, 1, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 1, -3, 2]), R([1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 1, 1]), R([1, 1, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1, 0, 2, 0, -2, 0, 1]), R([])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1, 0, 1]), R([])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1]), R([1, 0, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 0, -1, 1]), R([])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 0, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-7, 0, 0, 0, 1]), R([0, 1, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 1, 2, 1, 1]), R([1, 1, 1, 1])); Xs.append(C)
-R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 1, 1]), R([1, 0, 0, 1])); Xs.append(C)
+#Xs = [ ]
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, 0, 0, 1]), R([])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2, -8, -10, -5, 0, 1]), R([0, 0, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-2]), R([0, 0, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 0, -1]), R([1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 3, 6, 7, 6, 3, 1]), R([0, 1, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1]), R([1, 1, 1, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 2, 2, 1]), R([1, 1, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 1, -3, 2]), R([1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 1, 1]), R([1, 1, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1, 0, 2, 0, -2, 0, 1]), R([])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 0, -1, 0, 1]), R([])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-1]), R([1, 0, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, -1, 1, 0, -1, 1]), R([])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 0, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 0, 0, 0, 1]), R([1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([-7, 0, 0, 0, 1]), R([0, 1, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 0, 1, 0, 1]), R([1, 0, 0, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([1, 1, 2, 1, 1]), R([1, 1, 1, 1])); Xs.append(C)
+#R.<x> = PolynomialRing(QQ); C = HyperellipticCurve(R([0, 1, 1]), R([1, 0, 0, 1])); Xs.append(C)
 
 for X in Xs:
     # The main functionality
@@ -124,8 +124,12 @@ for X in Xs:
     #print Endo.lattice().descriptions()
     print Endo.lattice().pretty_print()
 
-    #print "Verification:"
-    #print Endo.verify()
+    print "Verification:"
+    #print Endo.base_point()
+    #A = Endo._geo_rep_dict_[2]['tangent']
+    #print A
+    #print Endo.correspondence(A)
+    print Endo.verify()
 
     #print "Decomposition:"
     #Dec = Endo.decomposition()

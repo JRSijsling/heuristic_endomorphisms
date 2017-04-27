@@ -10,8 +10,8 @@
  */
 
 
-// TODO: Make something similar for the planar case, Bound search only in case
-// over QQ, correct field extension, allow for infty by patch, relative splitting field
+// TODO: Bound search only in case over QQ, allow for infty by patch, relative
+// splitting field
 
 intrinsic NonWeierstrassBasePointHyperelliptic(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
@@ -57,9 +57,6 @@ end intrinsic;
 
 intrinsic NonWeierstrassBasePointPlane(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
-
-// TODO: We can do a bit better in the case where there is a rational point by
-// taking lines through it.
 
 Ps := RationalPoints(X);
 Ps_nW := [ P : P in Ps | not IsWeierstrassPlace(Place(P)) ];
@@ -139,24 +136,21 @@ end if;
 end intrinsic;
 
 
-intrinsic Correspondence(X::Crv, P::Pt, Y::Crv, Q::Pt, A::.) -> .
+intrinsic Correspondence(X::Crv, P::SeqEnum, Y::Crv, Q::SeqEnum, A::.) -> .
 {Gives certificate.}
-// TODO: Update this after changing DivisorFromMatrixSplit
-// TODO: Add decent compositum (currently we assume that Q is defined over the field for P)
-// TODO: Carry P around or make it part fof object?
-// TODO: Correct matrices (we have transformed the curves). This should arguably happen before.
+// TODO: Add relative compositum (currently we assume that Q is defined over the field for P)
 
-L := Parent(P[1]);
-XL := ChangeRing(X, L); YL := ChangeRing(Y, L);
-PL := XL ! P; QL := YL ! Q;
-AL := ChangeRing(A, L);
+K := Parent(P[1]); L := Parent(Q[1]);
+M, phiK, phiL := RelativeCompositum(K, L);
+XM := ChangeRing(X, M); YM := ChangeRing(Y, M);
+PM := [ phiK(c) : c in P ]; PM := XM ! P;
+QM := [ phiL(c) : c in Q ]; QM := YM ! Q;
+AM := ChangeRing(A, M);
 
-if IsScalar(AL) then
+if IsScalar(AM) then
     return true, "Scalar: OK";
 else
-    // TODO: Add theoretical lower bounds (but for now we can experiment)
-    LowerBound := 1;
-    return true, DivisorFromMatrixSplit(XL, PL, YL, QL, Transpose(AL) : LowerBound := LowerBound);
+    return DivisorFromMatrixSplit(XM, PM, YM, QM, Transpose(AM));
 end if;
 
 end intrinsic;

@@ -239,3 +239,27 @@ intrinsic RelativeSplittingFieldExtra(f::RngUPolElt) -> FldNum
 return RelativeSplittingFieldExtra([ f ]);
 
 end intrinsic;
+
+
+intrinsic RelativeCompositum(K::Fld, L::Fld) -> Fld
+{Relative compositum.}
+
+F := BaseRing(K); M := K;
+g := MinimalPolynomial(L.1, F);
+tup := Factorization(g, K)[1];
+M := ExtendRelativeSplittingField(K, F, tup[1]);
+M := ClearFieldDenominator(M);
+testK, phiK := IsSubfield(K, M); testL, phiL := IsSubfield(L, M);
+return M, phiK, phiL;
+
+end intrinsic;
+
+
+intrinsic RelativeCompositumExtra(K::Fld, L::Fld) -> Fld
+{Relative compositum with an embedding. The latter will in general not be compatible.}
+
+M := RelativeCompositum(K, L);
+DefineOrExtendInfinitePlace(M);
+return M;
+
+end intrinsic;

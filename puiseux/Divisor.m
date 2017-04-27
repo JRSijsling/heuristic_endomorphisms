@@ -312,7 +312,7 @@ return false;
 end function;
 
 
-intrinsic DivisorFromMatrix(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity()) -> Sch
+intrinsic DivisorFromMatrix(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity()) -> BoolElt, .
 {Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
 representation of a projection morphism on the standard basis of differentials,
 returns a corresponding divisor (if it exists). The parameter Margin specifies
@@ -354,19 +354,22 @@ while true do
             vprintf EndoCheck : "done.\n";
             if test2 then
                 vprintf EndoCheck : "Divisor found!\n";
-                return S;
+                return true, S;
             end if;
         //end if;
     end for;
 
     /* If that does not work, give up and try one degree higher: */
     d +:= 1;
+    if d gt UpperBound then
+        return false, "";
+    end if;
 end while;
 
 end intrinsic;
 
 
-intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 100) -> Sch
+intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 100) -> BoolElt, .
 {Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
 representation of a projection morphism on the standard basis of differentials,
 returns a corresponding divisor (if it exists). The parameter Margin specifies
@@ -454,6 +457,9 @@ while true do
          * Note that d is initialized in the outer loop,
          * so that we keep the degree that works. */
         d +:= 1;
+        if d gt UpperBound then
+            return false, "";
+        end if;
     end while;
     Append(~DEss_red, DefiningEquations(S_red));
 
@@ -502,7 +508,7 @@ while true do
         vprintf EndoCheck : "done.\n";
         if test2 then
             vprintf EndoCheck : "Divisor found!\n";
-            return S;
+            return true, S;
         end if;
     end if;
 end while;
