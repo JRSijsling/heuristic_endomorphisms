@@ -18,8 +18,8 @@ g4CC := 120 * (1/P[1])^4 * ZetaFunction(RR, 4) * Eisenstein(4, P);
 g6CC := 280 * (1/P[1])^6 * ZetaFunction(RR, 6) * Eisenstein(6, P);
 g4 := AlgebraizeElementInRelativeField(g4CC, K);
 g6 := AlgebraizeElementInRelativeField(g6CC, K);
-// Division by 4 because of our conventions on period matrices
-R<x> := PolynomialRing(K); f := (4*x^3 - g4*x - g6)/4; h := 0;
+// Division by 16 because of our conventions on period matrices
+R<x> := PolynomialRing(K); f := (4*x^3 - g4*x - g6)/16; h := 0;
 return HyperellipticCurve(f, h);
 
 end intrinsic;

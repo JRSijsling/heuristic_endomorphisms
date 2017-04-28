@@ -19,7 +19,6 @@
     VerifyCorr.m
     DecProjs.m
     DecFactors.m
-    DecCorresps.m
   }
   polarization
   {
