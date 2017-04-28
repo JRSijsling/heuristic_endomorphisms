@@ -10,12 +10,15 @@
  */
 
 
-intrinsic IdempotentsFromLattice(Lat::List) -> .
+intrinsic IdempotentsFromLattice(Lat::SeqEnum) -> .
 {Finds idempotents over the smallest possible field by running over Lat.}
 
 Lat := Reverse(Lat);
 GeoEndoStruct := Lat[#Lat][2];
 num_idemsgeo := NumberOfIdempotentsFromStructure(GeoEndoStruct);
+if num_idemsgeo eq 1 then
+    return [ ], Lat[1][1][2];
+end if;
 
 n := #Lat; i := 1;
 while i le n do
@@ -23,13 +26,11 @@ while i le n do
     EndoStruct := Lat[i][2];
     num_idems := NumberOfIdempotentsFromStructure(EndoStruct);
     if num_idems eq num_idemsgeo then
-        break;
+        idems := IdempotentsFromStructure(EndoStruct);
+        return idems, K;
     end if;
     i +:= 1;
 end while;
-
-idems := IdempotentsFromStructure(EndoStruct);
-return idems, K;
 
 end intrinsic;
 
@@ -44,10 +45,8 @@ for factor_QQ in factors_QQ do
     albert, _, dim_sqrt, disc := Explode(factor_QQ);
     // TODO: the usual nastyness with powers of a quaternion algebra is again
     // not covered.
-    if albert in ["II", "IV"] then
-        if disc eq 1 then
-            num_idems +:= dim_sqrt;
-        end if;
+    if (albert in ["II", "IV"]) and (disc eq 1) then
+        num_idems +:= dim_sqrt;
     else
         num_idems +:= 1;
     end if;
@@ -71,7 +70,7 @@ return idemsrep;
 end intrinsic;
 
 
-intrinsic IdempotentsFromFactor(D::., C::., RngIntElt) -> .
+intrinsic IdempotentsFromFactor(D::., C::., g::RngIntElt) -> .
 {Idempotents originating from the factor D.}
 
 if g le 3 then
@@ -107,9 +106,10 @@ if not IsCommutative(E2) then
             return [ C ! invf(M ! [1,0,0,0]), C ! invf(M ! [0,0,0,1]) ];
         end if;
     elif d eq 3 then
-        idems_E2 := IdempotentsInMatrixAlgebra(E2);
-        invf1 := Inverse(f1);
-        return [ C ! invf1(idem_E2) : idem_E2 in idems_E2 ];
+        //idems_E2 := IdempotentsInMatrixAlgebra(E2);
+        //invf1 := Inverse(f1);
+        //return [ C ! invf1(idem_E2) : idem_E2 in idems_E2 ];
+        error "All cases in IdempotentsFromFactorG3 fell through";
     else
         error "All cases in IdempotentsFromFactorG3 fell through";
     end if;
@@ -147,12 +147,12 @@ end intrinsic;
 intrinsic ProjectionFromIdempotent(P::., idem::List) -> List
 {From an idempotent, extracts corresponding lattice and projection.}
 
-idem_alg, idem_rat, idem_app := Explode(idem);
+idemTan, idemHom, idemApp := Explode(idem);
 // Extract the complex field
 CC := BaseRing(P); RR := RealField(CC);
 
 // Create analytic idempotent and project:
-PEllHuge := P * idem_app;
+PEllHuge := P * idemApp;
 
 // Compute rank of projection
 gQuotient := NumericalRank(PEllHuge : Epsilon := RR`epsinv);
@@ -170,10 +170,20 @@ PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary be
 PEllBig := Transpose(PEllBig);
 LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix));
 
-rows_alg := Rows(idem_alg); proj_alg := Matrix([ rows_alg[i] : i in s0 ]);
-rows_rat := Rows(idem_rat); proj_rat := Matrix([ rows_rat[i] : i in s0 ]);
-rows_app := Rows(idem_app); proj_app := Matrix([ rows_app[i] : i in s0 ]);
-proj := [* proj_alg, proj_rat, proj_app *];
+rowsTan := Rows(idemTan); projTan := Matrix([ rowsTan[i] : i in s0 ]);
+rowsHom := Rows(idemHom); projHom := Matrix([ rowsHom[i] : i in s0 ]);
+rowsApp := Rows(idemApp); projApp := Matrix([ rowsApp[i] : i in s0 ]);
+d := IdempotentDenominator(idem);
+proj := [* d*projTan, d*projHom, d*projApp *];
 
-return [* LatticeMatrix, proj *];
+return LatticeMatrix, proj;
+end intrinsic;
+
+
+intrinsic IdempotentDenominator(idem::.) -> RngIntElt
+{Degree of morphism from given idempotent.}
+
+idemTan, idemHom, idemApp := Explode(idem);
+return LCM([ Denominator(c) : c in Eltseq(idemHom) ]);
+
 end intrinsic;

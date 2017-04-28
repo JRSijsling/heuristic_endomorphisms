@@ -16,6 +16,12 @@
 intrinsic NonWeierstrassBasePointHyperelliptic(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
 
+// In the genus 1 case we always have an equation with a rational point at
+// infinity:
+if Genus(X) eq 1 then
+    return [K ! 1, K ! 0, K ! 0];
+end if;
+
 f, h := HyperellipticPolynomials(X);
 g := 4*f + h^2; Y := HyperellipticCurve(g);
 
@@ -147,10 +153,12 @@ PM := [ phiK(c) : c in P ]; PM := XM ! P;
 QM := [ phiL(c) : c in Q ]; QM := YM ! Q;
 AM := ChangeRing(A, M);
 
-if IsScalar(AM) then
+if (#Rows(AM) eq #Rows(Transpose(AM))) and IsScalar(AM) then
     return true, "Scalar: OK";
+elif Genus(Y) eq 1 then
+    return CantorMorphismFromMatrixSplit(XM, PM, YM, QM, AM);
 else
-    return DivisorFromMatrixSplit(XM, PM, YM, QM, Transpose(AM));
+    return DivisorFromMatrixSplit(XM, PM, YM, QM, AM);
 end if;
 
 end intrinsic;

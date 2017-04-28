@@ -245,7 +245,12 @@ intrinsic RelativeCompositum(K::Fld, L::Fld) -> Fld
 {Relative compositum.}
 
 F := BaseRing(K); M := K;
-g := MinimalPolynomial(L.1, F);
+R<x> := PolynomialRing(F);
+if Type(Parent(L.1)) eq FldRat then
+    g := x - L.1;
+else
+    g := MinimalPolynomial(L.1, F);
+end if;
 tup := Factorization(g, K)[1];
 M := ExtendRelativeSplittingField(K, F, tup[1]);
 M := ClearFieldDenominator(M);

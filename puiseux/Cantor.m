@@ -209,13 +209,16 @@ while true do
             vprintf EndoCheck : "done.\n";
             if test then
                 vprintf EndoCheck : "Functions found!\n";
-                return ChangePatchFunctions(X, Y, fs);
+                return true, ChangePatchFunctions(X, Y, fs);
             end if;
         //end if;
     end if;
 
     /* If that does not work, give up and try one degree higher: */
     d +:= 1;
+    if d gt UpperBound then
+        return false, "";
+    end if;
 end while;
 
 end intrinsic;
@@ -320,6 +323,9 @@ while true do
 
         /* If that does not work, give up and try one degree higher. */
         d +:= 1;
+        if d gt UpperBound then
+            return false, "";
+        end if;
     end while;
     Append(~fss_red, fs_red);
 
@@ -369,7 +375,7 @@ while true do
             vprintf EndoCheck : "Functions found!\n";
             vprintf EndoCheck, 2 : "Degree: %o\n", d;
             vprintf EndoCheck, 2 : "Before changing patch: %o\n", fs;
-            return ChangePatchFunctions(X, Y, fs);
+            return true, ChangePatchFunctions(X, Y, fs);
         end if;
     end if;
 end while;

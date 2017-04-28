@@ -52,11 +52,3 @@ intrinsic CorrespondenceGeneral(X::Crv, Y::Crv, proj::List) -> .
 return "";
 
 end intrinsic;
-
-
-intrinsic IdempotentDenominator(R::.) -> RngIntElt
-{Degree of an idempotent or projection morphism.}
-
-return LCM([ Denominator(c) : c in Eltseq(R) ]);
-
-end intrinsic;

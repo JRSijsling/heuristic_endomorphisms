@@ -76,15 +76,14 @@ class EndomorphismData:
         self._sat_test_, self._sat_cert_ =  magma.VerifySaturated(self._geo_rep_list_, self._P_, nvals = 2)
         return self._sat_test_
 
-    def base_point(self):
-        if not hasattr(self, "_base_point_"):
-            self._base_point_ = magma.NonWeierstrassBasePoint(self.X, self._endo_fod_)
-        return self._base_point_
+    def set_base_point(self):
+        if not hasattr(self, "base_point"):
+            self.base_point = magma.NonWeierstrassBasePoint(self.X, self._endo_fod_)
 
     def correspondence(self, A):
-        P = self.base_point()
         # TODO: Add bounds
-        test, cert = magma.Correspondence(self.X, P, self.X, P, A, nvals = 2)
+        self.set_base_point()
+        test, cert = magma.Correspondence(self.X, self.base_point, self.X, self.base_point, A, nvals = 2)
         return cert
 
     def verify_representations(self):
@@ -161,15 +160,13 @@ class OverField:
         self._sat_test_, self._sat_cert_ =  magma.VerifySaturated(self._list_[1], self._P_, nvals = 2)
         return self._sat_test_
 
-    def base_point(self):
-        if not hasattr(self, "_base_point_"):
-            self._base_point_ = magma.NonWeierstrassBasePoint(self.X, self.field)
-        return self._base_point_
+    def set_base_point(self):
+        if not hasattr(self, "base_point"):
+            self.base_point = magma.NonWeierstrassBasePoint(self.X, self.field)
 
     def correspondence(self, A):
-        P = self.base_point()
-        # TODO: Add bounds
-        test, cert = magma.Correspondence(self.X, P, self.X, P, A, nvals = 2)
+        self.set_base_point()
+        test, cert = magma.Correspondence(self.X, self.base_point, self.X, self.base_point, A, nvals = 2)
         return cert
 
     def verify_representations(self):
@@ -244,22 +241,22 @@ class Decomposition:
         self.X = Endo.X
         self.g = Endo.g
         self._P_ = Endo._P_
-        self._lat_list_ = Endo._lat_._list_
-        idems, self._field_ = magma.IdempotentsFromLattice(self._lat_list_, nvals = 2)
+        idems, self.field = magma.IdempotentsFromLattice(Endo._lat_._list_, nvals = 2)
         self._facs_ = [ ]
         for idem in idems:
-            fac = ()
-            fac['field'] = self._field_
-            fac['idem'] = dict_rep(idem)
+            fac = dict()
+            fac['field'] = self.field
+            fac['idem'] = dict_gen(idem)
             lat, proj = magma.ProjectionFromIdempotent(self._P_, idem, nvals = 2)
-            fac['proj'] = dict_rep(proj);
+            fac['proj'] = dict_gen(proj);
             fac['factor'] = { 'analytic': lat }
+            self._facs_.append(fac)
 
     def __repr__(self):
         return repr_decomposition(self)
 
-    def decomposition_field(self):
-        return self._field_
+    def full(self):
+        return self._facs_
 
     def idempotents(self):
         return [ fac['idem']['tangent'] for fac in self._facs_ ]
@@ -270,8 +267,38 @@ class Decomposition:
     def _calculate_factors_(self):
         for fac in self._facs_:
             if not 'algebraic' in fac['factor'].keys():
-                fac['factor']['algebraic'] = FactorFromProjection(fac['factor']['analytic'], fac['field'])
+                fac['factor']['algebraic'] = magma.FactorReconstruct(fac['factor']['analytic'], fac['field'])
 
     def factors(self):
         self._calculate_factors_()
         return [ fac['factor']['algebraic'] for fac in self._facs_ ]
+
+    def set_base_point(self):
+        if not hasattr(self, "base_point"):
+            self.base_point = magma.NonWeierstrassBasePoint(self.X, self.field)
+
+    def set_base_point_factor(self, fac):
+        if not 'base_point' in fac['factor'].keys():
+            Y = fac['factor']['algebraic']
+            K = self.field
+            fac['factor']['base_point'] = magma.NonWeierstrassBasePoint(Y, K)
+
+    def correspondence(self, fac):
+        self.set_base_point()
+        self.set_base_point_factor(fac)
+        P = self.base_point
+        Y = fac['factor']['algebraic']
+        Q = fac['factor']['base_point']
+        A = fac['proj']['tangent']
+        test, cert = magma.Correspondence(self.X, P, Y, Q, A, nvals = 2)
+        return cert
+
+    def verify(self):
+        self._facs_test_ = True
+        for fac in self._facs_:
+            corresp = self.correspondence(fac)
+            if not corresp:
+                self._facs_test_ = False
+            else:
+                fac['proj']['corresp'] = corresp
+        return self._facs_test_

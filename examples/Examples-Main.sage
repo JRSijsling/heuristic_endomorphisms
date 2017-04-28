@@ -125,13 +125,13 @@ for X in Xs:
     #print Endo.lattice().descriptions()
     print Endo.lattice().pretty_print()
 
-    print "Verification:"
+    #print "Verification:"
     #print Endo.dimension_algebra()
     #print Endo.base_point()
     #A = Endo._geo_rep_dict_[2]['tangent']
     #print A
     #print Endo.correspondence(A)
-    print Endo.verify()
+    #print Endo.verify()
 
     #print "Testing same functionality over K:"
     #A = overK._list_[1][1][1]
@@ -149,9 +149,8 @@ for X in Xs:
     #print "Decomposition:"
     #Dec = Endo.decomposition()
     #print Dec
-    #print Dec.decomposition_field()
+    #print Dec.field
     #print Dec.idempotents()
     #print Dec.projections()
     #print Dec.factors()
     #print Dec.verify()
-    #print Dec.morphisms()

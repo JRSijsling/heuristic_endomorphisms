@@ -87,14 +87,14 @@ def dict_field(field):
     return dikt
 
 def dict_rep(rep):
-    dicts = [ ]
-    for tup in rep:
-        dikt = dict()
-        dikt['tangent'] = tup[_index_dict_['tangent']]
-        dikt['homology'] = tup[_index_dict_['homology']]
-        dikt['approx'] = tup[_index_dict_['approx']]
-        dicts.append(dikt)
-    return dicts
+    return [ dict_gen(gen) for gen in rep ]
+
+def dict_gen(gen):
+    dikt = dict()
+    dikt['tangent'] = gen[_index_dict_['tangent']]
+    dikt['homology'] = gen[_index_dict_['homology']]
+    dikt['approx'] = gen[_index_dict_['approx']]
+    return dikt
 
 def dict_alg(rep):
     dikt = dict()
