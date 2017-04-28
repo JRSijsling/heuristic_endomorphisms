@@ -54,10 +54,10 @@ def sagify_description(desc_list):
 def dict_lattice(lattice):
     dicts = [ ]
     for tup in lattice:
-        dict_to_fill = dict()
-        dict_to_fill['field'] = dict_field(tup[_index_dict_['field']])
-        dict_to_fill['structure'] = dict_structure(tup[_index_dict_['structure']])
-        dicts.append(dict_to_fill)
+        dikt = dict()
+        dikt['field'] = dict_field(tup[_index_dict_['field']])
+        dikt['structure'] = dict_structure(tup[_index_dict_['structure']])
+        dicts.append(dikt)
     return dicts
 
 def desc_lattice(lattice):
@@ -70,63 +70,63 @@ def desc_lattice(lattice):
     return descs
 
 def dict_structure(structure):
-    dict_to_fill = dict()
-    dict_to_fill['representation'] = dict_rep(structure[_index_dict_['representation']])
-    dict_to_fill['algebra'] = dict_alg(structure[_index_dict_['algebra']])
+    dikt = dict()
+    dikt['representation'] = dict_rep(structure[_index_dict_['representation']])
+    dikt['algebra'] = dict_alg(structure[_index_dict_['algebra']])
     desc = sagify_description(structure[_index_dict_['description']])
-    dict_to_fill['description'] = dict_description(desc)
-    return dict_to_fill
+    dikt['description'] = dict_description(desc)
+    return dikt
 
 def desc_structure(structure):
     return sagify_description(structure[_index_dict_['description']])
 
 def dict_field(field):
-    dict_to_fill = dict()
-    dict_to_fill['seq'] = field[_index_dict_['seq']]
-    dict_to_fill['magma'] = field[_index_dict_['magma']]
-    return dict_to_fill
+    dikt = dict()
+    dikt['seq'] = field[_index_dict_['seq']]
+    dikt['magma'] = field[_index_dict_['magma']]
+    return dikt
 
 def dict_rep(rep):
     dicts = [ ]
     for tup in rep:
-        dict_to_fill = dict()
-        dict_to_fill['tangent'] = tup[_index_dict_['tangent']]
-        dict_to_fill['homology'] = tup[_index_dict_['homology']]
-        dict_to_fill['approx'] = tup[_index_dict_['approx']]
-        dicts.append(dict_to_fill)
+        dikt = dict()
+        dikt['tangent'] = tup[_index_dict_['tangent']]
+        dikt['homology'] = tup[_index_dict_['homology']]
+        dikt['approx'] = tup[_index_dict_['approx']]
+        dicts.append(dikt)
     return dicts
 
 def dict_alg(rep):
-    dict_to_fill = dict()
-    dict_to_fill['alg_QQ'] = rep[_index_dict_['alg_QQ']]
-    dict_to_fill['alg_ZZ'] = rep[_index_dict_['alg_ZZ']]
-    dict_to_fill['alg_RR'] = rep[_index_dict_['alg_RR']]
-    dict_to_fill['alg_ST'] = rep[_index_dict_['alg_ST']]
-    return dict_to_fill
+    dikt = dict()
+    dikt['alg_QQ'] = rep[_index_dict_['alg_QQ']]
+    dikt['alg_ZZ'] = rep[_index_dict_['alg_ZZ']]
+    dikt['alg_RR'] = rep[_index_dict_['alg_RR']]
+    dikt['alg_ST'] = rep[_index_dict_['alg_ST']]
+    return dikt
 
 def dict_description(desc):
-    dict_to_fill = dict()
-    dict_to_fill['factors_QQ'] = [ dict_factor_QQ(factor_QQ) for factor_QQ in desc[_index_dict_['factors_QQ']] ]
-    dict_to_fill['desc_ZZ'] = dict_desc_ZZ(desc[_index_dict_['desc_ZZ']])
-    dict_to_fill['desc_RR'] = dict_desc_RR(desc[_index_dict_['desc_RR']])
-    dict_to_fill['sato_tate'] = desc[_index_dict_['sato_tate']]
-    return dict_to_fill
+    dikt = dict()
+    dikt['factors_QQ'] = [ dict_factor_QQ(factor_QQ) for factor_QQ in desc[_index_dict_['factors_QQ']] ]
+    dikt['desc_ZZ'] = dict_desc_ZZ(desc[_index_dict_['desc_ZZ']])
+    dikt['desc_RR'] = dict_desc_RR(desc[_index_dict_['desc_RR']])
+    dikt['sato_tate'] = desc[_index_dict_['sato_tate']]
+    return dikt
 
 def dict_factor_QQ(factor_QQ):
-    dict_to_fill = dict()
-    dict_to_fill['albert_type'] = factor_QQ[_index_dict_['albert_type']]
-    dict_to_fill['base_field'] = factor_QQ[_index_dict_['base_field']]
-    dict_to_fill['dim_sqrt'] = factor_QQ[_index_dict_['dim_sqrt']]
-    dict_to_fill['disc'] = factor_QQ[_index_dict_['disc']]
-    return dict_to_fill
+    dikt = dict()
+    dikt['albert_type'] = factor_QQ[_index_dict_['albert_type']]
+    dikt['base_field'] = factor_QQ[_index_dict_['base_field']]
+    dikt['dim_sqrt'] = factor_QQ[_index_dict_['dim_sqrt']]
+    dikt['disc'] = factor_QQ[_index_dict_['disc']]
+    return dikt
 
 def dict_desc_ZZ(desc_ZZ):
-    dict_to_fill = dict()
-    dict_to_fill['index'] = desc_ZZ[_index_dict_['index']]
-    dict_to_fill['is_eichler'] = desc_ZZ[_index_dict_['is_eichler']]
-    return dict_to_fill
+    dikt = dict()
+    dikt['index'] = desc_ZZ[_index_dict_['index']]
+    dikt['is_eichler'] = desc_ZZ[_index_dict_['is_eichler']]
+    return dikt
 
 def dict_desc_RR(desc_RR):
-    dict_to_fill = dict()
-    dict_to_fill['factors'] = desc_RR
-    return dict_to_fill
+    dikt = dict()
+    dikt['factors'] = desc_RR
+    return dikt

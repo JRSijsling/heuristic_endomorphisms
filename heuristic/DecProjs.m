@@ -10,28 +10,25 @@
  */
 
 
-// TODO: Make possible without lattice? Transpose? Latter prolly not.
-
-
 intrinsic IdempotentsFromLattice(Lat::List) -> .
 {Finds idempotents over the smallest possible field by running over Lat.}
 
+Lat := Reverse(Lat);
 GeoEndoStruct := Lat[#Lat][2];
-num_idems_geo := NumberOfIdempotentsFromStructure(GeoEndoStruct);
+num_idemsgeo := NumberOfIdempotentsFromStructure(GeoEndoStruct);
 
-// Potentially computes final entry two times but who cares
 n := #Lat; i := 1;
 while i le n do
+    K := Lat[i][1][2];
     EndoStruct := Lat[i][2];
     num_idems := NumberOfIdempotentsFromStructure(EndoStruct);
-    if num_idems eq num_idems_geo then
+    if num_idems eq num_idemsgeo then
         break;
     end if;
     i +:= 1;
 end while;
 
 idems := IdempotentsFromStructure(EndoStruct);
-K := BaseRing(idems[1][1]);
 return idems, K;
 
 end intrinsic;
@@ -45,7 +42,8 @@ factors_QQ := EndoDesc[1];
 num_idems := 0;
 for factor_QQ in factors_QQ do
     albert, _, dim_sqrt, disc := Explode(factor_QQ);
-    // TODO: the usual nastyness with powers of a quaternion algebra is again not covered.
+    // TODO: the usual nastyness with powers of a quaternion algebra is again
+    // not covered.
     if albert in ["II", "IV"] then
         if disc eq 1 then
             num_idems +:= dim_sqrt;
@@ -62,39 +60,58 @@ end intrinsic;
 intrinsic IdempotentsFromStructure(EndoStruct::List) -> List
 {Finds idempotents.}
 
+g := #Rows(EndoStruct[1][1][1]);
 EndoRep, EndoAlg, EndoDesc := Explode(EndoStruct);
-GensTan, GensHom, GensApp := Explode(EndoRep);
 C, GensC := Explode(EndoAlg);
-
 Ds := DirectSumDecomposition(C);
-idems_C := &cat[ IdempotentsFromFactor(D, C) : D in Ds ];
-idems_rep := MatricesFromIdempotents(idems_C, EndoStruct);
-return idems_rep;
+idemsC := &cat[ IdempotentsFromFactor(D, C, g) : D in Ds ];
+idemsrep := MatricesFromIdempotents(idemsC, EndoStruct);
+return idemsrep;
 
 end intrinsic;
 
 
-intrinsic IdempotentsFromFactor(D::., C::.) -> .
+intrinsic IdempotentsFromFactor(D::., C::., RngIntElt) -> .
 {Idempotents originating from the factor D.}
 
-// TODO: Larger d (this is actually an issue in genus 3)
-E1, f1 := AlgebraOverCenter(D);
-F := ClearFieldDenominator(BaseRing(E1));
-if Type(F) eq FldNum then
-    F := OptimizedRepresentation(F);
-    F := ClearFieldDenominator(F);
+if g le 3 then
+    return IdempotentsFromFactorG3(D, C);
+else
+    error "Higher genus not implemented yet";
 end if;
-E2, f2 := ChangeRing(E1, F);
-test_dim, d := IsSquare(Dimension(E2));
-if test_dim then
+
+end intrinsic;
+
+
+intrinsic IdempotentsFromFactorG3(D::., C::.) -> .
+{Idempotents originating from the factor D.}
+
+// TODO: This 
+E1, f1 := AlgebraOverCenter(D);
+//F := ClearFieldDenominator(BaseRing(E1));
+//if Type(F) eq FldNum then
+//    F := OptimizedRepresentation(F);
+//    F := ClearFieldDenominator(F);
+//end if;
+//E2, f2 := ChangeRing(E1, F);
+E2 := E1;
+if not IsCommutative(E2) then
+    test_dim, d := IsSquare(Dimension(E2));
     if d eq 2 then
         test_quat, Q, f3 := IsQuaternionAlgebra(E2);
         if test_quat then
             test_mat, M, f4 := IsMatrixRing(Q : Isomorphism := true);
-            f := f1 * f2 * f3 * f4;
+            //f := f1 * f2 * f3 * f4;
+            f := f1 * f3 * f4;
             invf := Inverse(f);
-            return [ C ! invf(M![1,0,0,0]), C ! invf(M![0,0,0,1]) ];
+            return [ C ! invf(M ! [1,0,0,0]), C ! invf(M ! [0,0,0,1]) ];
         end if;
+    elif d eq 3 then
+        idems_E2 := IdempotentsInMatrixAlgebra(E2);
+        invf1 := Inverse(f1);
+        return [ C ! invf1(idem_E2) : idem_E2 in idems_E2 ];
+    else
+        error "All cases in IdempotentsFromFactorG3 fell through";
     end if;
 end if;
 return [ C ! D ! 1 ];
@@ -102,22 +119,27 @@ return [ C ! D ! 1 ];
 end intrinsic;
 
 
-intrinsic MatricesFromIdempotents(idems::SeqEnum, EndoStruct::List) -> List
+intrinsic MatricesFromIdempotents(idems::SeqEnum, EndoStruct::List) -> SeqEnum
 {Recovers matrices corresponding to idems.}
 
 EndoRep, EndoAlg, EndoDesc := Explode(EndoStruct);
-GensTan, GensHom, GensApp := Explode(EndoRep);
+GensTan := [ gen[1] : gen in EndoRep ];
+GensHom := [ gen[2] : gen in EndoRep ];
+GensApp := [ gen[3] : gen in EndoRep ];
 C, GensC := Explode(EndoAlg);
 
-idemsC := [ [ Rationals() ! c : c in Eltseq(idem) ] : idem in idems ];
+idems := [ [ Rationals() ! c : c in Eltseq(idem) ] : idem in idems ];
 GensC := [ [ Rationals() ! c : c in Eltseq(gen) ] : gen in GensC ];
-idemsRep := [ Eltseq(MatrixInBasis(idemC, GensC)) : idemC in idemsC ];
+idems := [ Eltseq(MatrixInBasis(idem, GensC)) : idem in idems ];
 
-n := #GensTan;
-idemsTan := [ &+[ idemRep[i] * GensTan[i] : i in [1..n] ] : idemRep in idemsRep ];
-idemsHom := [ &+[ idemRep[i] * GensHom[i] : i in [1..n] ] : idemRep in idemsRep ];
-idemsApp := [ &+[ idemRep[i] * GensApp[i] : i in [1..n] ] : idemRep in idemsRep ];
-return [* idemsAlg, idemsHom, idemsAn *];
+idemsRep := [ ];
+for idem in idems do
+    idemTan := &+[ idem[i] * GensTan[i] : i in [1..#GensTan] ];
+    idemHom := &+[ idem[i] * GensHom[i] : i in [1..#GensHom] ];
+    idemApp := &+[ idem[i] * GensApp[i] : i in [1..#GensApp] ];
+    Append(~idemsRep, [* idemTan, idemHom, idemApp *]);
+end for;
+return idemsRep;
 
 end intrinsic;
 
@@ -154,18 +176,4 @@ rows_app := Rows(idem_app); proj_app := Matrix([ rows_app[i] : i in s0 ]);
 proj := [* proj_alg, proj_rat, proj_app *];
 
 return [* LatticeMatrix, proj *];
-end intrinsic;
-
-
-intrinsic ProjectionsFromIdempotents(P::., idems::.) -> List
-{From idempotents, extracts corresponding lattices and projections.}
-
-lats_projs := [* *];
-for i:=1 to #idems[1] do
-    idem_tan := idems[1][i]; idem_hom := idems[2][i]; idem_app := idems[3][i];
-    idem := [* idem_tan, idem_hom, idem_app *];
-    Append(~lats_projs, ProjectionFromIdempotent(P, idem));
-end for;
-return lats_projs;
-
 end intrinsic;

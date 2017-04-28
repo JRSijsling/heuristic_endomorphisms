@@ -10,104 +10,89 @@
  */
 
 
-//// TODO: Singular, expert last one
-//
-//intrinsic FactorReconstructG1(P::., K::Fld) -> .
-//{Reconstructs elliptic curve factor from a period lattice.}
-//
-//P := Eltseq(P); CC := Parent(P[1]); RR := RealField(CC);
-//g4CC := 120 * (1/P[1])^4 * ZetaFunction(RR, 4) * Eisenstein(4, P);
-//g6CC := 280 * (1/P[1])^6 * ZetaFunction(RR, 6) * Eisenstein(6, P);
-//g4 := AlgebraizeElementInRelativeField(g4CC, K);
-//g6 := AlgebraizeElementInRelativeField(g6CC, K);
-//R<x> := PolynomialRing(K); f := (4*x^3 - g4*x - g6)/4; h := 0;
-//// TODO: Check that this is the correct curve (depends on differentials used)
-//return HyperellipticCurve(f, h);
-//
-//end intrinsic;
-//
-//
-//intrinsic TwistDifferentialBasis(X::., P::.) -> .
-//{Twists the curve and differential basis as needed.}
-//
-//K := BaseRing(X);
-//CC := BaseRing(P); RCC := PolynomialRing(CC);
-//f, h := HyperellipticPolynomials(X);
-//// TODO: Move iota to keyword arguments?
-//fCC := EmbedAtInfinitePlace(f, K`iota, RCC); hCC := EmbedAtInfinitePlace(h, K`iota, RCC);
-//Q := Transpose(PeriodMatrix(fCC, hCC));
-//AsRs := GeometricIsogenyBasisApproximations(P, Q); A := AsRs[1][1];
-//
-//// TODO: In general we will need a function to test for lattice isomorphism. It
-//// will also need to be verified... also, we could get a triple extension here.
-//// The code is relatively ugly in order to avoid this. We would like to take
-//// another relative splitting field. Anyway.
-//pols := [ RelativeMinimalPolynomial(c, K) : c in Eltseq(A) ];
-//sqrtCC := CC ! 1; d := 1;
-//for pol in pols do
-//    if Degree(pol) eq 2 then
-//        polCC := EmbedAtInfinitePlace(pol, K`iota, RCC);
-//        a := Coefficient(pol, 2); b := Coefficient(pol, 1); c := Coefficient(pol, 0);
-//        aCC := Coefficient(polCC, 2); bCC := Coefficient(polCC, 1); cCC := Coefficient(polCC, 0);
-//        sqrtCC := Sqrt(bCC^2 - 4*aCC*cCC); d := b^2 - 4*a*c;
-//    end if;
-//end for;
-//
-//WA := AlgebraizeMatrixInRelativeField(sqrtCC * A, K);
-//g := 4*f + h^2; R<x> := Parent(g);
-//num := WA[1,1]*x + WA[1,2]; den := WA[2,1]*x + WA[2,2];
-//g := den^6 * R ! Evaluate(g, num/den);
-//return HyperellipticCurve(g / d);
-//
-//end intrinsic;
-//
-//
-//intrinsic FactorReconstructG2(P::., K::Fld) -> .
-//{Reconstructs genus 2 factor.}
-//
-//// Recover small period matrix:
-//CC := BaseRing(P); RCC<xCC> := PolynomialRing(CC);
-//g := #Rows(Transpose(P));
-//Omega1 := Submatrix(P, 1, 1, g, g); Omega2 := Submatrix(P, g + 1, 1, g, g);
-//PSmall := Omega2 * Omega1^(-1);
-//
-//rosensCC := RosenhainInvariants(PSmall);
-//fCC := xCC * (xCC - 1) * &*[ xCC - rosenCC : rosenCC in rosensCC ];
-//g2sCC := G2Invariants(HyperellipticCurve(fCC));
-//g2s := [ AlgebraizeElementInRelativeField(g2CC, K) : g2CC in g2sCC ];
-//X := HyperellipticCurveFromG2Invariants(g2s);
-//// TODO: This only works over QQ but seems crucial...
-////X := ReducedMinimalWeierstrassModel(X);
-//X := TwistDifferentialBasis(X, P);
-//return X;
-//
-//end intrinsic;
-//
-//
-//intrinsic FactorsFromProjections(projs::List) -> List
-//{Recovers algebraic expressions for the factors.}
-//
-//Facs := [* *];
-//for proj in projs do
-//    lat := proj[1]; K := BaseRing(proj[2][1]);
-//    g := #Rows(Transpose(lat));
-//    if g eq 1 then
-//        Append(~Facs, FactorReconstructG1(lat, K));
-//    elif g eq 2 then
-//        Append(~Facs, FactorReconstructG2(lat, K));
-//    else
-//        Append(~Facs, "");
-//    end if;
-//end for;
-//return Facs;
-//
-//end intrinsic;
+intrinsic FactorReconstructG1(P::., K::Fld) -> .
+{Reconstructs elliptic curve factor from a period lattice.}
+
+P := Eltseq(P); CC := Parent(P[1]); RR := RealField(CC);
+g4CC := 120 * (1/P[1])^4 * ZetaFunction(RR, 4) * Eisenstein(4, P);
+g6CC := 280 * (1/P[1])^6 * ZetaFunction(RR, 6) * Eisenstein(6, P);
+g4 := AlgebraizeElementInRelativeField(g4CC, K);
+g6 := AlgebraizeElementInRelativeField(g6CC, K);
+R<x> := PolynomialRing(K); f := (4*x^3 - g4*x - g6)/4; h := 0;
+// TODO: Check that this is the correct curve (depends on differentials used)
+return HyperellipticCurve(f, h);
+
+end intrinsic;
 
 
-intrinsic FactorDescriptions(facs::SeqEnum) -> SeqEnum
-{Describes factors by recursive lists of strings and integers.}
+intrinsic TwistDifferentialBasis(X::., P::.) -> .
+{Twists the curve and differential basis as needed.}
 
-return [ FactorDescription(fac) : fac in facs ];
+K := BaseRing(X);
+CC := BaseRing(P); RCC := PolynomialRing(CC);
+f, h := HyperellipticPolynomials(X);
+fCC := EmbedAtInfinitePlace(f, RCC); hCC := EmbedAtInfinitePlace(h, RCC);
+Q := Transpose(PeriodMatrix(fCC, hCC));
+GeoIsogRep := GeometricIsogenyBasisPartial(P, Q);
+A := GeoIsogRep[1][1];
+
+// TODO: In general we will need a function to test for lattice isomorphism. It
+// will also need to be verified... also, we could get a triple extension here.
+// The code is relatively ugly in order to avoid this. We would like to take
+// another relative splitting field. Anyway.
+pols := [ RelativeMinimalPolynomial(c, K) : c in Eltseq(A) ];
+sqrtCC := CC ! 1; d := 1;
+for pol in pols do
+    if Degree(pol) eq 2 then
+        polCC := EmbedAtInfinitePlace(pol, K`iota, RCC);
+        a := Coefficient(pol, 2); b := Coefficient(pol, 1); c := Coefficient(pol, 0);
+        aCC := Coefficient(polCC, 2); bCC := Coefficient(polCC, 1); cCC := Coefficient(polCC, 0);
+        sqrtCC := Sqrt(bCC^2 - 4*aCC*cCC); d := b^2 - 4*a*c;
+    end if;
+end for;
+
+WA := AlgebraizeMatrixInRelativeField(sqrtCC * A, K);
+g := 4*f + h^2; R<x> := Parent(g);
+num := WA[1,1]*x + WA[1,2]; den := WA[2,1]*x + WA[2,2];
+g := den^6 * R ! Evaluate(g, num/den);
+return HyperellipticCurve(g / d);
+
+end intrinsic;
+
+
+intrinsic FactorReconstructG2(P::., K::Fld) -> .
+{Reconstructs genus 2 factor.}
+
+// Recover small period matrix:
+CC := BaseRing(P); RCC<xCC> := PolynomialRing(CC);
+g := #Rows(Transpose(P));
+Omega1 := Submatrix(P, 1, 1, g, g); Omega2 := Submatrix(P, g + 1, 1, g, g);
+PSmall := Omega2 * Omega1^(-1);
+
+rosensCC := RosenhainInvariants(PSmall);
+fCC := xCC * (xCC - 1) * &*[ xCC - rosenCC : rosenCC in rosensCC ];
+g2sCC := G2Invariants(HyperellipticCurve(fCC));
+g2s := [ AlgebraizeElementInRelativeField(g2CC, K) : g2CC in g2sCC ];
+X := HyperellipticCurveFromG2Invariants(g2s);
+// TODO: This only works over QQ but seems crucial...
+//X := ReducedMinimalWeierstrassModel(X);
+X := TwistDifferentialBasis(X, P);
+return X;
+
+end intrinsic;
+
+
+intrinsic FactorFromLattice(Lat::., K::Fld) -> Crv
+{Recovers algebraic expressions for the factors.}
+
+g := #Rows(Transpose(Lat));
+if g eq 1 then
+    return FactorReconstructG1(Lat, K);
+elif g eq 2 then
+    return FactorReconstructG2(Lat, K);
+else
+    error "Reconstruction in genus larger than 2 not implemented yet";
+end if;
 
 end intrinsic;
 

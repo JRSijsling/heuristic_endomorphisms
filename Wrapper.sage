@@ -245,47 +245,33 @@ class Decomposition:
         self.g = Endo.g
         self._P_ = Endo._P_
         self._lat_list_ = Endo._lat_._list_
-        # TODO: Deal with case where no decomposition exists automatically, and
-        # add raw data.
+        idems, self._field_ = magma.IdempotentsFromLattice(self._lat_list_, nvals = 2)
+        self._facs_ = [ ]
+        for idem in idems:
+            fac = ()
+            fac['field'] = self._field_
+            fac['idem'] = dict_rep(idem)
+            lat, proj = magma.ProjectionFromIdempotent(self._P_, idem, nvals = 2)
+            fac['proj'] = dict_rep(proj);
+            fac['factor'] = { 'analytic': lat }
 
     def __repr__(self):
         return repr_decomposition(self)
 
-    def _calculate_idempotents_(self):
-        if not hasattr(self, "_idems_dict_"):
-            self._idems_list_, self._dec_field_ = magma.IdempotentsFromLattice(self._lat_list_, nvals = 2)
-            self._idems_dict_ = dict_rep(self._idems_list_)
-
     def decomposition_field(self):
-        self._calculate_idempotents_()
-        return self._dec_field_
+        return self._field_
 
     def idempotents(self):
-        self._calculate_idempotents_()
-        return self._idems_dict_['tangent']
+        return [ fac['idem']['tangent'] for fac in self._facs_ ]
 
     def projections(self):
-        if not hasattr(self, "_projs_"):
-            self._calculate_idempotents_()
-            self._lats_projs_ = magma.ProjectionsFromIdempotents(self._P_, self._idems_list_)
-        return self._lats_projs_
+        return [ fac['proj']['tangent'] for fac in self._facs_ ]
+
+    def _calculate_factors_(self):
+        for fac in self._facs_:
+            if not 'algebraic' in fac['factor'].keys():
+                fac['factor']['algebraic'] = FactorFromProjection(fac['factor']['analytic'], fac['field'])
 
     def factors(self):
-        if not hasattr(self, "_factors_"):
-            self._lats_projs_ = self.projections()
-            self._factors_ = magma.FactorsFromProjections(self._lats_projs_)
-        return self._factors_
-
-    def _calculate_morphisms_(self):
-        if not hasattr(self, "_mors_"):
-            self._factors_ = self.factors()
-            #self._dec_test_, self._mors_ = magma.Correspondence(self.X, self._factors_, self._lats_projs_, nvals = 2)
-            self._dec_test_, self._mors_ = magma.CorrespondencesFromFactorsAndProjections(self.X, self._factors_, self._lats_projs_, nvals = 2)
-
-    def verify(self):
-        self._calculate_morphisms_()
-        return self._dec_test_
-
-    def morphisms(self):
-        self._calculate_morphisms_()
-        return self._mors_
+        self._calculate_factors_()
+        return [ fac['factor']['algebraic'] for fac in self._facs_ ]
