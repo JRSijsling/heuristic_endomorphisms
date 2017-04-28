@@ -149,13 +149,16 @@ class OverField:
     def degree_estimate(self, A):
         return magma.DegreeEstimate(self._list_[_index_dict_['representation']], A)
 
+    def dimension_algebra(self):
+        return len(self._list_)
+
     def verify_algebra(self):
         # TODO: Integrate over Davide and Edgar
         self._test_alg_ = True
         return self._test_alg_
 
     def verify_saturated(self):
-        self._sat_test_, self._sat_cert_ =  magma.VerifySaturated(self._list_, self._P_, nvals = 2)
+        self._sat_test_, self._sat_cert_ =  magma.VerifySaturated(self._list_[1], self._P_, nvals = 2)
         return self._sat_test_
 
     def base_point(self):
@@ -165,6 +168,7 @@ class OverField:
 
     def correspondence(self, A):
         P = self.base_point()
+        # TODO: Add bounds
         test, cert = magma.Correspondence(self.X, P, self.X, P, A, nvals = 2)
         return cert
 

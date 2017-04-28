@@ -102,7 +102,8 @@ for X in Xs:
     print Endo.endomorphism_field()
 
     #print "Testing Rosati and degree bound:"
-    #A = Endo._geo_rep_list_[2][1]
+    #A = Endo._geo_rep_list_[1][1]
+    #print A
     #print Endo.rosati_involution(A)
     #print Endo.degree_estimate(A)
 
@@ -125,12 +126,25 @@ for X in Xs:
     print Endo.lattice().pretty_print()
 
     print "Verification:"
-    print Endo.dimension_algebra()
+    #print Endo.dimension_algebra()
     #print Endo.base_point()
     #A = Endo._geo_rep_dict_[2]['tangent']
     #print A
     #print Endo.correspondence(A)
     print Endo.verify()
+
+    #print "Testing same functionality over K:"
+    #A = overK._list_[1][1][1]
+    #print A
+    #print overK.rosati_involution(A)
+    #print overK.degree_estimate(A)
+    #print overK.dimension_algebra()
+    #print overK.verify_algebra()
+    #print overK.verify_saturated()
+    #print overK.base_point()
+    #print overK.correspondence(A)
+    #print overK.verify()
+    #print overK.full()
 
     #print "Decomposition:"
     #Dec = Endo.decomposition()
