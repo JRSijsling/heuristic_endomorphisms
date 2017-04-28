@@ -40,4 +40,15 @@ M, phiK, phiK := RelativeCompositum(K, K);
 M, phiK, phiL := RelativeCompositum(K, L);
 print phiL;
 
+R<x> := PolynomialRing(Rationals());
+K<r> := NumberField(x^2 - 2);
+R<x> := PolynomialRing(K);
+X := HyperellipticCurve(x^5 + r*x + 1, x);
+print X;
+print FactorDescription(X);
+P2<x,y,z> := ProjectiveSpace(K, 2);
+X := Curve(Scheme(P2, x*y^3 + y*z^3 + r*z*x^3));
+print X;
+print FactorDescription(X);
+
 exit;
