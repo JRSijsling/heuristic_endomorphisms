@@ -15,8 +15,8 @@ M := Matrix(F, [
 ]);
 M := Transpose(M);
 
-time fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
-time D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 
 DEs := DefiningEquations(D);
 DEs := [ 2*30697399*DEs[1], 2*30697399*DEs[2] ];
@@ -49,7 +49,7 @@ T := Matrix(F, [[0,0,1],[0,1,0],[1,0,0]]);
 M := T * M * T;
 M := Transpose(M);
 
-time D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
-time fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 
 exit;

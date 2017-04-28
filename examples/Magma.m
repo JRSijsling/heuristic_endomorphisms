@@ -48,6 +48,5 @@ print X;
 print FactorDescription(X);
 P2<x,y,z> := ProjectiveSpace(K, 2);
 Y := Curve(Scheme(P2, x*y^3 + y*z^3 + r*z*x^3));
-print FactorDescriptions([* X, Y *]);
 
 exit;
