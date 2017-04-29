@@ -45,4 +45,15 @@ SetInfinitePlace(L, InfinitePlaces(L)[7]);
 print L`iota;
 print F`iota;
 
+F := Rationals();
+R<x> := PolynomialRing(F);
+F<r> := NumberField(x^2 - 2);
+R<x> := PolynomialRing(F);
+f := x^3 + x + r;
+time K := SplittingField(f);
+print K;
+time K := RelativeSplittingFieldExtra(f);
+print K;
+print K`iota;
+
 exit;

@@ -153,7 +153,7 @@ return K;
 end intrinsic;
 
 
-intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt : Optimize := true) -> FldNum
+intrinsic ExtendRelativeSplittingField(K::Fld, F::Fld, f::RngUPolElt : Optimize := false) -> FldNum
 {Extension step for relative splitting fields.}
 
 if Degree(F) eq 1 then
@@ -171,6 +171,7 @@ while true do
     if K eq F then
         K := NumberField(factors[1]);
     else
+        // TODO: This step can cost a lot of time
         K := RelativeField(F, NumberField(factors[1]));
     end if;
 end while;
