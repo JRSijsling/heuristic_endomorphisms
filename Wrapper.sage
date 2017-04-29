@@ -273,6 +273,9 @@ class Decomposition:
         self._calculate_factors_()
         return [ fac['factor']['algebraic'] for fac in self._facs_ ]
 
+    def _factors_desc_(self):
+        return [ sagify_description(magma.FactorDescription(fac)) for fac in self.factors() ]
+
     def set_base_point(self):
         if not hasattr(self, "base_point"):
             self.base_point = magma.NonWeierstrassBasePoint(self.X, self.field)

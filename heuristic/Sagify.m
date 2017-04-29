@@ -15,8 +15,8 @@ intrinsic SagifyDescription(obj::.) -> MonStgElt
 with the old list.}
 
 case Type(obj):
-    when List: return "[" cat &cat[ SagifyDescription(x) cat ",": x in obj ] cat "]";
-    when SeqEnum: return "[" cat &cat[ SagifyDescription(x) cat ",": x in obj ] cat "]";
+    when List: if obj eq [* *] then return "[ ]"; else return "[" cat &cat[ SagifyDescription(x) cat ",": x in obj ] cat "]"; end if;
+    when SeqEnum: if obj eq [ ] then return "[ ]"; else return "[" cat &cat[ SagifyDescription(x) cat ",": x in obj ] cat "]"; end if;
     when RngIntElt: return Sprint(obj);
     when FldRatElt: return Sprint(obj);
     when MonStgElt: return "'" cat Sprint(obj) cat "'";
