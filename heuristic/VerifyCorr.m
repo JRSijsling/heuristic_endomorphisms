@@ -10,53 +10,81 @@
  */
 
 
-// TODO: Bound search only in case over QQ, allow for infty by patch, relative
-// splitting field
-
 intrinsic NonWeierstrassBasePointHyperelliptic(X::Crv, K::Fld : Bound := 2^10) -> SeqEnum
 {Returns a non-Weierstrass point over a small extension of K.}
 
-// In the genus 1 case we always have an equation with a rational point at
-// infinity:
-if Genus(X) eq 1 then
+f, h := HyperellipticPolynomials(X);
+
+/* Elliptic case: */
+if Genus(X) eq 1 and Degree(f) eq 3 then
     return [K ! 1, K ! 0, K ! 0];
 end if;
 
-f, h := HyperellipticPolynomials(X);
+/* Small point over the base field (only QQ permitted for now): */
+if Type(BaseRing(X)) eq FldRat then
+    g := 4*f + h^2;
+    lcm := LCM([ Denominator(c) : c in Coefficients(g) ]);
+    a, b := SquareFreeFactorization(lcm);
+    g *:= (a*b)^2;
+    Y := HyperellipticCurve(g);
+    Qs := RationalPoints(Y : Bound := Bound);
+    Qs_nW := [ Q : Q in Qs | not IsWeierstrassPlace(Place(Q)) ];
+    Qs_nW_inf := [ Q : Q in Qs_nW | Q[3] eq 0 ];
+    Qs_nW_fin := [ Q : Q in Qs_nW | Q[3] ne 0 ];
+
+    if #Qs_nW_inf ne 0 then
+        Q := Qs_nW_inf[1];
+        h0 := Coefficient(h, Degree(g) div 2);
+        P := [ Q[1], (Q[2] - h0)/(2*a*b), Q[3] ];
+        P := [ K ! P[1], K ! P[2], K ! P[3] ];
+        return P;
+    end if;
+
+    if #Qs_nW_fin ne 0 then
+        Hts := [ Maximum([ Height(c) : c in Eltseq(Q) ]) : Q in Qs_nW_fin ];
+        min, ind := Minimum(Hts);
+        Q := Qs_nW_fin[ind];
+        h0 := Evaluate(h, Q[1]);
+        P := [ Q[1], (Q[2] - h0)/(2*a*b), Q[3] ];
+        P := [ K ! P[1], K ! P[2], K ! P[3] ];
+        return P;
+    end if;
+end if;
+
 g := 4*f + h^2; Y := HyperellipticCurve(g);
+d := Degree(g);
 
-/* We could look for points in the extension, but that typically takes too much
- * time, so we restrict to the base */
-Qs := RationalPoints(Y : Bound := Bound);
-Qs_nW := [ Q : Q in Qs | not IsWeierstrassPlace(Place(Q)) ];
-Qs_nW := [ Q : Q in Qs_nW | Q[3] ne 0 ];
+/* Non-Weierstrass point in infinite patch: */
+if IsEven(d) then
+    e := d div 2;
+    g0 := Coefficient(g, d);
+    h0 := Coefficient(h, e);
+    R<t> := PolynomialRing(K);
+    L := RelativeSplittingField(t^2 - g0);
+    Q := [ 1, Roots(t^2 - g0, L)[1][1], 0 ];
+    P := [ Q[1], (Q[2] - h0)/2, Q[3] ];
+    return P;
+end if;
 
-if #Qs_nW ne 0 then
-    Hts := [ Maximum([ Height(c) : c in Eltseq(Q) ]) : Q in Qs_nW ];
-    min, ind := Minimum(Hts);
-    L := K;
-    Q := Qs_nW[ind];
-    P := [ Q[1], (Q[2] - Evaluate(h, Q[1]))/2 ];
-
-else
-    /* Find non-Weierstrass point: */
+/* Non-Weierstrass point in finite patch: */
+if IsOdd(d) then
     n0 := 0;
     while true do
-        ev0 := Evaluate(g, n0);
-        if ev0 ne 0 then
+        g0 := Evaluate(g, n0);
+        if g0 ne 0 then
             break;
         end if;
         n0 +:= 1;
     end while;
-
-    /* Extend and embed: */
     R<t> := PolynomialRing(K);
-    L := SplittingField(t^2 - ev0);
-    Q := [ L ! n0, Roots(t^2 - ev0, L)[1][1] ];
-    P := [ Q[1], (Q[2] - Evaluate(h, Q[1]))/2 ];
+    L := RelativeSplittingField(t^2 - g0);
+    Q := [ L ! n0, Roots(t^2 - g0, L)[1][1], 1 ];
+    h0 := Evaluate(h, Q[1]);
+    P := [ Q[1], (Q[2] - h0)/2, Q[3] ];
+    return P;
 end if;
 
-return P;
+error "All cases in NonWeierstrassBasePointHyperelliptic fell through";
 
 end intrinsic;
 

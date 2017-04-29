@@ -49,4 +49,24 @@ print FactorDescription(X);
 P2<x,y,z> := ProjectiveSpace(K, 2);
 Y := Curve(Scheme(P2, x*y^3 + y*z^3 + r*z*x^3));
 
+K := Rationals();
+R<x> := PolynomialRing(K);
+X := HyperellipticCurve(x^3 + x + 1);
+X := HyperellipticCurve(x^6 + 1);
+X := HyperellipticCurve(2*x^6 + 1);
+X := HyperellipticCurve(2*x^6 + 3*x + 7);
+X := HyperellipticCurve(2*x^5 + 3*x + 7);
+P := NonWeierstrassBasePoint(X, K);
+print P;
+print MinimalPolynomial(P[2]);
+
+R<x> := PolynomialRing(Rationals());
+K<r> := NumberField(x^2 - 2);
+R<x> := PolynomialRing(K);
+X := HyperellipticCurve(x^5 + r*x + 1, x);
+X := HyperellipticCurve(x^5 + 2*x + r, x);
+P := NonWeierstrassBasePoint(X, K);
+print P;
+print MinimalPolynomial(P[2]);
+
 exit;
