@@ -85,7 +85,7 @@ for r in Rows(Ker) do
     // Culling the correct transformations from holomorphy condition
     Comm := JP * ChangeRing(genHom, RR) - ChangeRing(genHom, RR) * JQ;
     if &and([ (RR ! Abs(c)) lt RR`epscomp : c in Eltseq(Comm) ]) then
-        genApp := AnalyticRepresentationEndomorphism(genHom, P);
+        genApp := AnalyticRepresentationIsogeny(genHom, P, Q);
         Append(~gens, [* genApp, genHom *]);
     end if;
 end for;
