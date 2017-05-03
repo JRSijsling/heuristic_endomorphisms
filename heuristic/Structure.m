@@ -185,7 +185,7 @@ for DescFactorQQ in EndoDescQQ do
         else
             str := Sprintf("M_%o (CC)", d);
         end if;
-        EndoDescRR cat:= [ str : i in [1..e] ];
+        EndoDescRR cat:= [ str : i in [1..(e div 2)] ];
     end if;
 end for;
 return EndoDescRR, EndoDescRR;

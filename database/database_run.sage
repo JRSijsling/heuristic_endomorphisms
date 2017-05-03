@@ -15,7 +15,7 @@
 # by lists of integers. These polynomials (and the conjectural Sato-Tate group,
 # if provided) need to be at a consistent index in the provided lines.
 
-# Lenght of the lines in the input file:
+# Length of the lines in the input file:
 line_length = 2
 # Specify indices of defining polynomials and Sato-Tate group here;
 # making the latter negative ignores the corresponding check.
@@ -93,6 +93,8 @@ while not stop:
                         #else:
                         #    # In case of incorrect ST postpone until next time:
                         #    outputstream.write(line)
+                        # For culling instead:
+                        #outputstream.write(linesplit[0] + ':' + linesplit[3] + '\n')
                     except:
                         # In case of an error postpone until next time:
                         print "Error"

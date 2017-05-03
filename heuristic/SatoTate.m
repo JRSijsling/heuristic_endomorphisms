@@ -66,7 +66,7 @@ if Shorthand eq "" then
     GeoEndoStructBase := EndomorphismStructureBase(GeoEndoRep, GalL);
     Shorthand := SatoTateShorthandG2(GeoEndoStructBase);
 end if;
-desc_RR := EndoStructBase[3][3];
+descRR := EndoStructBase[3][3];
 K := FixedField(L, H);
 
 // Usually the shorthand and endomorphism structure of the base field determine
@@ -75,36 +75,36 @@ if Shorthand eq "A" then
     return "USp(4)";
 
 elif Shorthand eq "B" then
-    if desc_RR eq ["RR"] then
+    if descRR eq ["RR"] then
         return "N(G_{3,3})";
-    elif desc_RR eq ["RR", "RR"] then
+    elif descRR eq ["RR", "RR"] then
         return "G_{3,3}";
     end if;
 
 elif Shorthand eq "C" then
-    if desc_RR eq ["RR", "RR"] then
+    if descRR eq ["RR", "RR"] then
         return "N(G_{1,3})";
-    elif desc_RR eq ["RR", "CC"] or desc_RR eq ["CC", "RR"] then
+    elif descRR eq ["RR", "CC"] or descRR eq ["CC", "RR"] then
         return "G_{1,3}";
     end if;
 
 elif Shorthand eq "D" then
-    if desc_RR eq ["RR"] then
+    if descRR eq ["RR"] then
         return "F_{ac}";
-    elif desc_RR eq ["RR", "RR"] then
+    elif descRR eq ["RR", "RR"] then
         if IsIsomorphic(H, CyclicGroup(2)) then
             return "F_{ab}";
         elif IsIsomorphic(H, DirectProduct(CyclicGroup(2), CyclicGroup(2))) then
             return "F_{a,b}";
         end if;
-    elif desc_RR eq ["RR", "CC"] or desc_RR eq ["CC", "RR"] then
+    elif descRR eq ["RR", "CC"] or descRR eq ["CC", "RR"] then
         return "F_a";
-    elif desc_RR eq ["CC", "CC"] then
+    elif descRR eq ["CC", "CC"] then
         return "F";
     end if;
 
 elif Shorthand eq "E" then
-    if desc_RR eq ["RR"] then
+    if descRR eq ["RR"] then
         // Magma being silly with DihedralGroup(2)...
         if IsIsomorphic(H, DirectProduct(CyclicGroup(2), CyclicGroup(2))) then
             return "J(E_2)";
@@ -115,9 +115,9 @@ elif Shorthand eq "E" then
         elif IsIsomorphic(H, DihedralGroup(6)) then
             return "J(E_6)";
         end if;
-    elif desc_RR eq ["RR", "RR"] then
+    elif descRR eq ["RR", "RR"] then
         return "J(E_1)";
-    elif desc_RR eq ["CC"] then
+    elif descRR eq ["CC"] then
         if IsIsomorphic(H, CyclicGroup(2)) then
             return "E_2";
         elif IsIsomorphic(H, CyclicGroup(3)) then
@@ -127,12 +127,12 @@ elif Shorthand eq "E" then
         elif IsIsomorphic(H, CyclicGroup(6)) then
             return "E_6";
         end if;
-    elif desc_RR eq ["M_2 (RR)"] then
+    elif descRR eq ["M_2 (RR)"] then
         return "E_1";
     end if;
 
 elif Shorthand eq "F" then
-    if desc_RR eq ["RR"] then
+    if descRR eq ["RR"] then
         if IsIsomorphic(H, DihedralGroup(4)) then
             return "D_{4,1}";
 
@@ -142,10 +142,10 @@ elif Shorthand eq "F" then
             GensH_prime := Generators(H_prime);
             GalK_prime := [* GensH_prime, Gphi *];
             EndoStruct_prime := EndomorphismStructureBase(GeoEndoRep, GalK_prime);
-            desc_RR_prime := EndoStruct_prime[3][3];
-            if desc_RR_prime eq ["M_2 (RR)"] then
+            descRR_prime := EndoStruct_prime[3][3];
+            if descRR_prime eq ["M_2 (RR)"] then
                 return "D_{6,1}";
-            elif desc_RR_prime eq ["HH"] then
+            elif descRR_prime eq ["HH"] then
                 return "J(D_3)";
             end if;
 
@@ -163,7 +163,7 @@ elif Shorthand eq "F" then
             return "J(O)";
         end if;
 
-    elif desc_RR eq ["RR", "RR"] then
+    elif descRR eq ["RR", "RR"] then
         if IsIsomorphic(H, DirectProduct(CyclicGroup(2), CyclicGroup(2))) then
             return "D_{2,1}";
         elif IsIsomorphic(H, DihedralGroup(3)) then
@@ -174,7 +174,7 @@ elif Shorthand eq "F" then
             return "D_{6,2}";
         end if;
 
-    elif desc_RR eq ["CC"] then
+    elif descRR eq ["CC"] then
         if IsIsomorphic(H, CyclicGroup(4)) then
             return "C_{4,1}";
 
@@ -184,10 +184,10 @@ elif Shorthand eq "F" then
             GensH_prime := Generators(H_prime);
             GalK_prime := [* GensH_prime, Gphi *];
             EndoStruct_prime := EndomorphismStructureBase(GeoEndoRep, GalK_prime);
-            desc_RR_prime := EndoStruct_prime[3][3];
-            if desc_RR_prime eq ["M_2 (RR)"] then
+            descRR_prime := EndoStruct_prime[3][3];
+            if descRR_prime eq ["M_2 (RR)"] then
                 return "C_{6,1}";
-            elif desc_RR_prime eq ["HH"] then
+            elif descRR_prime eq ["HH"] then
                 return "J(C_3)";
             end if;
 
@@ -218,7 +218,7 @@ elif Shorthand eq "F" then
             return "O";
         end if;
 
-    elif desc_RR eq ["CC", "CC"] then
+    elif descRR eq ["CC", "CC"] then
         if IsIsomorphic(H, CyclicGroup(2)) then
             return "C_2";
         elif IsIsomorphic(H, CyclicGroup(3)) then
@@ -229,11 +229,11 @@ elif Shorthand eq "F" then
             return "C_6";
         end if;
 
-    elif desc_RR eq ["M_2 (RR)"] then
+    elif descRR eq ["M_2 (RR)"] then
         return "C_{2,1}";
-    elif desc_RR eq ["HH"] then
+    elif descRR eq ["HH"] then
         return "J(C_1)";
-    elif desc_RR eq ["M_2 (CC)"] then
+    elif descRR eq ["M_2 (CC)"] then
         return "C_1";
     end if;
 end if;
@@ -259,8 +259,8 @@ end intrinsic;
 intrinsic SatoTateShorthandG2(GeoEndoStructBase::List) -> MonStgElt
 {Finds the letter describing the neutral connected component of the Sato-Tate group.}
 
-desc_RR := GeoEndoStructBase[3][3];
-case desc_RR:
+descRR := GeoEndoStructBase[3][3];
+case descRR:
     when ["RR"]:       return "A";
     when ["RR", "RR"]: return "B";
     when ["RR", "CC"]: return "C";
