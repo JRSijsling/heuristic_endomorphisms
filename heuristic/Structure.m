@@ -102,23 +102,28 @@ for D in Ds do
 
     test, d := IsSquare(Dimension(E2));
     if IsTotallyReal(F) then
+        /* FIXME: This may not be the most logical case distinction */
         if d eq 1 then
             DescFactorQQ := [* "I", FDesc, d, 1 *];
 
         elif d eq 2 then
+            /* FIXME: Depends on genus <= 3 */
             test, Q := IsQuaternionAlgebra(E2);
             DQFin := Discriminant(Q); NDQ := Integers() ! Norm(DQFin);
-            if not IsDefinite(Q) then
+            if NDQ eq 1 then
+                DescFactorQQ := [* "I", FDesc, d, NDQ *];
+            elif not IsDefinite(Q) then
                 DescFactorQQ := [* "II", FDesc, d, NDQ *];
             else
                 DescFactorQQ := [* "III", FDesc, d, NDQ *];
             end if;
 
         elif d eq 3 then
-            DescFactorQQ := [* "II", FDesc, d, -1 *];
+            /* FIXME: Depends on genus <= 3 */
+            DescFactorQQ := [* "I", FDesc, d, 1 *];
 
         else
-            /* FIXME: We do not know what happens here, even when using the
+            /* FIXME: We do not know what happens otherwise, even when using the
              * extended Albert classification that I have applied. Testing for
              * a matrix ring can be done with
              *     Norm(Discriminant(MaximalOrder(E2)));
@@ -126,7 +131,7 @@ for D in Ds do
              * ramification at infinity only, in which case this does not tell
              * enough. For now we get by; this should be addressed with more
              * general functionality for algebras, not by our package. */
-            DescFactorQQ := [* "II or III", FDesc, d, -1 *];
+            DescFactorQQ := [* "I, II or III", FDesc, d, -1 *];
         end if;
 
     else
@@ -137,6 +142,7 @@ for D in Ds do
             DQFin := Discriminant(Q); NDQ := Norm(DQFin);
             DescFactorQQ := [* "IV", FDesc, d, NDQ *];
         elif d eq 3 then
+            /* FIXME: Depends on genus <= 3 */
             DescFactorQQ := [* "IV", FDesc, d, 1 *];
         else
             DescFactorQQ := [* "IV", FDesc, d, -1 *];
@@ -158,24 +164,28 @@ EndoDescRR := [ ];
 for DescFactorQQ in EndoDescQQ do
     AlbertType := DescFactorQQ[1];
     e := #DescFactorQQ[2] - 1;
+    d := DescFactorQQ[3];
 
     if AlbertType eq "I" then
-        EndoDescRR cat:= [ "RR" : i in [1..e] ];
+        if d eq 1 then
+            str := "RR";
+        else
+            str := Sprintf("M_%o (RR)", d);
+        end if;
+        EndoDescRR cat:= [ str : i in [1..e] ];
     elif AlbertType eq "II" then
         EndoDescRR cat:= [ "M_2 (RR)" : i in [1..e] ];
     elif AlbertType eq "III" then
         EndoDescRR cat:= [ "HH" : i in [1..e] ];
-    elif AlbertType eq "II or III" then
-        EndoDescRR cat:= [ "M_2 (RR) or HH" : i in [1..e] ];
-
+    elif AlbertType eq "I, II or III" then
+        EndoDescRR cat:= [ "RR, M_2 (RR) or HH" : i in [1..e] ];
     elif AlbertType eq "IV" then
-        d := DescFactorQQ[3];
         if d eq 1 then
-            EndoDescRR cat:= [ "CC" : i in [1..(e div 2)] ];
+            str := "CC";
         else
             str := Sprintf("M_%o (CC)", d);
-            EndoDescRR cat:= [ str : i in [1..(e div 2)] ];
         end if;
+        EndoDescRR cat:= [ str : i in [1..e] ];
     end if;
 end for;
 return EndoDescRR, EndoDescRR;
