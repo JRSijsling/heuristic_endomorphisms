@@ -3,6 +3,10 @@
 This repository contains a mix of Magma, Pari and Sage code for calculating a heuristic (and usually correct) approximation of the endomorphism algebras and rings of Jacobian varieties of hyperelliptic curves.
 For now, the code assumes the curves involved to be defined over QQ, and most of it additionally assumes that we are in genus 2.
 
+# Optional other packages
+
+If you have the (not yet publically available) Magma code for calculating period matrices by Pascal Molin and Christian Neurohr, then please attach it in your `~/.magmarc` file. You can then set the flag `have_oldenburg` to `True`, which will make the code run considerably faster, as well as making it more stable.
+
 # Installation
 
 An installation of both Magma and Sage is required to run this code. 
