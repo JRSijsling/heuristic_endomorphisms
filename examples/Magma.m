@@ -1,6 +1,22 @@
 AttachSpec("../spec");
 
 R<x> := PolynomialRing(Rationals());
+f := x^5 + x + 1;
+X := HyperellipticCurve(f);
+g2X := G2Invariants(X);
+
+prec := 300;
+eqsCC := EmbedCurveEquations(X, prec);
+P := PeriodMatrix(eqsCC : HaveOldenburg := true);
+F := BaseRing(X);
+
+print X;
+Y := FactorReconstructG2(P, F);
+print Y;
+
+exit;
+
+R<x> := PolynomialRing(Rationals());
 num := 101*x; den := 1;
 num := x + 3; den := 5*x + 2;
 num := 2*x + 3; den := 4*x + 5;

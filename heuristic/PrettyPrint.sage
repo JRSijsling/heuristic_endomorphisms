@@ -89,20 +89,22 @@ def statement_endomorphisms_RR(desc, genus, str_field):
     return "End (J_%s) ox RR: %s" % (str_field, ' x '.join(desc[_index_dict_['desc_RR']]))
 
 def statement_factor_QQ(factor_QQ):
-    str_base = pretty_print_field(factor_QQ[_index_dict_['base_field']])
+    # FIXME: Assumes g <= 3
     dim_sqrt = factor_QQ[_index_dict_['dim_sqrt']]
     disc = factor_QQ[_index_dict_['disc']]
     albert_type = factor_QQ[_index_dict_['albert_type']]
+    str_base = pretty_print_field(factor_QQ[_index_dict_['base_field']])
     str_dim_sqrt = str(dim_sqrt)
     str_disc = str(disc)
 
     if albert_type == 'I':
-        statement = str_base
+        if dim_sqrt == 1:
+            statement = str_base
+        else:
+            statement = "M_%s (%s)" % (str_dim_sqrt, str_base)
 
     elif albert_type == 'II':
-        if disc == 1:
-            statement = "M_%s (%s)" % (str_dim_sqrt, str_base)
-        elif dim_sqrt == 2:
+        if dim_sqrt == 2:
             statement = "IndefQuat (%s, %s)"  % (str_base, str_disc)
         else:
             statement = "IndefAlg_%s (%s, %s)"  % (str_dim_sqrt, str_base, str_disc)
@@ -126,37 +128,35 @@ def statement_factor_QQ(factor_QQ):
     return statement
 
 def statement_factor_ZZ_maximal(factor_QQ, desc_ZZ, str_field):
+    # FIXME: Assumes g <= 3
     albert_type = factor_QQ[_index_dict_['albert_type']]
     field_pretty = pretty_print_field(factor_QQ[_index_dict_['base_field']])
     ring_pretty = pretty_print_ring(factor_QQ[_index_dict_['base_field']], 1)
     disc = factor_QQ[_index_dict_['disc']]
     dim_sqrt = factor_QQ[_index_dict_['dim_sqrt']]
-    if albert_type == 'I':
-        return '%s' % ring_pretty
-    elif albert_type == 'II':
-        # TODO: Next line in greater generality over PIDs
-        if (disc == 1) and field_pretty == 'QQ':
-            return 'M_%s (%s)' % (dim_sqrt, ring_pretty)
-    elif albert_type == 'IV':
+    if albert_type == 'I' or albert_type == 'IV':
         if dim_sqrt == 1:
-            return '%s' % ring_pretty
+            return ring_pretty
+        # TODO: Next line in greater generality over PIDs
         elif (disc == 1) and field_pretty == 'QQ':
             return 'M_%s (%s)' % (dim_sqrt, ring_pretty)
     return 'Max (%s)' % statement_factor_QQ(factor_QQ)
 
 def statement_factors_ZZ_index(factors_QQ, desc_ZZ, str_field):
+    # FIXME: Assumes g <= 3
     index = desc_ZZ[_index_dict_['index']]
     if len(factors_QQ) == 1:
         factor_QQ = factors_QQ[0]
         albert_type = factor_QQ[_index_dict_['albert_type']]
-        if albert_type == 'I':
+        dim_sqrt = factor_QQ[_index_dict_['dim_sqrt']]
+        if albert_type == 'I' and dim_sqrt == 1:
             desc_field = factor_QQ[_index_dict_['base_field']]
             return pretty_print_ring(desc_field, index)
     return "Sub (End (J_%s) ox QQ, %s)" % (str_field, index)
 
 def statement_sato_tate_group(desc, genus, str_field):
     sato_tate = desc[_index_dict_['sato_tate']]
-    if sato_tate == "":
+    if sato_tate == "" or sato_tate == "undef":
         sato_tate = "not classified yet"
     return "Sato-Tate group: %s" % sato_tate
 
