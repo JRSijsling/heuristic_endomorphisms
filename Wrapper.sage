@@ -11,14 +11,14 @@
 
 class EndomorphismData:
     def __init__(self, X, prec, bound = 0, have_oldenburg = False):
-        self.X = magma(X)
+        self.X = X
         self.g = magma.Genus(self.X)
         self.base_field = magma.BaseRing(self.X)
         self.prec = magma(prec)
         self.bound = magma(bound)
         self.have_oldenburg = magma(have_oldenburg)
         self._P_ = self.period_matrix()
-        self._calculate_geometric_representations_()
+        self._calculate_geometric_representation_()
 
     def __repr__(self):
         return repr_endomorphism_data(self)
@@ -28,7 +28,7 @@ class EndomorphismData:
         self._P_ = magma.PeriodMatrix(self._eqsCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
-    def _calculate_geometric_representations_(self):
+    def _calculate_geometric_representation_(self):
         self._P_ = self.period_matrix()
         _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
         _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.base_field)
@@ -86,7 +86,7 @@ class EndomorphismData:
         test, cert = magma.Correspondence(self.X, self.base_point, self.X, self.base_point, A, nvals = 2)
         return cert
 
-    def verify_representations(self):
+    def verify_representation(self):
         self._rep_test_ = True
         for gen in self._geo_rep_dict_:
             genTan = gen['tangent']
@@ -98,7 +98,7 @@ class EndomorphismData:
         return self._rep_test_
 
     def verify(self):
-        return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
+        return (self.verify_algebra() and self.verify_saturated() and self.verify_representation())
 
 class OverField:
     def __init__(self, Endo, K = "geometric"):
@@ -169,7 +169,7 @@ class OverField:
         test, cert = magma.Correspondence(self.X, self.base_point, self.X, self.base_point, A, nvals = 2)
         return cert
 
-    def verify_representations(self):
+    def verify_representation(self):
         self._calculate_dictionary_()
         self._rep_test_ = True
         for gen in self._dict_['representation']:
@@ -182,7 +182,7 @@ class OverField:
         return self._rep_test_
 
     def verify(self):
-        return (self.verify_algebra() and self.verify_saturated() and self.verify_representations())
+        return (self.verify_algebra() and self.verify_saturated() and self.verify_representation())
 
 class Lattice:
     def __init__(self, Endo):

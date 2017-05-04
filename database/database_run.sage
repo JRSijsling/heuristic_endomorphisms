@@ -27,10 +27,10 @@ prec = 300
 import os, shutil
 
 # Specify input and output:
-base_string = 'gce_genus3_hyperelliptic_2_endos'
+base_string = 'gce_genus3_hyperelliptic'
 inputfile = base_string + '.txt'
 intermediatefile = base_string + '_temp.txt'
-outputfile = base_string + '_errors.txt'
+outputfile = base_string + '_endos.txt'
 
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
@@ -82,6 +82,7 @@ while not stop:
                     h = R(den^3 * h(subst))
                     X = HyperellipticCurve(f, h)
                     try:
+                        # Regular version:
                         Endo = EndomorphismData(X, prec = prec, have_oldenburg = True)
                         Lat_str = Endo.lattice()._desc_
                         outputstream.write(linestart
@@ -102,6 +103,11 @@ while not stop:
                         # Or check for lacking entries:
                         #if len(linesplit) != 3:
                         #    outputstream.write(line)
+                        # Or check for large lattice
+                        #if len(linesplit) == 3:
+                        #    L = sage_eval(linesplit[2])
+                        #    if len(L) != 1:
+                        #        outputstream.write(line)
                     except:
                         # In case of an error postpone until next time:
                         print "Error"

@@ -100,7 +100,7 @@ intrinsic EmbedAtInfinitePlace(f::RngMPolElt, RCC::RngMPol) -> RngMPolElt
 if IsZero(f) then
     return RCC ! 0;
 else
-    F := BaseRing(f);
+    F := BaseRing(Parent(f));
     prec := Precision(BaseRing(RCC));
     mons := Monomials(f);
     return &+[ Evaluate(MonomialCoefficient(f, mon), F`iota : Precision := prec) * Monomial(RCC, Exponents(mon)) : mon in mons ];

@@ -31,14 +31,14 @@ if #GeneratorsSequence(RCC) eq 1 then
         return Transpose(Matrix(BaseRing(gCC), BigPeriodMatrix(JCC)));
     end if;
     return Transpose(Matrix(BaseRing(gCC), PeriodMatrix(gCC)));
-elif #GeneratorsSequence(RCC) eq 2 then
+elif #GeneratorsSequence(RCC) eq 3 then
     F := Explode(eqsCC);
     SCC<x0,x1,x2> := Parent(F); CC := BaseRing(SCC); RCC<x,y> := PolynomialRing(CC, 2);
     h := hom<SCC -> RCC | [x,y,1]>; f := h(F);
     if not HaveOldenburg then
         error "No functionality for plane curves available";
     end if;
-    return Transpose(Matrix(BaseRing(F), PeriodMatrix(f)));
+    return Transpose(Matrix(BaseRing(Parent(F)), PeriodMatrix(f)));
 else
     error "No functionality for general curves available";
 end if;
