@@ -27,10 +27,10 @@ prec = 300
 import os, shutil
 
 # Specify input and output:
-base_string = 'gce_genus3_hyperelliptic'
+base_string = 'gce_genus3_hyperelliptic_2_endos'
 inputfile = base_string + '.txt'
 intermediatefile = base_string + '_temp.txt'
-outputfile = base_string + '_endos.txt'
+outputfile = base_string + '_errors.txt'
 
 # Ambient ring:
 R.<x> = PolynomialRing(QQ)
@@ -84,17 +84,24 @@ while not stop:
                     try:
                         Endo = EndomorphismData(X, prec = prec, have_oldenburg = True)
                         Lat_str = Endo.lattice()._desc_
-                        # Check Sato-Tate and write if a match occurs:
-                        #if st_index < 0 or Lat_str[-1][4] == linesplit[st_index]:
                         outputstream.write(linestart
-                                + ':' + repr(Lat_str).replace('\n', '').replace(' ', '')
-                                + '\n')
+                               + ':' + repr(Lat_str).replace('\n', '').replace(' ', '')
+                               + '\n')
                         done_list.append(counter)
+                        # Or check Sato-Tate and write if a match occurs:
+                        #if st_index < 0 or Lat_str[-1][4] == linesplit[st_index]:
+                        #    outputstream.write(linestart
+                        #           + ':' + repr(Lat_str).replace('\n', '').replace(' ', '')
+                        #           + '\n')
+                        #    done_list.append(counter)
                         #else:
                         #    # In case of incorrect ST postpone until next time:
                         #    outputstream.write(line)
-                        # For culling instead:
+                        # Or make the database smaller:
                         #outputstream.write(linesplit[0] + ':' + linesplit[3] + '\n')
+                        # Or check for lacking entries:
+                        #if len(linesplit) != 3:
+                        #    outputstream.write(line)
                     except:
                         # In case of an error postpone until next time:
                         print "Error"
