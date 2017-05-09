@@ -11,14 +11,20 @@
 
 load("../Initialize.sage")
 
-# Hyperelliptic tests over QQ
-R.<x> = PolynomialRing(QQ)
-
 Xs = [ ]
 
 # RM over QQ
-f,h = [2*x^5-3*x^4+x^3+x^2-x,1]
-Xs.append(HyperellipticCurve(f, h))
+#R.<x> = PolynomialRing(QQ)
+#f,h = [2*x^5-3*x^4+x^3+x^2-x,1]
+#Xs.append(mHyperellipticCurve(f, h))
+
+# Example by Haluk
+R.<t> = PolynomialRing(QQ)
+F.<u> = NumberField(t^2 - t + 1)
+R.<x> = PolynomialRing(F)
+f = R([ -30*u + 42, -156*u + 312, -66*u + 186, -1456*u + 1040, -90*u + 126, 156*u - 312, -22*u + 62 ])
+h = R(0)
+Xs.append(mHyperellipticCurve(f, h))
 
 for X in Xs:
     print X
@@ -31,26 +37,26 @@ for X in Xs:
     print "Field of definition:"
     print Endo.endomorphism_field()
 
-    #print "Testing Rosati and degree bound:"
-    #A = Endo._geo_rep_list_[1][1]
-    #print A
-    #print Endo.rosati_involution(A)
-    #print Endo.degree_estimate(A)
+    print "Geometric representation:"
+    Geo = Endo.geometric()
+    print Geo.representation()
+    print Geo.algebra()
+    print Geo.pretty_print()
 
-    print "Over several fields:"
-    #print Endo.geometric().representation()
-    #print Endo.over_base().representation()
-    K.<s> = NumberField(x^2 - 2)
-    overK = Endo.over_field(K)
-    print K
-    #print overK.representation()
-    #print overK.algebra()
-    #print overK.description()
-    print overK.pretty_print()
-
-    print "Examples of lattices:"
-    #print Endo.lattice()
-    #print Endo.lattice().representations()
-    #print Endo.lattice().algebras()
-    #print Endo.lattice().descriptions()
-    print Endo.lattice().pretty_print()
+#    print "Over several fields:"
+#    #print Endo.geometric().representation()
+#    #print Endo.over_base().representation()
+#    K.<s> = NumberField(x^2 - 2)
+#    overK = Endo.over_field(K)
+#    print K
+#    #print overK.representation()
+#    #print overK.algebra()
+#    #print overK.description()
+#    print overK.pretty_print()
+#
+#    print "Examples of lattices:"
+#    #print Endo.lattice()
+#    #print Endo.lattice().representations()
+#    #print Endo.lattice().algebras()
+#    #print Endo.lattice().descriptions()
+#    print Endo.lattice().pretty_print()

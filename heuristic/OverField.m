@@ -108,11 +108,14 @@ end for;
 
 Gp, Gf, Gphi := AutomorphismGroup(L);
 if test then
-    GalK := [* Generators(FixedGroup(L, KL)), Gphi *];
+    // Geometric case first:
+    if Degree(K) eq Degree(L) then
+        return [* [ ], Gphi *];
+    end if;
+    return [* Generators(FixedGroup(L, KL)), Gphi *];
 else
     // Case where we need to go down all the way
-    GalK := [* Generators(Gp), Gphi *];
+    return [* Generators(Gp), Gphi *];
 end if;
-return GalK;
 
 end intrinsic;

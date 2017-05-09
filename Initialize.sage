@@ -21,6 +21,7 @@ magma.chdir(__endodir__)
 magma.load('~/.magmarc')
 magma.AttachSpec('spec')
 
+load('heuristic/Curves.sage')
 load('heuristic/Relative.sage')
 load('heuristic/Reprs.sage')
 load('heuristic/Dicts.sage')
