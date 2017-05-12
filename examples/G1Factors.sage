@@ -11,23 +11,25 @@
 
 load("../Initialize.sage")
 
-# Hyperelliptic tests over QQ
-R.<x> = PolynomialRing(QQ)
 
+# Hyperelliptic tests over QQ
+F = QQ
+R.<x> = PolynomialRing(F)
 Xs = [ ]
 
-# RM over QQ
-f = x^8 + 14*x^4 + 1
-h = R(0)
-Xs.append(HyperellipticCurve(f, h))
+# Genus 1 factors
+f = x^7 + x^6 + x^5 + x^3 + x^2 + x
+h = x^4 + x^2 + 1
+Xs.append(mHyperellipticCurve(f, h))
 
+# Run the main functionality
 for X in Xs:
     print X
     # The main functionality
     Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
     #print "Period matrix:"
-    #print Endo.period_matrix()
+    #print Endo._P_
 
     print "Field of definition:"
     print Endo.endomorphism_field()
@@ -38,10 +40,14 @@ for X in Xs:
     #print Endo.rosati_involution(A)
     #print Endo.degree_estimate(A)
 
+    print "Geometric representation:"
+    print Endo.geometric().representation()
+
     print "Over several fields:"
     #print Endo.geometric().representation()
     #print Endo.over_base().representation()
-    K.<s> = NumberField(x^2 - 2)
+    R.<t> = PolynomialRing(F)
+    K.<s> = NumberField(t^2 - 2)
     overK = Endo.over_field(K)
     print K
     #print overK.representation()
@@ -56,8 +62,33 @@ for X in Xs:
     #print Endo.lattice().descriptions()
     print Endo.lattice().pretty_print()
 
-EndoGeo = Endo.geometric()
-EndoDict = EndoGeo.full()
-alg = EndoDict['algebra']
-A = alg['alg_QQ']
-print A
+    #print "Verification:"
+    #print Endo.dimension_algebra()
+    #print Endo.base_point()
+    #A = Endo._geo_rep_dict_[2]['tangent']
+    #print A
+    #print Endo.correspondence(A)
+    #print Endo.verify()
+
+    #print "Testing same functionality over a field:"
+    #A = overK._list_[1][1][1]
+    #print A
+    #print overK.rosati_involution(A)
+    #print overK.degree_estimate(A)
+    #print overK.dimension_algebra()
+    #print overK.verify_algebra()
+    #print overK.verify_saturated()
+    #print overK.base_point()
+    #print overK.correspondence(A)
+    #print overK.verify()
+    #print overK.full()
+
+    #print "Decomposition:"
+    Dec = Endo.decomposition()
+    print Dec
+    print Dec.field
+    print Dec.idempotents()
+    #print Dec.projections()
+    print Dec.factors()
+    #print Dec._factors_desc_()
+    #print Dec.verify()

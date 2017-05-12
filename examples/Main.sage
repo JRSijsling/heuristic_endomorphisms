@@ -17,16 +17,6 @@ F = QQ
 R.<x> = PolynomialRing(F)
 Xs = [ ]
 
-## Largest genus 2 case (takes a LOT of time)
-#f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
-#h = R(0)
-#Xs.append(mHyperellipticCurve(f, h))
-
-## Genus 2 factor
-#f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
-#h = R(0)
-#Xs.append(mHyperellipticCurve(f, h))
-
 # RM over QQ
 f = -x^5
 h = x^3 + x + 1
@@ -169,7 +159,7 @@ for X in Xs:
     #print overK.description()
     print overK.pretty_print()
 
-    print "Examples of lattices:"
+    print "Lattice:"
     #print Endo.lattice()
     #print Endo.lattice().representations()
     #print Endo.lattice().algebras()

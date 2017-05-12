@@ -42,21 +42,3 @@ for X in Xs:
     print Geo.representation()
     print Geo.algebra()
     print Geo.pretty_print()
-
-#    print "Over several fields:"
-#    #print Endo.geometric().representation()
-#    #print Endo.over_base().representation()
-#    K.<s> = NumberField(x^2 - 2)
-#    overK = Endo.over_field(K)
-#    print K
-#    #print overK.representation()
-#    #print overK.algebra()
-#    #print overK.description()
-#    print overK.pretty_print()
-#
-#    print "Examples of lattices:"
-#    #print Endo.lattice()
-#    #print Endo.lattice().representations()
-#    #print Endo.lattice().algebras()
-#    #print Endo.lattice().descriptions()
-#    print Endo.lattice().pretty_print()
