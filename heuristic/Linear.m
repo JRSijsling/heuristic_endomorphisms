@@ -125,6 +125,7 @@ for row in Rows(FullLattice) do
 end for;
 
 M := Matrix(Basis(Lattice(LMat)));
-return Matrix(BaseRing(FullLattice),M)*SubLattice;
+M := Matrix(BaseRing(FullLattice),M);
+return M*SubLattice, M;
 
 end intrinsic;

@@ -29,6 +29,9 @@ intrinsic FactorReconstructG1(P::., K::Fld) -> .
 {Reconstructs elliptic curve factor from a period lattice.}
 
 P := Eltseq(P); CC := Parent(P[1]); RR := RealField(CC);
+if Im(P[2]/P[1]) lt 0 then
+    P := [ P[2], P[1] ];
+end if;
 g4CC := 120 * (1/P[1])^4 * ZetaFunction(RR, 4) * Eisenstein(4, P);
 g6CC := 280 * (1/P[1])^6 * ZetaFunction(RR, 6) * Eisenstein(6, P);
 g4 := AlgebraizeElementInRelativeField(g4CC, K);

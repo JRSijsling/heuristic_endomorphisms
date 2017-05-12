@@ -56,4 +56,7 @@ time K := RelativeSplittingFieldExtra(f);
 print K;
 print K`iota;
 
+RestrictInfinitePlace(K, K);
+print K`iota;
+
 exit;

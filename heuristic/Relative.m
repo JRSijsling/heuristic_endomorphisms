@@ -47,12 +47,29 @@ intrinsic DefineOrExtendInfinitePlace(K::Fld)
 {Extends an infinite place over a relative field extension.}
 
 F := BaseRing(K);
-if not assigned F`iota or Type(BaseRing(K)) eq FldRat then
+if not assigned F`iota or Type(F) eq FldRat then
     SetInfinitePlace(K, InfinitePlaces(K)[1]);
 else
     for iotaK in InfinitePlaces(K) do
         if Extends(iotaK, F`iota) then
             K`iota := iotaK;
+        end if;
+    end for;
+end if;
+
+end intrinsic;
+
+
+intrinsic RestrictInfinitePlace(L::Fld, K::Fld)
+{Restricts an infinite place over a relative field extension.}
+
+if Type(K) eq FldRat then
+    SetInfinitePlace(K, InfinitePlaces(K)[1]);
+else
+    for iotaK in InfinitePlaces(K) do
+        if Extends(L`iota, iotaK) then
+            K`iota := iotaK;
+            break;
         end if;
     end for;
 end if;

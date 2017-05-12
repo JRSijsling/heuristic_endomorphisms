@@ -15,9 +15,12 @@ intrinsic IdempotentsFromLattice(Lat::SeqEnum) -> .
 
 Lat := Reverse(Lat);
 GeoEndoStruct := Lat[#Lat][2];
+L := Lat[#Lat][1][2];
 num_idemsgeo := NumberOfIdempotentsFromStructure(GeoEndoStruct);
 if num_idemsgeo eq 1 then
-    return [ ], Lat[1][1][2];
+    K := Lat[1][1][2];
+    RestrictInfinitePlace(L, K);
+    return [ ], K;
 end if;
 
 n := #Lat; i := 1;
@@ -27,6 +30,7 @@ while i le n do
     num_idems := NumberOfIdempotentsFromStructure(EndoStruct);
     if num_idems eq num_idemsgeo then
         idems := IdempotentsFromStructure(EndoStruct);
+        RestrictInfinitePlace(L, K);
         return idems, K;
     end if;
     i +:= 1;
@@ -159,16 +163,18 @@ gQuotient := NumericalRank(PEllHuge : Epsilon := RR`epsinv);
 
 PEllHugeSplit := SplitMatrix(PEllHuge);
 
-PEllBigSplit, col_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient : ColumnsOrRows := "Rows"); // extract 2g independent rows
-PEllBigSplit := SaturateLattice(PEllHugeSplit, PEllBigSplit); // ensure that these rows generate the full lattice
+PEllBigSplit, row_numbers := SubmatrixOfRank(PEllHugeSplit, 2*gQuotient : ColumnsOrRows := "Rows"); // extract 2g independent rows
+PEllBigSplit, M := SaturateLattice(PEllHugeSplit, PEllBigSplit); // ensure that these rows generate the full lattice
 
 PEllBig := CombineMatrix(PEllBigSplit, CC); // go back to the complex representation
 
-PreliminaryLatticeMatrix, s0 := SubmatrixOfRank(PEllBig, gQuotient : ColumnsOrRows := "Columns"); // extract g columns (i.e. decide which projection to use)
+LatticeMatrix, s0 := SubmatrixOfRank(PEllBig, gQuotient : ColumnsOrRows := "Columns"); // extract g columns (i.e. decide which projection to use)
 
+/* Do not see the need for the next step:
 PreliminaryLatticeMatrix := Transpose(PreliminaryLatticeMatrix); // necessary before calling SaturateLattice
 PEllBig := Transpose(PEllBig);
 LatticeMatrix := Transpose(SaturateLattice(PEllBig, PreliminaryLatticeMatrix));
+*/
 
 rowsTan := Rows(idemTan); projTan := Matrix([ rowsTan[i] : i in s0 ]);
 rowsHom := Rows(idemHom); projHom := Matrix([ rowsHom[i] : i in s0 ]);

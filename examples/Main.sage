@@ -17,8 +17,13 @@ F = QQ
 R.<x> = PolynomialRing(F)
 Xs = [ ]
 
-# Largest genus 2 case (takes a LOT of time)
+## Largest genus 2 case (takes a LOT of time)
 #f = x^6 - 5*x^4 + 10*x^3 - 5*x^2 + 2*x - 1
+#h = R(0)
+#Xs.append(mHyperellipticCurve(f, h))
+
+## Genus 2 factor
+#f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
 #h = R(0)
 #Xs.append(mHyperellipticCurve(f, h))
 
@@ -61,11 +66,6 @@ f = 3*x^3 - 2*x^2 + 6*x + 2
 h = x^3 + x
 Xs.append(mHyperellipticCurve(f, h))
 
-# Genus 2 factor
-f = x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19
-h = R(0)
-Xs.append(mHyperellipticCurve(f, h))
-
 
 #
 ## LMFDB tests:
@@ -105,35 +105,35 @@ Xs.append(mHyperellipticCurve(f, h))
 #Xs.append(mHyperellipticCurve(f, h))
 #
 
-
-# Plane tests
-F = QQ
-P2.<x,y,z> = ProjectiveSpace(F, 2)
-Xs = [ ]
-
-f = x^4 - 3*x^3*y + 3*x^3*z + 3*x^2*y^2 + 4*x^2*y*z + x^2*z^2 + 2*x*y^3 + \
-4*x*y^2*z + x*y*z^2 - x*z^3 - 2*y^4 + 4*y^3*z - 2*y^2*z^2 + 3*y*z^3 - 2*z^4
-Xs.append(mPlaneCurve(f))
-
-f = x^4 - 2*x^3*y + 14*x^2*y^2 - 16*x^2*y*z + 110*x^2*z^2 - 13*x*y^3 + \
-16*x*y^2*z - 110*x*y*z^2 + 52*y^4 - 4*y^3*z + 1199*y^2*z^2 + 3905*z^4
-Xs.append(mPlaneCurve(f))
-
-f = 4*x^4 - 8*x^3*z + 92*x^2*y^2 - 148*x^2*y*z - 408*x^2*z^2 - 92*x*y^2*z + \
-148*x*y*z^2 + 412*x*z^3 - 371*y^4 - 742*y^3*z + 2991*y^2*z^2 + 302*y*z^3 - \
-2051*z^4
-Xs.append(mPlaneCurve(f))
-
-f = 4*x^4 - 8*x^3*z + 92*x^2*y^2 - 148*x^2*y*z - 408*x^2*z^2 - 92*x*y^2*z + \
-148*x*y*z^2 + 412*x*z^3 - 371*y^4 - 742*y^3*z + 2991*y^2*z^2 + 3302*y*z^3 - \
-2051*z^4
-Xs.append(mPlaneCurve(f))
-
-a = 2
-b = 3
-f = b*z^4 + z*(x^3+y^3) + a*z^2*x*y + x^2*y^2
-Xs.append(mPlaneCurve(f))
-
+#
+## Plane tests
+#F = QQ
+#P2.<x,y,z> = ProjectiveSpace(F, 2)
+#Xs = [ ]
+#
+#f = x^4 - 3*x^3*y + 3*x^3*z + 3*x^2*y^2 + 4*x^2*y*z + x^2*z^2 + 2*x*y^3 + \
+#4*x*y^2*z + x*y*z^2 - x*z^3 - 2*y^4 + 4*y^3*z - 2*y^2*z^2 + 3*y*z^3 - 2*z^4
+#Xs.append(mPlaneCurve(f))
+#
+#f = x^4 - 2*x^3*y + 14*x^2*y^2 - 16*x^2*y*z + 110*x^2*z^2 - 13*x*y^3 + \
+#16*x*y^2*z - 110*x*y*z^2 + 52*y^4 - 4*y^3*z + 1199*y^2*z^2 + 3905*z^4
+#Xs.append(mPlaneCurve(f))
+#
+#f = 4*x^4 - 8*x^3*z + 92*x^2*y^2 - 148*x^2*y*z - 408*x^2*z^2 - 92*x*y^2*z + \
+#148*x*y*z^2 + 412*x*z^3 - 371*y^4 - 742*y^3*z + 2991*y^2*z^2 + 302*y*z^3 - \
+#2051*z^4
+#Xs.append(mPlaneCurve(f))
+#
+#f = 4*x^4 - 8*x^3*z + 92*x^2*y^2 - 148*x^2*y*z - 408*x^2*z^2 - 92*x*y^2*z + \
+#148*x*y*z^2 + 412*x*z^3 - 371*y^4 - 742*y^3*z + 2991*y^2*z^2 + 3302*y*z^3 - \
+#2051*z^4
+#Xs.append(mPlaneCurve(f))
+#
+#a = 2
+#b = 3
+#f = b*z^4 + z*(x^3+y^3) + a*z^2*x*y + x^2*y^2
+#Xs.append(mPlaneCurve(f))
+#
 
 
 # Run the main functionality
@@ -184,7 +184,7 @@ for X in Xs:
     #print Endo.correspondence(A)
     #print Endo.verify()
 
-    #print "Testing same functionality over K:"
+    #print "Testing same functionality over a field:"
     #A = overK._list_[1][1][1]
     #print A
     #print overK.rosati_involution(A)
@@ -198,11 +198,11 @@ for X in Xs:
     #print overK.full()
 
     #print "Decomposition:"
-    #Dec = Endo.decomposition()
-    #print Dec
-    #print Dec.field
-    #print Dec.idempotents()
+    Dec = Endo.decomposition()
+    print Dec
+    print Dec.field
+    print Dec.idempotents()
     #print Dec.projections()
-    #print Dec.factors()
+    print Dec.factors()
     #print Dec._factors_desc_()
     #print Dec.verify()

@@ -41,20 +41,9 @@ Lat := [ ];
 // The code of this first (geometric) step is a copy of that below except for
 // shorthand extraction. Of course it could be simpler, but there is no time
 // loss as a result.
-H := Hs[1];
 OverK := [* *];
-gensH := Generators(H); GalK := [* gensH, Gphi *];
-if Type(L) eq FldRat then
-    K := L;
-else
-    K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
-end if;
-
-K := ClearFieldDenominator(K);
-if (Type(K) eq FldNum and Optimize) then
-    K := OptimizedRepresentation(K);
-    K := ClearFieldDenominator(K);
-end if;
+gensH := [ ]; GalK := [* gensH, Gphi *];
+K := L;
 
 // TODO: Indicate class group and treat the relative case (scaffolding in place).
 K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
