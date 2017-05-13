@@ -17,11 +17,14 @@ M := Transpose(M);
 
 time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+print D;
 
+/*
 DEs := DefiningEquations(D);
 DEs := [ 2*30697399*DEs[1], 2*30697399*DEs[2] ];
 Lat := Lattice(Matrix([ Coefficients(DE) : DE in DEs ]));
 print LLL(Lat);
+*/
 
 exit;
 

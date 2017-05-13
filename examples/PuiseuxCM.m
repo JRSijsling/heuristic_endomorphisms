@@ -1,5 +1,6 @@
 AttachSpec("../spec");
-SetVerbose("EndoCheck", 2);
+SetVerbose("EndoCheck", 1);
+SetMemoryLimit(32*10^9);
 
 R<t> := PolynomialRing(Rationals());
 f := x^6 + 13*x^4 + 50*x^2 + 49;
@@ -24,5 +25,6 @@ M := Matrix(F, [
 
 //time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+print D;
 
 exit;

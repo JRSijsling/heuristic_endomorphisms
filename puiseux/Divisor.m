@@ -220,7 +220,7 @@ function CandidateDivisors(X, Y, d)
 
 gX := X`g; fX := X`DEs[1]; RX := X`R; xX := X`x; yX := X`y;
 gY := Y`g; fY := Y`DEs[1]; RY := Y`R; xY := Y`x; yY := Y`y;
-R := PolynomialRing(X`F, 2); Rprod := PolynomialRing(X`F, 4);
+R := PolynomialRing(X`F, 2, "lex"); Rprod := PolynomialRing(X`F, 4, "lex");
 
 if X`is_hyperelliptic then
     divsX := [ xX^i : i in [0..(d div 2)] ] cat [ xX^i*yX : i in [0..((d - gX - 1) div 2)] ];
@@ -228,12 +228,20 @@ elif X`is_planar then
     divsX := [ xX^i*yX^j : i in [0..d], j in [0..(Degree(fX, yX) - 1)] | i + j le d ];
 end if;
 divsY := [ xY^i*yY^j : i in [0..gY], j in [0..(Degree(fY, yY) - 1)] ];
+divsX := [ xX^i : i in [0..(d div 2)] ] cat [ xX^i*yX : i in [0..((d - gX - 1) div 2)] ];
+divsY := [ xY^i : i in [0..(d div 2)] ] cat [ xY^i*yY : i in [0..((d - gX - 1) div 2)] ];
+Reverse(~divsX); Reverse(~divsY);
+//print divsX; print divsY;
 
 divsX := [ R ! d : d in divsX ]; divsY := [ R ! d : d in divsY ];
-hX := hom<RX -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<RY -> Rprod | [ Rprod.3, Rprod.4 ]>;
+//hX := hom<RX -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<RY -> Rprod | [ Rprod.3, Rprod.4 ]>;
+hX := hom<RX -> Rprod | [ Rprod.3, Rprod.1 ]>; hY := hom<RY -> Rprod | [ Rprod.4, Rprod.2 ]>;
 hs := [ hX, hY ];
 CP := CartesianProduct([ divsX, divsY ]);
-return [ &*[ hs[i](tup[i]) : i in [1..2] ] : tup in CP ];
+divs := [ &*[ hs[i](tup[i]) : i in [1..2] ] : tup in CP ];
+divs := Reverse(Sort(divs));
+//print divs;
+return divs;
 
 end function;
 
@@ -254,7 +262,8 @@ M := [ ];
 for f in fs do
     r := [ ];
     for Q in Qs do
-        ev := Evaluate(f, P cat Q);
+        //ev := Evaluate(f, P cat Q);
+        ev := Evaluate(f, [ Q[2], P[2], Q[1], P[1] ]);
         r cat:= [ Coefficient(ev, i/e) : i in [0..prec - X`g] ];
     end for;
     Append(~M, r);
@@ -267,9 +276,18 @@ B := [ [ X`F ! c : c in Eltseq(b) ] : b in B ];
 
 /* Corresponding equations: */
 Rprod := Parent(fs[1]);
-hX := hom<X`R -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<Y`R -> Rprod | [ Rprod.3, Rprod.4 ]>;
+//hX := hom<X`R -> Rprod | [ Rprod.1, Rprod.2 ]>; hY := hom<Y`R -> Rprod | [ Rprod.3, Rprod.4 ]>;
+hX := hom<X`R -> Rprod | [ Rprod.4, Rprod.2 ]>; hY := hom<Y`R -> Rprod | [ Rprod.3, Rprod.1 ]>;
 eqs := [ &+[ b[i] * fs[i] : i in [1..#fs] ] : b in B ];
 eqs := eqs cat [ hX(DE) : DE in X`DEs ] cat [ hY(DE) : DE in Y`DEs ];
+
+/*
+vprintf EndoCheck, 2 : "Calculating Groebner basis... ";
+GB := GroebnerBasis(ideal< Rprod | eqs >);
+vprint EndoCheck, 3 : GB;
+vprintf EndoCheck, 2 : "done.\n";
+eqs := GB;
+*/
 
 /* Corresponding scheme: */
 A := AffineSpace(Rprod);
@@ -294,7 +312,8 @@ function IrreducibleComponentCheck(X, Y, I)
 
 A4 := Ambient(I); R4 := CoordinateRing(A4);
 R2 := PolynomialRing(X`F, 2); A2 := AffineSpace(R2);
-h := hom< R4 -> R2 | [ X`P0[i] : i in [1..2] ] cat [ R2.i : i in [1..2] ] >;
+//h := hom< R4 -> R2 | [ X`P0[i] : i in [1..2] ] cat [ R2.i : i in [1..2] ] >;
+h := hom< R4 -> R2 | [ R2.2, X`P0[2], R2.1, X`P0[1] ] >;
 eqs2 := [ h(eq4) : eq4 in DefiningEquations(I) ];
 S := Scheme(A2, eqs2);
 if Dimension(S) eq 0 then
@@ -369,7 +388,7 @@ end while;
 end intrinsic;
 
 
-intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 100) -> BoolElt, .
+intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 300) -> BoolElt, .
 {Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
 representation of a projection morphism on the standard basis of differentials,
 returns a corresponding divisor (if it exists). The parameter Margin specifies
@@ -384,7 +403,7 @@ NormM := Y`T * NormM * (X`T)^(-1);
 tjs0, f := InitializeImageBranch(NormM);
 F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF;
 P, Qs := ApproximationsFromTangentAction(X, Y, NormM, X`g);
-Rprod := PolynomialRing(X`F, 4);
+Rprod := PolynomialRing(X`F, 4, "lex");
 
 ps_rts := [ ]; prs := [ ]; DEss_red := [* *];
 I := ideal<X`OF | 1>;
@@ -486,7 +505,8 @@ while true do
     for DE in DEs do
         test1_int := true;
         for Q in Qs do
-            if not IsWeaklyZero(Evaluate(DE, P cat Q)) then
+            //if not IsWeaklyZero(Evaluate(DE, P cat Q)) then
+            if not IsWeaklyZero(Evaluate(DE, [ Q[2], P[2], Q[1], P[1] ])) then
                 test1_int := false;
                 break;
             end if;
@@ -505,6 +525,7 @@ while true do
         //vprintf EndoCheck : "Candidate divisor:\n";
         //vprint EndoCheck : S;
         test2 := IrreducibleComponentCheck(X, Y, S);
+        //test2 := true;
         vprintf EndoCheck : "done.\n";
         if test2 then
             vprintf EndoCheck : "Divisor found!\n";
