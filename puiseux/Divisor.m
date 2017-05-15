@@ -281,13 +281,11 @@ hX := hom<X`R -> Rprod | [ Rprod.4, Rprod.2 ]>; hY := hom<Y`R -> Rprod | [ Rprod
 eqs := [ &+[ b[i] * fs[i] : i in [1..#fs] ] : b in B ];
 eqs := eqs cat [ hX(DE) : DE in X`DEs ] cat [ hY(DE) : DE in Y`DEs ];
 
-/*
 vprintf EndoCheck, 2 : "Calculating Groebner basis... ";
 GB := GroebnerBasis(ideal< Rprod | eqs >);
 vprint EndoCheck, 3 : GB;
 vprintf EndoCheck, 2 : "done.\n";
-eqs := GB;
-*/
+Append(~eqs, GB[#GB]);
 
 /* Corresponding scheme: */
 A := AffineSpace(Rprod);
