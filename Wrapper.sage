@@ -10,26 +10,29 @@
 """
 
 class EndomorphismData:
-    def __init__(self, X, prec, bound = 0, have_oldenburg = False):
+    def __init__(self, X, prec, bound = 0, have_oldenburg = False, periods = ""):
         self.X = X
         self.g = magma.Genus(self.X)
         self.base_field = magma.BaseRing(self.X)
         self.prec = magma(prec)
         self.bound = magma(bound)
         self.have_oldenburg = magma(have_oldenburg)
-        self._P_ = self.period_matrix()
+        self._eqsCC_ = magma.EmbedCurveEquations(self.X, self.prec)
+        if periods:
+            self._P_ = periods
+        else:
+            self._P_ = self.period_matrix()
         self._calculate_geometric_representation_()
 
     def __repr__(self):
         return repr_endomorphism_data(self)
 
     def period_matrix(self):
-        self._eqsCC_ = magma.EmbedCurveEquations(self.X, self.prec)
         self._P_ = magma.PeriodMatrix(self._eqsCC_, HaveOldenburg = self.have_oldenburg)
         return self._P_
 
     def _calculate_geometric_representation_(self):
-        self._P_ = self.period_matrix()
+        #self._P_ = self.period_matrix()
         _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
         _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.base_field)
         self._endo_fod_ = Relative_Splitting_Field(_geo_rep_pol_, bound = self.bound)
