@@ -30,13 +30,14 @@ print D;
 print "Groebner basis for defining equations:";
 print GroebnerBasis(ideal<R | eqs>);
 
+/*
 print "Calculating Cantor representation...";
 test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 R<y,x> := Parent(fs[1]);
 print "Cantor representation";
 print fs;
+*/
 
-/*
 eqs := DefiningEquations(D);
 R<y2,y1,x2,x1> := Parent(eqs[1]);
 S<x2,x1> := PolynomialRing(F, 2);
@@ -49,4 +50,3 @@ D := Scheme(A, G);
 Is := IrreducibleComponents(D);
 print "Divisor on PP^1 x PP^1:";
 print Is[2];
-*/
