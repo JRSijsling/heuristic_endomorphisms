@@ -224,7 +224,7 @@ end while;
 end intrinsic;
 
 
-intrinsic CantorMorphismFromMatrixSplit(X::Crv, P0:: Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 100) -> Sch
+intrinsic CantorMorphismFromMatrixSplit(X::Crv, P0:: Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4, LowerBound := 1, UpperBound := Infinity(), B := 300) -> Sch
 {Given two pointed curves (X, P0) and (Y, Q0) along with a tangent
 representation of a projection morphism on the standard basis of differentials,
 returns a corresponding Cantor morphism (if it exists). The parameter Margin
