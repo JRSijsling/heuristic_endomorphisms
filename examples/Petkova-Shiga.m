@@ -77,4 +77,3 @@ F<r> := NumberField(Fac[2][1]);
 print Subfields(F);
 
 exit;
-

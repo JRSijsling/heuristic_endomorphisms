@@ -20,6 +20,7 @@ Xs = [ ]
 # RM over QQ
 f = -x^5
 h = x^3 + x + 1
+Xs.append(mHyperellipticCurve(f, h))
 
 # Stupid split case
 f = x^6 + x^2 + 1
@@ -152,9 +153,10 @@ for X in Xs:
     #print Endo.over_base().representation()
     R.<t> = PolynomialRing(F)
     K.<s> = NumberField(t^2 - 2)
+    K.<s> = NumberField(t^2 + 3)
     overK = Endo.over_field(K)
     print K
-    #print overK.representation()
+    print overK.representation()
     #print overK.algebra()
     #print overK.description()
     print overK.pretty_print()
