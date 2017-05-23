@@ -31,6 +31,6 @@ print GroebnerBasis(ideal<R | eqs>);
 
 print "Calculating Cantor representation...";
 test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
-R<y,x> := Parent(fs[1]);
+R<x,y> := Parent(fs[1]);
 print "Cantor representation";
 print fs;

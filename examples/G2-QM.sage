@@ -28,12 +28,9 @@ load('../Initialize.sage')
 F = QQ
 R.<x> = PolynomialRing(F)
 
-# Curve input: specify g and h in its equation y^2 + h y = g.
-# Hyperelliptic:
-f = -15*x^8 + 420*x^6 - 3780*x^4 + 8400*x^2 - 23580*x + 1680
-h = 0
-f = x^7 - 14*x^6 + 210*x^5 - 658*x^4 + 245*x^3 + 588*x^2 + 637*x - 686
-h = 0
+# Curve:
+f = x^5 - x^4 + 4*x^3 - 8*x^2 + 5*x - 1
+h = R(0)
 X = mHyperellipticCurve(f, h)
 
 print X
