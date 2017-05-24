@@ -1,5 +1,5 @@
 // load "Initialize.m";
-AttachSpec("../spec");
+AttachSpec("../../spec");
 //AttachSpec("oldenburg/periodmatrices/spec");
 
 function TestIsogeny()
