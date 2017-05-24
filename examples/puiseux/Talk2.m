@@ -1,4 +1,4 @@
-AttachSpec("../spec");
+AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 
 R<t> := PolynomialRing(Rationals());
@@ -13,6 +13,7 @@ M := Matrix(F, [
 [ -1,  r],
 [  r, -1]
 ]);
+M := -M;
 
 print "Field:";
 print F;
@@ -49,4 +50,6 @@ A := AffineSpace(S);
 D := Scheme(A, G);
 Is := IrreducibleComponents(D);
 print "Divisor on PP^1 x PP^1:";
-print Is[2];
+print Is;
+
+exit;

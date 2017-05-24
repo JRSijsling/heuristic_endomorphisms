@@ -34,7 +34,7 @@ h = R(0)
 X = mHyperellipticCurve(f, h)
 
 print X
-Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
+Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
 
 print "Endomorphism over QQ (sqrt (5)):"
 R.<t> = PolynomialRing(F)

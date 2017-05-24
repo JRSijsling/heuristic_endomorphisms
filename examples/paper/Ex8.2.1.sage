@@ -34,19 +34,10 @@ h = R(0)
 X = mHyperellipticCurve(f, h)
 
 print X
-Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
+Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
 
 print "Geometric representation:"
 overK = Endo.over_field("geometric")
 endodict = overK.full()
-A1 = endodict['representation'][0]['tangent']
-A2 = endodict['representation'][1]['tangent']
-A3 = endodict['representation'][2]['tangent']
-print 3*A2 - 2*A3
-
-#print "Decomposition:"
-#Dec = Endo.decomposition()
-#print Dec.field
-#print Dec.idempotents()
-#print Dec.factors()
-#print Dec.verify()
+rep = overK.representation()
+print rep

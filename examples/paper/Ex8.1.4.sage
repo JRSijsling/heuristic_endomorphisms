@@ -34,7 +34,7 @@ h = R(0)
 X = mHyperellipticCurve(f, h)
 
 print X
-Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
+Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
 
 print "Field of definition:"
 print Endo.endomorphism_field()

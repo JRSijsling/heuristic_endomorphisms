@@ -1,4 +1,4 @@
-AttachSpec("../spec");
+AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 SetMemoryLimit(32*10^9);
 

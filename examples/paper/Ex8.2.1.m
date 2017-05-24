@@ -1,17 +1,23 @@
 AttachSpec("../../spec");
-SetVerbose("EndoCheck", 0);
+SetVerbose("EndoCheck", 1);
 
-R<t> := PolynomialRing(QQ);
-F<r> := NumberField(t^2 - t - 1);
+F := Rationals();
 R<x> := PolynomialRing(F);
-p := 5*x^6 + 10*x^3 - 4*x + 1;
+p := x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19;
 X := HyperellipticCurve(p);
-P0 := X ! [0, 1];
+P0 := X ! [1, 1];
 print "Check that base point is not Weierstrass:", not IsWeierstrassPlace(Place(P0));
 
 M := Matrix(F, [
-[ r, 0     ],
-[ 0, 1 - r ]
+[-1,  2, -1],
+[-2,  3, -1],
+[-4,  4, -1]
+]);
+
+M := Matrix(F, [
+[ 1,  0, -1],
+[ 1, -2,  0],
+[-2, -2,  1]
 ]);
 M := -M;
 
@@ -33,18 +39,5 @@ print "Calculating Cantor representation...";
 time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 R<x,y> := Parent(fs[1]);
 print fs;
-
-eqs := DefiningEquations(D);
-R<y2,y1,x2,x1> := Parent(eqs[1]);
-S<x2,x1> := PolynomialRing(F, 2);
-res := hom<R -> S | [0, 0, x2, x1]>;
-I := ideal<S | res(eqs[#eqs])>;
-G := GroebnerBasis(I);
-
-A := AffineSpace(S);
-D := Scheme(A, G);
-Is := IrreducibleComponents(D);
-print "Divisor on PP^1 x PP^1:";
-print Is[1];
 
 exit;

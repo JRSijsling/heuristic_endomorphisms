@@ -1,4 +1,4 @@
-AttachSpec("../spec");
+AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 
 F := Rationals();
@@ -34,3 +34,5 @@ test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
 R<x,y> := Parent(fs[1]);
 print "Cantor representation";
 print fs;
+
+exit;

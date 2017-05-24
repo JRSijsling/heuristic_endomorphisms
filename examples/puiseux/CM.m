@@ -1,4 +1,4 @@
-AttachSpec("../spec");
+AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 SetMemoryLimit(32*10^9);
 
@@ -23,8 +23,18 @@ M := Matrix(F, [
 //1/539*(5*r^5 + 44*r^3 + 82*r), 0, 1/49*(6*r^5 + 43*r^3 + 69*r)]
 //]);
 
-//time test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+print "Field:";
+print F;
+print "Curve:";
+print X;
+print "Tangent representation:";
+print M;
+
+print "Calculating divisor:";
 time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+eqs := DefiningEquations(D);
+R<y2,y1,x2,x1> := Parent(eqs[1]);
+print "Divisor:";
 print D;
 
 exit;
