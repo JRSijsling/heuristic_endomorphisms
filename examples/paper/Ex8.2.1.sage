@@ -41,3 +41,13 @@ overK = Endo.over_field("geometric")
 endodict = overK.full()
 rep = overK.representation()
 print rep
+
+print "Decomposition:"
+Dec = Endo.decomposition()
+print Dec.field
+
+print Dec.idempotents()
+print Dec.projections()
+print Dec.factors()
+print Dec.verify()
+print Dec.correspondences()

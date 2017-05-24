@@ -39,6 +39,9 @@ Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 print "Decomposition:"
 Dec = Endo.decomposition()
 print Dec.field
+
 print Dec.idempotents()
+print Dec.projections()
 print Dec.factors()
 print Dec.verify()
+print Dec.correspondences()

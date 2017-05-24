@@ -1,5 +1,5 @@
 AttachSpec("../../spec");
-SetVerbose("EndoCheck", 1);
+SetVerbose("EndoCheck", 0);
 
 R<t> := PolynomialRing(Rationals());
 f := t^3 - t^2 - 2*t + 1;

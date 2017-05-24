@@ -36,10 +36,13 @@ X = mHyperellipticCurve(f, h)
 print X
 Endo = EndomorphismData(X, prec = 600, have_oldenburg = False)
 
+print "Period matrix:"
+print Endo._P_
+
 print "Endomorphism over QQ (sqrt (2)):"
 R.<t> = PolynomialRing(F)
 K.<s> = NumberField(t^2 - 2)
 overK = Endo.over_field(K)
 endodict = overK.full()
-print endodict['representation'][0]['tangent'] + endodict['representation'][1]['tangent']
-print endodict['representation'][0]['homology'] + endodict['representation'][1]['homology']
+print endodict['representation'][1]['tangent']
+print endodict['representation'][1]['homology']

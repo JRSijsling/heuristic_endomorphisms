@@ -1,22 +1,25 @@
 AttachSpec("../../spec");
-SetVerbose("EndoCheck", 1);
+SetVerbose("EndoCheck", 0);
 
-R<t> := PolynomialRing(Rationals());
-F<r> := NumberField(t^2 + 3);
+F := Rationals();
 R<x> := PolynomialRing(F);
-f := 6*x^5 + 9*x^4 - x^3 - 3*x^2;
-h := 1;
-p := 4*f + h^2;
+p := x^8 - 12*x^7 + 50*x^6 - 108*x^5 + 131*x^4 - 76*x^3 - 10*x^2 + 44*x - 19;
 X := HyperellipticCurve(p);
-print X;
-P0 := X ! [0, 1];
+P0 := X ! [1, 1];
 print "Check that base point is not Weierstrass:", not IsWeierstrassPlace(Place(P0));
 
 M := Matrix(F, [
-[   -r,     r],
-[  2*r,     r]
+[-1,  2, -1],
+[-2,  3, -1],
+[-4,  4, -1]
 ]);
-M := Transpose(M);
+
+M := Matrix(F, [
+[ 1,  0, -1],
+[ 1, -2,  0],
+[-2, -2,  1]
+]);
+M := -M;
 
 print "Field:";
 print F;

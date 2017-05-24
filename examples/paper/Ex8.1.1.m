@@ -1,7 +1,7 @@
 AttachSpec("../../spec");
 SetVerbose("EndoCheck", 0);
 
-R<t> := PolynomialRing(QQ);
+R<t> := PolynomialRing(Rationals());
 F<r> := NumberField(t^2 - t - 1);
 R<x> := PolynomialRing(F);
 p := 5*x^6 + 10*x^3 - 4*x + 1;
