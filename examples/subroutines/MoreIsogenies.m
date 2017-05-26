@@ -1,6 +1,4 @@
-// load "Initialize.m";
 AttachSpec("../../spec");
-//AttachSpec("oldenburg/periodmatrices/spec");
 
 function TestIsogeny()
 Cpx := ComplexFieldExtra(500);
