@@ -155,6 +155,12 @@ class OverField:
     def dimension_algebra(self):
         return len(self._list_)
 
+    def has_generator(self, B = 1):
+        return magma.HasGenerator(self._list_, B = B, nvals = 2)
+
+    def few_generators(self):
+        return magma.FewGenerators(self._list_)
+
     def verify_algebra(self):
         # TODO: Integrate over Davide and Edgar
         self._test_alg_ = True

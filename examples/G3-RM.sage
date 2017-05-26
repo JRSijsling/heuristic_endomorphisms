@@ -42,7 +42,7 @@ print "Field of definition:"
 print Endo.endomorphism_field()
 
 print "Geometric representation:"
-print Endo.geometric().representation()
-
-print "Lattice:"
-print Endo.lattice().pretty_print()
+overK = Endo.geometric()
+rep = overK.representation()
+print overK.has_generator(B = 10)
+print overK.few_generators()
