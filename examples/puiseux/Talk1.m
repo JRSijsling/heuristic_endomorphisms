@@ -21,7 +21,7 @@ print "Tangent representation:";
 print M;
 
 print "Calculating divisor:";
-test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1, DivPP1 := true);
 eqs := DefiningEquations(D);
 R<y2,y1,x2,x1> := Parent(eqs[1]);
 print "Divisor:";

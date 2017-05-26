@@ -13,7 +13,7 @@ M := Matrix(F, [
 [ -1,  r],
 [  r, -1]
 ]);
-M := -M;
+//M := -M;
 
 print "Field:";
 print F;
@@ -23,21 +23,11 @@ print "Tangent representation:";
 print M;
 
 print "Calculating divisor:";
-test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1, DivPP1 := true);
 eqs := DefiningEquations(D);
 R<y2,y1,x2,x1> := Parent(eqs[1]);
 print "Divisor:";
 print D;
-//print "Groebner basis for defining equations:";
-//print GroebnerBasis(ideal<R | eqs>);
-
-/*
-print "Calculating Cantor representation...";
-test, fs := CantorMorphismFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
-R<x,y> := Parent(fs[1]);
-print "Cantor representation";
-print fs;
-*/
 
 eqs := DefiningEquations(D);
 R<y2,y1,x2,x1> := Parent(eqs[1]);
