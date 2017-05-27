@@ -28,9 +28,9 @@ h = R(0)
 Xs.append(mHyperellipticCurve(f, h))
 
 # Splitting functionality
-f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
-h = x
-Xs.append(mHyperellipticCurve(f, h))
+#f = 15*x^5 + 50*x^4 + 55*x^3 + 22*x^2 + 3*x
+#h = x
+#Xs.append(mHyperellipticCurve(f, h))
 
 # Subfield
 f = x^4 + x^3 + 2*x^2 + x + 1
@@ -133,8 +133,8 @@ Xs.append(mHyperellipticCurve(f, h))
 # Run the main functionality
 for X in Xs:
     print X
-    # The main functionality
-    Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
+    Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
+    #Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
     #print "Period matrix:"
     #print Endo._P_
