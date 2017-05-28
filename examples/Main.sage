@@ -200,5 +200,5 @@ for X in Xs:
     print Dec.idempotents()
     #print Dec.projections()
     print Dec.factors()
-    #print Dec._factors_desc_()
+    print Dec._factors_desc_()
     #print Dec.verify()
