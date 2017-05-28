@@ -117,7 +117,7 @@ class OverField:
             self.field = self.F
         else:
             self.field = magma(K)
-        self._list_ = magma.EndomorphismStructure(self._geo_rep_list_, self.field)
+        self._list_ = magma.EndomorphismStructure(self._geo_rep_list_, self.field, self.F)
         self._desc_ = desc_structure(self._list_)
 
     def __repr__(self):
@@ -205,7 +205,7 @@ class Lattice:
         self.g = Endo.g
         self.F = Endo.F
         self._geo_rep_list_ = Endo._geo_rep_list_
-        self._list_ = magma.EndomorphismLattice(self._geo_rep_list_)
+        self._list_ = magma.EndomorphismLattice(self._geo_rep_list_, self.F)
         self._desc_ = desc_lattice(self._list_)
 
     def __repr__(self):
@@ -265,6 +265,7 @@ class Decomposition:
     def __init__(self, Endo):
         self.X = Endo.X
         self.g = Endo.g
+        self.F = Endo.F
         self._P_ = Endo._P_
         idems, self.field = magma.IdempotentsFromLattice(Endo._lat_._list_, nvals = 2)
         self._facs_ = [ ]
@@ -299,7 +300,7 @@ class Decomposition:
         return [ fac['factor']['algebraic'] for fac in self._facs_ ]
 
     def _factors_desc_(self):
-        return [ sagify_description(magma.FactorDescription(fac)) for fac in self.factors() ]
+        return [ sagify_description(magma.FactorDescription(fac, self.F)) for fac in self.factors() ]
 
     def set_base_point(self):
         if not hasattr(self, "base_point"):

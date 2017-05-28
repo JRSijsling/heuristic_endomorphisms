@@ -105,13 +105,13 @@ return HyperellipticCurve(d * g);
 end intrinsic;
 
 
-intrinsic FactorDescription(X::Crv) -> List
+intrinsic FactorDescription(X::Crv, F::Fld) -> List
 {Describes factor by recursive list of strings and integers.}
 
 if Type(X) eq CrvHyp then
-    return FactorDescriptionHyperelliptic(X);
+    return FactorDescriptionHyperelliptic(X, F);
 elif Type(X) eq CrvPln then
-    return FactorDescriptionPlane(X);
+    return FactorDescriptionPlane(X, F);
 else
     error "No implementation for general curves yet";
 end if;
@@ -119,7 +119,7 @@ end if;
 end intrinsic;
 
 
-intrinsic FactorDescriptionHyperelliptic(X::CrvHyp) -> List
+intrinsic FactorDescriptionHyperelliptic(X::CrvHyp, F::Fld) -> List
 {Describes factor by recursive list of strings and integers.}
 
 // TODO: Modify as functionality starts working
@@ -127,27 +127,13 @@ if Genus(X) eq 1 then
     desc := "ell";
 
     K := BaseRing(X); F := BaseRing(K);
-
-    K_seq := Eltseq(MinimalPolynomial(K.1));
-    if IsRational(F) then
-        K_seq := [ Rationals() ! coeff : coeff in K_seq ];
-    else
-        K_seq := [ [ Rationals() ! c : c in coeff ] : coeff in K_seq ];
-    end if;
+    K_seq := FieldDescription(K, F);
     field := K_seq;
 
     f, h := HyperellipticPolynomials(X);
     f_seq := Eltseq(f); h_seq := Eltseq(h);
-    if IsRational(F) and (Degree(K) eq 1) then
-        f_seq_seq := [ Rationals() ! coeff : coeff in f_seq ];
-        h_seq_seq := [ Rationals() ! coeff : coeff in h_seq ];
-    elif IsRational(F) and (Degree(K) gt 1) then
-        f_seq_seq := [ [ Rationals() ! c : c in Eltseq(coeff) ] : coeff in f_seq ];
-        h_seq_seq := [ [ Rationals() ! c : c in Eltseq(coeff) ] : coeff in h_seq ];
-    else
-        f_seq_seq := [ [ [ Rationals() ! c : c in Eltseq(d) ] : d in Eltseq(coeff) ] : coeff in f_seq ];
-        h_seq_seq := [ [ [ Rationals() ! c : c in Eltseq(d) ] : d in Eltseq(coeff) ] : coeff in h_seq ];
-    end if;
+    f_seq_seq := [ ElementDescription(coeff, F) : coeff in f_seq ];
+    h_seq_seq := [ ElementDescription(coeff, F) : coeff in h_seq ];
     coeffs := [ f_seq_seq, h_seq_seq ];
 
 else
@@ -161,19 +147,14 @@ return [* desc, field, coeffs *];
 end intrinsic;
 
 
-intrinsic FactorDescriptionPlane(X::CrvPln) -> List
+intrinsic FactorDescriptionPlane(X::CrvPln, F::Fld) -> List
 {Describes factor by recursive list of strings and integers.}
 
 desc := "pln";
 
 K := BaseRing(X); F := BaseRing(K);
 
-K_seq := Eltseq(MinimalPolynomial(K.1));
-if IsRational(F) then
-    K_seq := [ Rationals() ! coeff : coeff in K_seq ];
-else
-    K_seq := [ [ Rationals() ! c : c in coeff ] : coeff in K_seq ];
-end if;
+K_seq := FieldDescription(K, F);
 field := K_seq;
 
 f := DefiningPolynomials(X)[1];
@@ -181,14 +162,7 @@ mons := Monomials(f);
 coeffsexps := [ ];
 for mon in mons do
     coeff := MonomialCoefficient(f, mon);
-
-    if IsRational(F) and (Degree(K) eq 1) then
-        coeff_seq := coeff;
-    elif IsRational(F) and (Degree(K) gt 1) then
-        coeff_seq := [ Rationals() ! c : c in Eltseq(coeff) ];
-    else
-        coeff_seq := [ [ Rationals() ! c : c in Eltseq(d) ] : d in Eltseq(coeff) ];
-    end if;
+    coeff_seq := ElementDescription(coeff, F);
     exp := Exponents(mon);
     Append(~coeffsexps, [* coeff_seq, exp *]);
 end for;

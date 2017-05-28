@@ -12,7 +12,7 @@
 def Optimize_Representation(rep):
     K = magma.BaseRing(rep[1])
     F = magma.BaseRing(K)
-    if (not magma.IsRational(F)) or (magma.Degree(K) == 1):
+    if (not magma.IsQQ(F)) or (magma.Degree(K) == 1):
         return rep
     R = magma.PolynomialRing(magma.Rationals())
     g = magma.DefiningPolynomial(K)

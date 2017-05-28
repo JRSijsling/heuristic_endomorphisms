@@ -10,26 +10,28 @@
  */
 
 
-intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, GalK::List) -> SeqEnum
+intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, GalK::List, F::Fld : VarName := "s") -> SeqEnum
 {Extracts basis over subfield determines by a list of automorphisms.}
 
 gensTan := [ gen[1] : gen in GeoEndoRep ];
 gensHom := [ gen[2] : gen in GeoEndoRep ];
 gensApp := [ gen[3] : gen in GeoEndoRep ];
 
-// Done if the base is the full field of definition
-L := BaseRing(gensTan[1]);
-if Degree(L) eq 1 then
-    L<s> := L;
-    return GeoEndoRep;
-end if;
-
-// Done if we are dealing with the full extension
+// Boundary cases
 L := BaseRing(gensTan[1]);
 gensH, Gphi := Explode(GalK);
-if #gensH eq 0 then
-    L<s> := L;
+if not IsRelativeExtension(L, F) then
+    GiveName(~L, F, VarName);
     return GeoEndoRep;
+elif #gensH eq 0 then 
+    GiveName(~L, F, VarName);
+    return GeoEndoRep;
+else
+    H := sub< Domain(Gphi) | gensH >;
+    if #H eq 1 then
+        GiveName(~L, F, VarName);
+        return GeoEndoRep;
+    end if;
 end if;
 
 // The vector space representing the full endomorphism algebra
@@ -51,11 +53,7 @@ B := Basis(Lat);
 
 // Constructing said basis
 gens := [ ];
-if HasRationalBase(L) then
-    K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
-else
-    K := MakeRelative(RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]), BaseRing(L));
-end if;
+K := GeneralFixedField(L, [ Gphi(genH) : genH in gensH ]);
 for b in B do
     genTan := &+[ b[i] * gensTan[i] : i in [1..n] ];
     // Coercion to subfield
@@ -64,18 +62,18 @@ for b in B do
     genApp := &+[ b[i] * gensApp[i] : i in [1..n] ];
     Append(~gens, [* genTan, genHom, genApp *]);
 end for;
-K<s> := K;
+GiveName(~K, F, VarName);
 return gens;
 
 end intrinsic;
 
 
-intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, K::Fld) -> SeqEnum
+intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, K::Fld, F::Fld) -> SeqEnum
 {Extracts basis over a general field.}
 
 L := BaseRing(GeoEndoRep[1][1]);
-GalK := SubgroupGeneratorsUpToConjugacy(L, K);
-return EndomorphismRepresentation(GeoEndoRep, GalK);
+GalK := SubgroupGeneratorsUpToConjugacy(L, K, F);
+return EndomorphismRepresentation(GeoEndoRep, GalK, F);
 
 end intrinsic;
 
@@ -95,12 +93,19 @@ end if;
 end function;
 
 
-intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld) -> List
+intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld, F::Fld) -> List
 {Finds the subgroup generators up to conjugacy that correspond to the intersection of L and K, where L is Galois.}
 
-// TODO: Not to be used when the base field is not the rational field
+if L eq K then
+    return [* [ ], [ ] *];
+end if;
 
-if (Degree(K) eq 1) or IsRational(L) then
+// TODO: F is not used because the Galois correspondence fails in general.
+if not Type(F) eq FldRat then
+    error "Whelp, please do not do this yet";
+end if;
+
+if (Degree(K) eq 1) or IsQQ(L) then
     Gp, Gf, Gphi := AutomorphismGroup(L);
     return [* Generators(Gp), Gphi *];
 end if;

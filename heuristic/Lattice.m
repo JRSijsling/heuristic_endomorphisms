@@ -25,71 +25,75 @@ end if;
 end function;
 
 
-intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum : Optimize := false) -> List
+intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum, F::Fld : VarName := "s") -> List
 {Returns the lattice of endomorphisms by (conjugacy class of) subfield.}
 
-gensTan := [ gen[1] : gen in GeoEndoRep ];
-gensHom := [ gen[2] : gen in GeoEndoRep ];
-gensApp := [ gen[3] : gen in GeoEndoRep ];
-L<s> := BaseRing(gensTan[1]); F := BaseField(L);
-Gp, Gf, Gphi := AutomorphismGroup(L);
+F_seq := FieldDescription(F, BaseRing(F));
+base := [* F_seq, F *];
 
+L := BaseRing(GeoEndoRep[1][1][1]);
+if (not IsRelativeExtension(L, F)) then
+    entry, Shorthand := EndomorphismLatticeGeometricStep(GeoEndoRep, F : VarName := VarName);
+    entries := [ entry ];
+    return [* base, entries *];
+end if;
+
+Gp, Gf, Gphi := AutomorphismGroup(L);
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
 Sort(~Hs, CompareGroups);
 
-entries := [ ];
-// The code of this first (geometric) step is a copy of that below except for
-// shorthand extraction. Of course it could be simpler, but there is no time
-// loss as a result.
-entry := [* *];
-gensH := [ ]; GalK := [* gensH, Gphi *];
-K<s> := L;
-
-if IsRational(F) then
-    K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
-else
-    K_seq := [ [ Integers() ! c : c in Eltseq(cs) ] : cs in Eltseq(MinimalPolynomial(K.1)) ];
-end if;
-K_desc := [* K_seq, K *];
-EndoStruct := EndomorphismStructure(GeoEndoRep, GalK);
-Append(~entry, K_desc);
-Append(~entry, EndoStruct);
-//Append(~entry, ClassNumber(AbsoluteField(K)));
-Append(~entries, entry);
-Shorthand := SatoTateShorthand(EndoStruct);
-
+entry, Shorthand := EndomorphismLatticeGeometricStep(GeoEndoRep, F : VarName := VarName);
+entries := [ entry ];
 for H in Hs[2..#Hs] do
-    entry := [* *];
     gensH := Generators(H); GalK := [* gensH, Gphi *];
-    if HasRationalBase(L) then
-        K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
-    else
-        K := MakeRelative(RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]), BaseRing(L));
-    end if;
-
-    K := ClearFieldDenominator(K);
-    if (not IsRational(K)) and Optimize then
-        K := OptimizedRepresentation(K);
-        K := ClearFieldDenominator(K);
-    end if;
-    K<s> := K;
-
-    if IsRational(F) then
-        K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
-    else
-        K_seq := [ [ Integers() ! c : c in Eltseq(F ! coeff) ] : coeff in Eltseq(MinimalPolynomial(K.1)) ];
-    end if;
-
-    K_desc := [* K_seq, K *];
-    EndoStruct := EndomorphismStructure(GeoEndoRep, GalK : Shorthand := Shorthand);
-    Append(~entry, K_desc);
-    Append(~entry, EndoStruct);
-    //Append(~entry, ClassNumber(AbsoluteField(K)));
+    entry := EndomorphismLatticeGeneralStep(GeoEndoRep, GalK, Shorthand, F : VarName := VarName);
     Append(~entries, entry);
 end for;
-
-F_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(F.1)) ];
-base := [* F_seq, F *];
 return [* base, entries *];
+
+end intrinsic;
+
+
+intrinsic EndomorphismLatticeGeometricStep(GeoEndoRep::SeqEnum, F::Fld : VarName := "s") -> List
+{Part of the above.}
+
+entry := [* *];
+
+L := BaseRing(GeoEndoRep[1][1][1]);
+L_seq := FieldDescription(L, F);
+L_desc := [* L_seq, L *];
+Append(~entry, L_desc);
+
+GalL := [* [ ], [ ] *];
+EndoStruct := EndomorphismStructure(GeoEndoRep, GalL, F);
+Append(~entry, EndoStruct);
+
+//Append(~entry, ClassNumber(AbsoluteField(K)));
+
+Shorthand := SatoTateShorthand(EndoStruct);
+return entry, Shorthand;
+
+end intrinsic;
+
+
+intrinsic EndomorphismLatticeGeneralStep(GeoEndoRep::SeqEnum, GalK::List, Shorthand::MonStgElt, F::Fld : VarName := "s") -> List
+{Part of the above.}
+
+entry := [* *];
+
+L := BaseRing(GeoEndoRep[1][1][1]);
+gensH, Gphi := Explode(GalK);
+K := GeneralFixedField(L, [ Gphi(genH) : genH in gensH ]);
+K := ClearFieldDenominator(K);
+K_seq := FieldDescription(K, F);
+K_desc := [* K_seq, K *];
+Append(~entry, K_desc);
+
+EndoStruct := EndomorphismStructure(GeoEndoRep, GalK, F : Shorthand := Shorthand);
+Append(~entry, EndoStruct);
+
+//Append(~entry, ClassNumber(AbsoluteField(K)));
+
+return entry;
 
 end intrinsic;
