@@ -13,8 +13,9 @@ intrinsic SatoTateGroup(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : 
 {Determines Sato-Tate group by subgroup of Galois group.}
 
 g := #Rows(EndoStructBase[1][1][1]);
-if g eq 2 then
-    return SatoTateGroupG2(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
+F := Parent(EndoStructBase[1][1][1][1,1]);
+if g eq 2 and Type(BaseRing(F)) eq FldRat then
+    return SatoTateGroupG2QQ(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
 else
     // TODO: Add other cases when they appear.
     return "undef";
@@ -33,7 +34,7 @@ return SatoTateGroup(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
 end intrinsic;
 
 
-intrinsic SatoTateGroupG2(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> MonStgElt
+intrinsic SatoTateGroupG2QQ(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : Shorthand := "") -> MonStgElt
 {Determines the Sato-Tate group in genus 2.}
 
 GensH, Gphi := Explode(GalK);
@@ -67,7 +68,11 @@ if Shorthand eq "" then
     Shorthand := SatoTateShorthandG2(GeoEndoStructBase);
 end if;
 descRR := EndoStructBase[3][3];
-K := FixedField(L, H);
+if Type(BaseField(L)) eq FldRat then
+    K := FixedField(L, [ Gphi(gen) : gen in GensH ]);
+else
+    K := RelativeFixedField(L, [ Gphi(gen) : gen in GensH ]);
+end if;
 
 // Usually the shorthand and endomorphism structure of the base field determine
 // everything; in the rare cases where they do not we recalculate a bit.
@@ -237,7 +242,7 @@ elif Shorthand eq "F" then
         return "C_1";
     end if;
 end if;
-error Error("All cases in SatoTateGroupG2 fell through");
+error Error("All cases in SatoTateGroupG2QQ fell through");
 
 end intrinsic;
 

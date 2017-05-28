@@ -16,17 +16,19 @@ intrinsic EndomorphismRepresentation(GeoEndoRep::SeqEnum, GalK::List) -> SeqEnum
 gensTan := [ gen[1] : gen in GeoEndoRep ];
 gensHom := [ gen[2] : gen in GeoEndoRep ];
 gensApp := [ gen[3] : gen in GeoEndoRep ];
-L := BaseRing(gensTan[1]);
 
 // Done if we are dealing with the rationals
+L := BaseRing(gensTan[1]);
 if Type(L) eq FldRat then
+    L<s> := L;
     return GeoEndoRep;
 end if;
 
-gensH, Gphi := Explode(GalK);
-K := FixedField(L, [ Gphi(genH) : genH in gensH ]);
 // Done if we are dealing with the full extension
+L := BaseRing(gensTan[1]);
+gensH, Gphi := Explode(GalK);
 if #gensH eq 0 then
+    L<s> := L;
     return GeoEndoRep;
 end if;
 
@@ -49,6 +51,11 @@ B := Basis(Lat);
 
 // Constructing said basis
 gens := [ ];
+if Type(BaseField(L)) eq FldRat then
+    K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
+else
+    K := RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]);
+end if;
 for b in B do
     genTan := &+[ b[i] * gensTan[i] : i in [1..n] ];
     // Coercion to subfield
@@ -57,6 +64,7 @@ for b in B do
     genApp := &+[ b[i] * gensApp[i] : i in [1..n] ];
     Append(~gens, [* genTan, genHom, genApp *]);
 end for;
+K<s> := K;
 return gens;
 
 end intrinsic;
@@ -89,6 +97,8 @@ end function;
 
 intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld) -> List
 {Finds the subgroup generators up to conjugacy that correspond to the intersection of L and K, where L is Galois.}
+
+// TODO: Not to be used when the base field is not the rational field
 
 if (Degree(K) eq 1) or (Type(L) eq FldRat) then
     Gp, Gf, Gphi := AutomorphismGroup(L);

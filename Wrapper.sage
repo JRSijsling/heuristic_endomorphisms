@@ -13,7 +13,7 @@ class EndomorphismData:
     def __init__(self, X, prec, bound = 0, have_oldenburg = False, periods = ""):
         self.X = X
         self.g = magma.Genus(self.X)
-        self.base_field = magma.BaseRing(self.X)
+        self.F = magma.BaseRing(self.X)
         self.prec = magma(prec)
         self.bound = magma(bound)
         self.have_oldenburg = magma(have_oldenburg)
@@ -34,10 +34,9 @@ class EndomorphismData:
         return self._P_
 
     def _calculate_geometric_representation_(self):
-        #self._P_ = self.period_matrix()
         _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
-        _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.base_field)
-        self._endo_fod_ = Relative_Splitting_Field(_geo_rep_pol_, bound = self.bound)
+        _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.F)
+        self._endo_fod_ = Relative_Splitting_Field_Extra(_geo_rep_pol_, bound = self.bound)
         self._geo_rep_list_ = magma.GeometricEndomorphismRepresentationRecognition(_geo_rep_partial_, self._endo_fod_)
         self._geo_rep_dict_ = dict_rep(self._geo_rep_list_)
 
@@ -109,13 +108,13 @@ class OverField:
     def __init__(self, Endo, K = "geometric"):
         self.X = Endo.X
         self.g = Endo.g
-        self.base_field = Endo.base_field
+        self.F = Endo.F
         self._P_ = Endo._P_
         self._geo_rep_list_ = Endo._geo_rep_list_
         if K == "geometric":
             self.field = Endo.endomorphism_field()
         elif K == "base":
-            self.field = self.base_field
+            self.field = self.F
         else:
             self.field = magma(K)
         self._list_ = magma.EndomorphismStructure(self._geo_rep_list_, self.field)
@@ -125,7 +124,7 @@ class OverField:
         return repr_over_field(self)
 
     def pretty_print(self):
-        return pretty_print_over_field_description(self._desc_, self.g, 'K')
+        return pretty_print_over_field_description(self._desc_, self.g)
 
     def _calculate_dictionary_(self):
         if not hasattr(self, "_dict_"):
@@ -199,6 +198,7 @@ class Lattice:
     def __init__(self, Endo):
         self.X = Endo.X
         self.g = Endo.g
+        self.F = Endo.F
         self._geo_rep_list_ = Endo._geo_rep_list_
         self._list_ = magma.EndomorphismLattice(self._geo_rep_list_)
         self._desc_ = desc_lattice(self._list_)
@@ -217,7 +217,7 @@ class Lattice:
     def representations(self):
         self._calculate_dictionary_()
         list_to_fill = [ ]
-        for dict_pair in self._dict_:
+        for dict_pair in self._dict_['entries']:
             dict_to_fill = dict()
             dict_to_fill['field'] = dict_pair['field']['magma']
             dict_to_fill['representation'] =  magma([ gen['tangent'] for gen in dict_pair['structure']['representation'] ])
@@ -227,7 +227,7 @@ class Lattice:
     def algebras(self):
         self._calculate_dictionary_()
         list_to_fill = [ ]
-        for dict_pair in self._dict_:
+        for dict_pair in self._dict_['entries']:
             dict_to_fill = dict()
             dict_to_fill['field'] = dict_pair['field']['magma']
             dict_to_fill['algebra'] = dict_pair['structure']['algebra']
@@ -237,7 +237,7 @@ class Lattice:
     def descriptions(self):
         self._calculate_dictionary_()
         list_to_fill = [ ]
-        for dict_pair in self._dict_:
+        for dict_pair in self._dict_['entries']:
             dict_to_fill = dict()
             dict_to_fill['field'] = dict_pair['field']['magma']
             dict_to_fill['description'] = dict_pair['structure']['description']
@@ -245,7 +245,7 @@ class Lattice:
         return list_to_fill
 
     def pretty_print(self):
-        return pretty_print_lattice_description(self._desc_, self.g, 'K', 'x')
+        return pretty_print_lattice_description(self._desc_, self.g)
 
 class Decomposition:
     def __init__(self, Endo):

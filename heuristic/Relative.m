@@ -163,8 +163,10 @@ if #primes eq 0 then
 else
     common_den := &*[ p^Maximum([ Ceiling(Valuation(dens[k], p)/k) : k in [1..#dens] | dens[k] ne 0 ]) : p in primes ];
 end if;
-f := MinimalPolynomial(common_den*r);
-K := NumberField(f);
+
+R := PolynomialRing(F);
+f := MinimalPolynomial(common_den*r, F);
+K := NumberField(R ! f);
 return K;
 
 end intrinsic;
@@ -180,6 +182,7 @@ if Degree(F) eq 1 then
     end if;
     return K;
 end if;
+
 while true do
     factors := [ tup[1] : tup in Factorization(f, K) | Degree(tup[1]) gt 1 ];
     if #factors eq 0 then
@@ -188,7 +191,7 @@ while true do
     if K eq F then
         K := NumberField(factors[1]);
     else
-        // TODO: This step can cost a lot of time
+        // FIXME: This step can cost a lot of time
         K := RelativeField(F, NumberField(factors[1]));
     end if;
 end while;
@@ -216,7 +219,7 @@ intrinsic RelativeSplittingField(fs::SeqEnum) -> FldNum
 
 // FIXME: This code below is relatively bad; I would prefer to first define K
 // as a linear extension and then to update it. This removes certain
-// dichotomies. However, Magma is not happy with it.
+// dichotomies. However, Magma then takes much more time for some reason.
 F := BaseRing(fs[1]); K := F;
 fs := Reverse(Sort(fs, CompareFields));
 for f in fs do
@@ -228,6 +231,22 @@ for f in fs do
         end for;
     end if;
 end for;
+return MakeRelative(K, F);
+
+end intrinsic;
+
+
+intrinsic MakeRelative(K::Fld, F::Fld) -> Fld
+{Takes a linear extension if needed.}
+
+// FIXME: Again, very ugly
+testrat := Type(F) eq FldRat and Type(K) eq FldRat;
+testnonrat := Type(F) ne FldRat and Type(BaseRing(K)) eq FldRat;
+if testrat or testnonrat then
+    R<x> := PolynomialRing(F);
+    K := NumberField(x - 1: DoLinearExtension := true);
+    return K;
+end if;
 return K;
 
 end intrinsic;
@@ -294,5 +313,52 @@ intrinsic RelativeCompositumExtra(K::Fld, L::Fld) -> Fld
 M := RelativeCompositum(K, L);
 DefineOrExtendInfinitePlace(M);
 return M;
+
+end intrinsic;
+
+
+// TODO: Restrict infinite place?
+
+intrinsic RelativeFixedField(L::Fld, gens::SeqEnum) -> Fld
+{Fixed subfield of L determined by the automorphisms in gens.}
+
+dL := Degree(L);
+Ms := [ Matrix([ Eltseq(gen(L.1^i) - L.1^i) : i in [0..(dL - 1)] ]) : gen in gens ];
+Ker := &meet[ Kernel(M) : M in Ms ];
+B := [ &+[ b[i + 1]*L.1^i : i in [0..(dL - 1)] ] : b in Basis(Ker) ];
+K := sub< L | B >;
+return K;
+
+end intrinsic;
+
+
+intrinsic RandomElement(F::Fld, N::RngIntElt) -> .
+{Finds a random element in F.}
+
+D := [-N..N]; dF := Degree(F);
+return &+[ Random(D)*F.1^i : i in [0..(dF - 1)] ];
+
+end intrinsic;
+
+
+intrinsic FieldGeneratorNaive(K::Fld) -> .
+{Finds a generator in a stupid way.}
+
+if sub<K | [ K.1 ]> eq K then
+    return K.1;
+end if;
+
+F := BaseRing(K); dK := Degree(K);
+N := 1; tries := 100;
+while true do
+    for counter in [1..#tries] do
+        B := Basis(K);
+        gen := &+[ RandomElement(F, N)*B[i] : i in [0..(dK - 1)] ];
+        if sub< K | [ gen ] > then
+            return gen;
+        end if;
+    end for;
+    N +:= 1;
+end while;
 
 end intrinsic;
