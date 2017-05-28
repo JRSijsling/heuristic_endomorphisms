@@ -37,7 +37,6 @@ class EndomorphismData:
         _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
         _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.F)
         self._endo_fod_ = Relative_Splitting_Field_Extra(_geo_rep_pol_, bound = self.bound)
-        print self._endo_fod_
         self._geo_rep_list_ = magma.GeometricEndomorphismRepresentationRecognition(_geo_rep_partial_, self._endo_fod_)
         self._geo_rep_dict_ = dict_rep(self._geo_rep_list_)
 

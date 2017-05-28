@@ -29,7 +29,6 @@ h = R(0)
 Xs.append(mHyperellipticCurve(f, h))
 
 
-
 for X in Xs:
     print X
     # The main functionality

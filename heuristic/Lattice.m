@@ -64,7 +64,7 @@ for H in Hs[2..#Hs] do
     if HasRationalBase(L) then
         K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
     else
-        K := RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]);
+        K := MakeRelative(RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]), BaseRing(L));
     end if;
 
     K := ClearFieldDenominator(K);

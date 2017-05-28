@@ -54,7 +54,7 @@ gens := [ ];
 if HasRationalBase(L) then
     K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
 else
-    K := RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]);
+    K := MakeRelative(RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]), BaseRing(L));
 end if;
 for b in B do
     genTan := &+[ b[i] * gensTan[i] : i in [1..n] ];
