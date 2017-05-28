@@ -17,12 +17,28 @@ declare attributes FldNum : iota;
 declare attributes FldRat : iota;
 
 
+intrinsic IsRational(F::Fld) -> BoolElt
+{Whether or not F is QQ.}
+
+return Type(F) eq FldRat;
+
+end intrinsic;
+
+
+intrinsic HasRationalBase(F::Fld) -> BoolElt
+{Whether or not F has QQ as a base ring.}
+
+return Type(BaseRing(F)) eq FldRat;
+
+end intrinsic;
+
+
 intrinsic SetInfinitePlace(K::FldNum, iota::.)
 {Creates a complex field with some extra needed parameters.}
 
 K`iota := iota;
 F := BaseRing(K);
-if Type(F) eq FldNum then
+if not IsRational(F) then
     for iotaF in InfinitePlaces(F) do
         if Extends(iota, iotaF) then
             SetInfinitePlace(F, iotaF);
@@ -47,7 +63,7 @@ intrinsic DefineOrExtendInfinitePlace(K::Fld)
 {Extends an infinite place over a relative field extension.}
 
 F := BaseRing(K);
-if not assigned F`iota or Type(F) eq FldRat then
+if not assigned F`iota or IsRational(F) then
     SetInfinitePlace(K, InfinitePlaces(K)[1]);
 else
     for iotaK in InfinitePlaces(K) do
@@ -63,7 +79,7 @@ end intrinsic;
 intrinsic RestrictInfinitePlace(L::Fld, K::Fld)
 {Restricts an infinite place over a relative field extension.}
 
-if Type(K) eq FldRat then
+if IsRational(K) then
     SetInfinitePlace(K, InfinitePlaces(K)[1]);
 else
     for iotaK in InfinitePlaces(K) do
@@ -152,7 +168,7 @@ intrinsic ClearFieldDenominator(K::Fld) -> Fld
 
 F := BaseRing(K); d := Degree(K);
 if d eq 1 then
-    return F;
+    return K;
 end if;
 r := K.1;
 coeffs := Coefficients(MinimalPolynomial(r, Rationals()));
@@ -240,8 +256,8 @@ intrinsic MakeRelative(K::Fld, F::Fld) -> Fld
 {Takes a linear extension if needed.}
 
 // FIXME: Again, very ugly
-testrat := Type(F) eq FldRat and Type(K) eq FldRat;
-testnonrat := Type(F) ne FldRat and Type(BaseRing(K)) eq FldRat;
+testrat := IsRational(F) and IsRational(K);
+testnonrat := (not IsRational(F)) and HasRationalBase(K);
 if testrat or testnonrat then
     R<x> := PolynomialRing(F);
     K := NumberField(x - 1: DoLinearExtension := true);
@@ -281,15 +297,15 @@ end intrinsic;
 intrinsic RelativeCompositum(K::Fld, L::Fld) -> Fld
 {Relative compositum.}
 
-if Type(K) eq FldRat and Type(L) eq FldRat then
+if IsRational(K) and IsRational(L) then
     M := K;
     phiK := hom<K -> M | >;
     phiL := hom<L -> M | >;
-elif Type(K) eq FldRat then
+elif IsRational(K) then
     M := L;
     phiK := hom<K -> M | >;
     phiL := hom<L -> M | L.1>;
-elif Type(L) eq FldRat then
+elif IsRational(L) then
     M := K;
     phiK := hom<K -> M | K.1>;
     phiL := hom<L -> M | >;

@@ -37,6 +37,7 @@ class EndomorphismData:
         _geo_rep_partial_ = magma.GeometricEndomorphismRepresentationPartial(self._P_)
         _geo_rep_pol_ = magma.RelativeMinimalPolynomialsPartial(_geo_rep_partial_, self.F)
         self._endo_fod_ = Relative_Splitting_Field_Extra(_geo_rep_pol_, bound = self.bound)
+        print self._endo_fod_
         self._geo_rep_list_ = magma.GeometricEndomorphismRepresentationRecognition(_geo_rep_partial_, self._endo_fod_)
         self._geo_rep_dict_ = dict_rep(self._geo_rep_list_)
 
@@ -138,6 +139,11 @@ class OverField:
         self._calculate_dictionary_()
         return magma([ gen['tangent'] for gen in self._dict_['representation'] ])
 
+    def optimize_representation(self):
+        optrep = Optimize_Representation(self.representation())
+        for i in [1..len(optrep)]:
+            self._dict_['representation'][i - 1]['tangent'] = optrep[i]
+
     def algebra(self):
         self._calculate_dictionary_()
         return self._dict_['algebra']
@@ -214,13 +220,22 @@ class Lattice:
         self._calculate_dictionary_()
         return self._dict_
 
+    def optimize_representations(self):
+        self._calculate_dictionary_()
+        for dict_pair in self._dict_['entries']:
+            structure = dict_pair['structure']
+            rep = magma([ gen['tangent'] for gen in structure['representation'] ])
+            optrep = Optimize_Representation(rep)
+            for i in [1..len(optrep)]:
+                structure['representation'][i - 1]['tangent'] = optrep[i]
+
     def representations(self):
         self._calculate_dictionary_()
         list_to_fill = [ ]
         for dict_pair in self._dict_['entries']:
             dict_to_fill = dict()
             dict_to_fill['field'] = dict_pair['field']['magma']
-            dict_to_fill['representation'] =  magma([ gen['tangent'] for gen in dict_pair['structure']['representation'] ])
+            dict_to_fill['representation'] = magma([ gen['tangent'] for gen in dict_pair['structure']['representation'] ])
             list_to_fill.append(dict_to_fill)
         return list_to_fill
 

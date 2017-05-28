@@ -17,9 +17,9 @@ gensTan := [ gen[1] : gen in GeoEndoRep ];
 gensHom := [ gen[2] : gen in GeoEndoRep ];
 gensApp := [ gen[3] : gen in GeoEndoRep ];
 
-// Done if we are dealing with the rationals
+// Done if the base is the full field of definition
 L := BaseRing(gensTan[1]);
-if Type(L) eq FldRat then
+if Degree(L) eq 1 then
     L<s> := L;
     return GeoEndoRep;
 end if;
@@ -51,7 +51,7 @@ B := Basis(Lat);
 
 // Constructing said basis
 gens := [ ];
-if Type(BaseField(L)) eq FldRat then
+if HasRationalBase(L) then
     K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
 else
     K := RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]);
@@ -100,7 +100,7 @@ intrinsic SubgroupGeneratorsUpToConjugacy(L::Fld, K::Fld) -> List
 
 // TODO: Not to be used when the base field is not the rational field
 
-if (Degree(K) eq 1) or (Type(L) eq FldRat) then
+if (Degree(K) eq 1) or IsRational(L) then
     Gp, Gf, Gphi := AutomorphismGroup(L);
     return [* Generators(Gp), Gphi *];
 end if;

@@ -93,7 +93,7 @@ for D in Ds do
     F := BaseRing(E1);
     E2 := ChangeRing(E1, F);
     F := ClearFieldDenominator(F);
-    if (Type(F) eq FldNum and Optimize) then
+    if (not IsRational(F)) and Optimize then
         F := OptimizedRepresentation(F);
         F := ClearFieldDenominator(F);
     end if;
@@ -206,7 +206,7 @@ Ds := DirectSumDecomposition(C);
 if #Ds eq 1 then
     E1, f1 := AlgebraOverCenter(C);
     //F := ClearFieldDenominator(BaseRing(E1));
-    //if (Type(F) eq FldNum and Optimize) then
+    //if (not IsRational(F)) and Optimize then
     //    F := OptimizedRepresentation(F);
     //    F := ClearFieldDenominator(F);
     //end if;
@@ -214,7 +214,7 @@ if #Ds eq 1 then
     F := BaseRing(E1);
     E2 := E1;
     test, d := IsSquare(Dimension(E2));
-    if d eq 2 and Type(F) eq FldRat then
+    if d eq 2 and IsRational(F) then
         test, Q, f3 := IsQuaternionAlgebra(E2);
         if test then
             //f := f1 * f2 * f3;

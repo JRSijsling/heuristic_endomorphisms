@@ -14,7 +14,7 @@ intrinsic SatoTateGroup(EndoStructBase::List, GeoEndoRep::SeqEnum, GalK::List : 
 
 g := #Rows(EndoStructBase[1][1][1]);
 F := Parent(EndoStructBase[1][1][1][1,1]);
-if g eq 2 and Type(BaseRing(F)) eq FldRat then
+if g eq 2 and HasRationalBase(F) then
     return SatoTateGroupG2QQ(EndoStructBase, GeoEndoRep, GalK : Shorthand := Shorthand);
 else
     // TODO: Add other cases when they appear.
@@ -68,7 +68,7 @@ if Shorthand eq "" then
     Shorthand := SatoTateShorthandG2(GeoEndoStructBase);
 end if;
 descRR := EndoStructBase[3][3];
-if Type(BaseField(L)) eq FldRat then
+if HasRationalBase(L) then
     K := FixedField(L, [ Gphi(gen) : gen in GensH ]);
 else
     K := RelativeFixedField(L, [ Gphi(gen) : gen in GensH ]);

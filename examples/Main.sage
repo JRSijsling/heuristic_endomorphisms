@@ -134,7 +134,6 @@ Xs.append(mHyperellipticCurve(f, h))
 for X in Xs:
     print X
     Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
-    #Endo = EndomorphismData(X, prec = 300, have_oldenburg = True)
 
     #print "Period matrix:"
     #print Endo._P_
@@ -170,6 +169,8 @@ for X in Xs:
     #print Endo.lattice().algebras()
     #print Endo.lattice().descriptions()
     print Endo.lattice().pretty_print()
+    Endo.lattice().optimize_representations()
+    print Endo.lattice().representations()
 
     #print "Verification:"
     #print Endo.dimension_algebra()

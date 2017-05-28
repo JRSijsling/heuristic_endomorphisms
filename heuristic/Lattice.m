@@ -31,7 +31,7 @@ intrinsic EndomorphismLattice(GeoEndoRep::SeqEnum : Optimize := false) -> List
 gensTan := [ gen[1] : gen in GeoEndoRep ];
 gensHom := [ gen[2] : gen in GeoEndoRep ];
 gensApp := [ gen[3] : gen in GeoEndoRep ];
-L := BaseRing(gensTan[1]); F := BaseField(L);
+L<s> := BaseRing(gensTan[1]); F := BaseField(L);
 Gp, Gf, Gphi := AutomorphismGroup(L);
 
 Hs := Subgroups(Gp); Hs := [ H`subgroup : H in Hs ];
@@ -43,9 +43,9 @@ entries := [ ];
 // loss as a result.
 entry := [* *];
 gensH := [ ]; GalK := [* gensH, Gphi *];
-K := L;
+K<s> := L;
 
-if Type(F) eq FldRat then
+if IsRational(F) then
     K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
 else
     K_seq := [ [ Integers() ! c : c in Eltseq(cs) ] : cs in Eltseq(MinimalPolynomial(K.1)) ];
@@ -61,19 +61,20 @@ Shorthand := SatoTateShorthand(EndoStruct);
 for H in Hs[2..#Hs] do
     entry := [* *];
     gensH := Generators(H); GalK := [* gensH, Gphi *];
-    if Type(BaseField(L)) eq FldRat then
+    if HasRationalBase(L) then
         K := MakeRelative(FixedField(L, [ Gphi(genH) : genH in gensH ]), Rationals());
     else
         K := RelativeFixedField(L, [ Gphi(genH) : genH in gensH ]);
     end if;
 
     K := ClearFieldDenominator(K);
-    if (Type(K) eq FldNum and Optimize) then
+    if (not IsRational(K)) and Optimize then
         K := OptimizedRepresentation(K);
         K := ClearFieldDenominator(K);
     end if;
+    K<s> := K;
 
-    if Type(F) eq FldRat then
+    if IsRational(F) then
         K_seq := [ Integers() ! c : c in Eltseq(MinimalPolynomial(K.1)) ];
     else
         K_seq := [ [ Integers() ! c : c in Eltseq(F ! coeff) ] : coeff in Eltseq(MinimalPolynomial(K.1)) ];
