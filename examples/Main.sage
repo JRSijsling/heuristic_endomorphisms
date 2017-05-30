@@ -130,7 +130,6 @@ Xs.append(mHyperellipticCurve(f, h))
 #
 
 
-# Run the main functionality
 for X in Xs:
     print X
     Endo = EndomorphismData(X, prec = 300, have_oldenburg = False)
