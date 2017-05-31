@@ -154,6 +154,9 @@ class OverField:
     def rosati_involution(self, A):
         return magma.RosatiInvolution(self._list_[_index_dict_['representation']], A)
 
+    def rosati_fixed_module(self):
+        return magma.RosatiFixedModule(self._geo_rep_list_)
+
     def degree_estimate(self, A):
         return magma.DegreeEstimate(self._list_[_index_dict_['representation']], A)
 

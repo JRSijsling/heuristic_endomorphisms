@@ -225,7 +225,7 @@ R := PolynomialRing(X`F, 2, "lex"); Rprod := PolynomialRing(X`F, 4, "lex");
 if X`is_hyperelliptic then
     divsX := [ xX^i : i in [0..(d div 2)] ] cat [ xX^i*yX : i in [0..((d - gX - 1) div 2)] ];
     divsY := [ xY^i : i in [0..(d div 2)] ] cat [ xY^i*yY : i in [0..((d - gX - 1) div 2)] ];
-    //divsY := [ xY^i : i in [0..gY] ] cat [ yY ];
+    divsX := [ xX^i : i in [0..gX] ] cat [ yX ];
     Reverse(~divsX); Reverse(~divsY);
 elif X`is_planar then
     divsX := [ xX^i*yX^j : i in [0..d], j in [0..(Degree(fX, yX) - 1)] | i + j le d ];

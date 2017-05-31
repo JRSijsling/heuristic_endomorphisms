@@ -26,8 +26,14 @@ load('../Initialize.sage')
 F = QQ
 R.<x> = PolynomialRing(F)
 
-f = -4*x^8 + 105*x^6 - 945*x^4 + 2100*x^2 - 5895*x + 420
-h = x^4
+# QQ(i)(x) / (x^3+2*x^2-5*x+1)
+#f = 21*x^7 + 37506*x^5 + 933261*x^3 + 5841759*x
+#h = 0
+# QQ(i)(x) / (x^3+2*x^2-5*x+1)
+#f = -4*x^8 + 105*x^6 - 945*x^4 + 2100*x^2 - 5895*x + 420
+#h = x^4
+f = x^7 + 6*x^5 + 9*x^3 + x
+h = 0
 X = mHyperellipticCurve(f, h)
 
 print X
