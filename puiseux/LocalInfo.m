@@ -175,11 +175,11 @@ function DevelopPoint(X, P0, n)
  *          and a coordinate is used in the case of a plane curve.
  */
 
-if not X`is_planar then
-    /* Here only for constant points, in which case we fall back to the given
-     * base point. We do get an expansion that may not be in our uniformizer. */
-    return [ Expand(X`K ! c, Place(X`P0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
-end if;
+//if not X`is_planar then
+//    /* Here only for constant points, in which case we fall back to the given
+//     * base point. We do get an expansion that may not be in our uniformizer. */
+//    return [ Expand(X`K ! c, Place(X`P0) : AbsPrec := n) : c in GeneratorsSequence(X`R) ];
+//end if;
 f := X`DEs[1];
 if X`unif_index eq 1 then
     return RootWithHensel(f, P0, n);

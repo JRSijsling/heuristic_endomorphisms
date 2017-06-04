@@ -2,6 +2,137 @@ AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 SetMemoryLimit(32*10^9);
 
+// Example 8
+// Interesting because of degrees involved
+R<t> := PolynomialRing(Rationals());
+f := x^6 + 42*x^4 + 441*x^2 + 784;
+F<s> := NumberField(f);
+R<x> := PolynomialRing(F);
+//R<x> := PolynomialRing(Rationals());
+f := 16*x^7 + 357*x^5 - 819*x^3 + 448*x;
+f /:= 2;
+X := HyperellipticCurve(f);
+//print RationalPoints(X : Bound := 100);
+print [ Evaluate(f, n) : n in [-3..3] ];
+P0 := X ! [1, 1];
+
+Ms := [ ];
+
+//M := Matrix(F, [
+//[1/28*(-s^3 - 21*s),                  0,                  0],
+//[                 0,  1/28*(s^3 + 21*s),                  0],
+//[                 0,                  0, 1/28*(-s^3 - 21*s)]
+//]);
+//Append(~Ms, M);
+
+M := Matrix(F, [
+[1/168*(-5*s^4 - 133*s^2 - 392), 0, 1/168*(s^4 - 7*s^2 - 392)],
+[0, 1/56*(3*s^4 + 91*s^2 + 392), 0],
+[1/84*(s^4 - 7*s^2 - 392), 0, 1/42*(-s^4 - 35*s^2 - 196)]
+]);
+Append(~Ms, M);
+
+//M := Matrix(F, [
+//[1/168*(-s^4 + 7*s^2 + 392), 0, 1/42*(-s^4 - 35*s^2 - 196)],
+//[0, 1/28*(s^4 + 21*s^2), 0],
+//[1/21*(-s^4 - 35*s^2 - 196), 0, 1/168*(-5*s^4 - 133*s^2 - 392)]
+//]);
+//Append(~Ms, M);
+
+//M := Matrix(F, [
+//[1/168*(s^5 + 35*s^3 + 154*s), 0, 1/168*(s^5 + 35*s^3 + 322*s)],
+//[0, 1/56*(s^5 + 35*s^3 + 210*s), 0],
+//[1/84*(s^5 + 35*s^3 + 322*s), 0, 1/84*(s^5 + 35*s^3 + 238*s)]
+//]);
+//Append(~Ms, M);
+
+print "Field:";
+print F;
+print "Curve:";
+print X;
+
+for M in Ms do
+    print "Tangent representation:";
+    print M;
+    print "Minimal polynomial:";
+    print MinimalPolynomial(M);
+
+    print "Calculating divisor:";
+    time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+    eqs := DefiningEquations(D);
+    R<y2,y1,x2,x1> := Parent(eqs[1]);
+    print "Divisor:";
+    print D;
+end for;
+
+exit;
+
+
+AttachSpec("../../spec");
+SetVerbose("EndoCheck", 1);
+SetMemoryLimit(32*10^9);
+
+// Weng 2
+// Verified in a few minutes
+R<t> := PolynomialRing(Rationals());
+f := x^6 + 6*x^4 + 9*x^2 + 1;
+F<s> := NumberField(f);
+R<x> := PolynomialRing(F);
+f := x^7 + 6*x^5 + 9*x^3 + x;
+f /:= 17;
+X := HyperellipticCurve(f);
+P0 := X ! [1, 1];
+
+Ms := [ ];
+
+M := Matrix(F, [
+[    1/3*(s^4 + 2*s^2 - 2),                         0,  1/3*(-2*s^4 - 7*s^2 - 2)],
+[                        0,                   s^2 + 2,                         0],
+[1/3*(-4*s^4 - 14*s^2 - 4),                         0,    1/3*(-s^4 - 5*s^2 - 4)]
+]);
+Append(~Ms, M);
+
+M := Matrix(F, [
+[ s^3 + 3*s,          0,          0],
+[         0, -s^3 - 3*s,          0],
+[         0,          0,  s^3 + 3*s]
+]);
+Append(~Ms, M);
+
+M := Matrix(F, [
+[1/3*(-s^5 - 5*s^3 - 4*s), 0, 1/3*(2*s^5 + 10*s^3 + 11*s)],
+[0, s, 0],
+[1/3*(4*s^5 + 20*s^3 + 22*s), 0, 1/3*(s^5 + 5*s^3 + 7*s)]
+]);
+Append(~Ms, M);
+
+print "Field:";
+print F;
+print "Curve:";
+print X;
+
+for M in Ms do
+    print "Tangent representation:";
+    print M;
+    print "Minimal polynomial:";
+    print MinimalPolynomial(M);
+
+    print "Calculating divisor:";
+    time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
+    eqs := DefiningEquations(D);
+    R<y2,y1,x2,x1> := Parent(eqs[1]);
+    print "Divisor:";
+    print D;
+end for;
+
+exit;
+
+
+AttachSpec("../../spec");
+SetVerbose("EndoCheck", 1);
+SetMemoryLimit(32*10^9);
+
+// Weng 3
 // Verified; it takes about 6 hours and 6 Gb of memory
 R<t> := PolynomialRing(Rationals());
 f := x^6 + 13*x^4 + 50*x^2 + 49;
@@ -48,58 +179,7 @@ AttachSpec("../../spec");
 SetVerbose("EndoCheck", 1);
 SetMemoryLimit(32*10^9);
 
-// Verified
-R<t> := PolynomialRing(Rationals());
-f := x^6 + 6*x^4 + 9*x^2 + 1;
-F<s> := NumberField(f);
-R<x> := PolynomialRing(F);
-R<x> := PolynomialRing(Rationals());
-f := x^7 + 6*x^5 + 9*x^3 + x;
-f /:= 17;
-X := HyperellipticCurve(f);
-P0 := X ! [1, 1];
-
-M := Matrix(F, [
-[    1/3*(s^4 + 2*s^2 - 2),                         0,  1/3*(-2*s^4 - 7*s^2 - 2)],
-[                        0,                   s^2 + 2,                         0],
-[1/3*(-4*s^4 - 14*s^2 - 4),                         0,    1/3*(-s^4 - 5*s^2 - 4)]
-]);
-
-M := Matrix(F, [
-[ s^3 + 3*s,          0,          0],
-[         0, -s^3 - 3*s,          0],
-[         0,          0,  s^3 + 3*s]
-]);
-
-M := Matrix(F, [
-[1/3*(-s^5 - 5*s^3 - 4*s), 0, 1/3*(2*s^5 + 10*s^3 + 11*s)],
-[0, s, 0],
-[1/3*(4*s^5 + 20*s^3 + 22*s), 0, 1/3*(s^5 + 5*s^3 + 7*s)]
-]);
-
-print "Field:";
-print F;
-print "Curve:";
-print X;
-print "Tangent representation:";
-print M;
-print "Minimal polynomial:";
-print MinimalPolynomial(M);
-
-print "Calculating divisor:";
-time test, D := DivisorFromMatrixSplit(X, P0, X, P0, M : LowerBound := 1);
-eqs := DefiningEquations(D);
-R<y2,y1,x2,x1> := Parent(eqs[1]);
-print "Divisor:";
-print D;
-
-exit;
-
-
-AttachSpec("../../spec");
-SetVerbose("EndoCheck", 1);
-SetMemoryLimit(32*10^9);
-
+// Not verified yet
 R<t> := PolynomialRing(Rationals());
 f := x^6 - 14*x^3 + 63*x^2 + 168*x + 161;
 F<s> := NumberField(f);
