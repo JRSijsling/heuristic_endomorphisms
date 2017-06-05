@@ -29,6 +29,8 @@ R<y2,y1,x2,x1> := Parent(eqs[1]);
 print "Divisor:";
 print D;
 
+exit;
+
 eqs := DefiningEquations(D);
 R<y2,y1,x2,x1> := Parent(eqs[1]);
 S<x2,x1> := PolynomialRing(F, 2);

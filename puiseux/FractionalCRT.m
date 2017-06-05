@@ -180,32 +180,19 @@ end function;
 function ReduceCurveSplit(X, p, rt)
 /* NOTE: This only gives an affine patch (which is enough for our algorithms) */
 
-U := ReduceAffinePatchSplit(X`U, p, rt);
+U := ReduceAffinePatchSplit(X`U, p, rt); U`U := U;
 U`is_hyperelliptic := X`is_hyperelliptic; U`is_planar := X`is_planar; U`is_smooth := X`is_smooth;
 U`g := X`g; U`is_plane_quartic := X`is_plane_quartic;
-U`U := U;
 U`P0 := U ! ReducePointSplit(X`P0, p, rt);
 U`A := Ambient(U`U); U`R := CoordinateRing(U`A);
 U`F := BaseRing(U`R); U`K := FieldOfFractions(U`R);
+U`x := U`R.1; U`y := U`R.2;
 U`DEs := DefiningEquations(U`U);
-U`unif_index := X`unif_index; U`unif := (U`R).(U`unif_index);
 U`OurB := ReduceBasisOfDifferentialsSplit(X`OurB, p, rt);
 U`NormB := ReduceBasisOfDifferentialsSplit(X`NormB, p, rt);
 U`T := ReduceMatrixSplit(X`T, p, rt);
-
-// TODO: Perhaps this steps costs a bit. Not removed for now.
-if U`is_planar then
-    U`cantor_equations := [* ReducePolynomialSplit(cantor_eq, p, rt) : cantor_eq in X`cantor_equations *];
-end if;
+U`cantor_equations := [* ReducePolynomialSplit(cantor_eq, p, rt) : cantor_eq in X`cantor_equations *];
 U`initialized := true;
-
-U`patch_index := X`patch_index;
-if X`is_hyperelliptic and (X`patch_index eq 3) then
-    U`x := U`R.2; U`y := U`R.1;
-else
-    U`x := U`R.1; U`y := U`R.2;
-end if;
-
 return U;
 
 end function;

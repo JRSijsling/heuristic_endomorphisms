@@ -11,25 +11,24 @@
 
 
 declare attributes Crv : is_hyperelliptic, is_planar, is_smooth, is_plane_quartic;
-declare attributes Crv : unif, unif_index;
 declare attributes Crv : g, U, P0, A, DEs;
 declare attributes Crv : patch_index, R, x, y, K;
 declare attributes Crv : F, rF, OF, BOF;
 declare attributes Crv : OurB, NormB, T;
 declare attributes Crv : initialized;
 declare attributes Crv : cantor_equations;
+declare attributes Crv : unif_index;
 
 declare verbose EndoCheck, 3;
 
 
 forward InitializeCurve;
-forward AlgebraicUniformizer;
+forward AlgebraicUniformizerIndex;
 forward OurBasisOfDifferentials;
-forward ChangePatchTangentAction;
+forward ChangeTangentAction;
 forward NormalizedBasisOfDifferentials;
 
 forward VariableOrder;
-forward ExtractPoint;
 forward ExtractPoints;
 forward ExtractHomomorphisms;
 
@@ -38,6 +37,7 @@ forward IrreducibleComponentsFromBranches;
 forward CheckEquations;
 forward CheckIrreducibleComponent;
 
+forward DivisorFromMatrix;
 forward DivisorFromMatrixSplit;
 forward DivisorFromMatrixSplitStepModP;
 
@@ -60,22 +60,28 @@ end if;
 X`is_hyperelliptic := IsHyperelliptic(X); X`is_planar := IsPlaneCurve(X); X`is_smooth := IsNonSingular(X);
 X`g := Genus(X); X`is_plane_quartic := (X`is_planar) and (X`is_smooth) and (X`g eq 3);
 
-/*Find affine patch and coordinates */
+if not X`is_planar then
+    error "Please give your curve in planar form";
+end if;
+
+/* Find affine patch */
 if IsAffine(X) then
     X`U := X; X`P0 := P0; X`patch_index := 1;
 else
     X`U, X`P0, X`patch_index := AffinePatch(X, P0);
 end if;
 X`A := Ambient(X`U); X`R := CoordinateRing(X`A);
+X`DEs := DefiningEquations(X`U);
 
-/* If the equation comes in the form y^2 + h y = f, or a transformed version of
- * this, then we name x and y in that way; otherwise we just use the ambient.
- */
-if (X`is_hyperelliptic or X`g eq 1) and (X`patch_index eq 3) then
-    X`x := X`R.2; X`y := X`R.1;
-else
-    X`x := X`R.1; X`y := X`R.2;
+/* Modify coordinates and equations to make x the uniformizer */
+X`unif_index := AlgebraicUniformizerIndex(X);
+X`x := X`R.1; X`y := X`R.2;
+if X`unif_index eq 2 then
+    X`DEs := [ X`R ! Evaluate(DE, [ X`y, X`x ]) : DE in X`DEs ];
+    X`U := Scheme(X`A, X`DEs);
+    X`P0 := X`U ! [ P0[2], P0[1] ];
 end if;
+X`K := FieldOfFractions(X`R);
 
 /* Construct equation order */
 X`F := BaseRing(X`R);
@@ -86,46 +92,48 @@ else
     X`rF := Denominator(X`F.1) * X`F.1;
     X`OF := Order([ X`rF^i : i in [0..Degree(X`F) - 1] ]);
 end if;
-
-X`BOF := Basis(X`OF); X`K := FieldOfFractions(X`R);
-X`DEs := DefiningEquations(X`U);
-X`unif, X`unif_index := AlgebraicUniformizer(X);
+X`BOF := Basis(X`OF);
 
 X`OurB := OurBasisOfDifferentials(X);
 X`NormB, X`T := NormalizedBasisOfDifferentials(X);
 
-// TODO: Perhaps this steps costs a bit. Not removed for now.
-if X`is_planar then
-    X`cantor_equations := CantorEquations(X);
-end if;
+X`cantor_equations := CantorEquations(X);
 X`initialized := true;
 return 0;
 
 end function;
 
 
-function AlgebraicUniformizer(X)
+function AlgebraicUniformizerIndex(X)
 /*
  * Input:   A plane curve X.
- * Output:  A uniformizing element at P0
- *          and the corresponding index.
+ * Output:  Index of the uniformizer.
  */
 
-fX := X`DEs[1]; x := X`x; y := X`y;
-/* We use x when possible, and then return it along with its index */
-if Evaluate(Derivative(fX, y), X`P0) ne 0 then
-    if X`R.1 eq x then
-        return x, 1;
+if X`is_hyperelliptic then
+    if X`patch_index eq 1 then
+        return 1;
     else
-        return x, 2;
+        return 2;
     end if;
 end if;
 
-/* Otherwise we use y */
-if X`R.1 eq y then
-    return y, 1;
-else
-    return y, 2;
+if X`is_planar then
+    fX := X`DEs[1]; R := X`R; x := X`x; y := X`y; P0 := X`P0;
+    if X`patch_index eq 3 then
+        if Evaluate(Derivative(fX, x), P0) ne 0 then
+            return 2;
+        else
+            return 1;
+        end if;
+
+    else
+        if Evaluate(Derivative(fX, y), P0) ne 0 then
+            return 1;
+        else
+            return 2;
+        end if;
+    end if;
 end if;
 
 end function;
@@ -138,34 +146,18 @@ function OurBasisOfDifferentials(X)
  *          the rational function field by using our choice of uniformizer
  */
 
-g := X`g;
-R := X`R; x := X`x; y := X`y;
-f := X`DEs[1];
-
+g := X`g; R := X`R; x := X`x; y := X`y; f := X`DEs[1];
 if g eq 0 then
     return [ ];
 
 elif X`is_hyperelliptic or (g eq 1) then
     /* (Hyper)elliptic case: we use x^i dx / y */
     s := MonomialCoefficient(f, y^2);
-    if g eq 1 then
-        if X`unif eq x then
-            return [  2*s / Derivative(f, y) ];
-        else
-            return [ -2*s / Derivative(f, x) ];
-        end if;
-    end if;
-    /* Otherwise the uniformizer will always be x, since we have to use a
-     * non-Weierstrass point */
     return [ 2*s*x^(i-1) / Derivative(f, y) : i in [1..g] ];
 
 elif X`is_plane_quartic then
     /* Plane quartic case: we use ({x,y,1} / (dF / dy)) dx */
-    if X`unif_index eq 1 then
-        return [ X`K ! ( n / Derivative(f, 2)) : n in [R.1, R.2, 1] ];
-    else
-        return [ X`K ! (-n / Derivative(f, 1)) : n in [R.1, R.2, 1] ];
-    end if;
+    return [ X`K ! ( n / Derivative(f, y)) : n in [X`x, X`y, 1] ];
 
 else
     error "OurBasisOfDifferentials not implemented yet for this curve";
@@ -174,26 +166,29 @@ end if;
 end function;
 
 
-function ChangePatchTangentAction(X, Y, M)
+function ChangeTangentAction(X, Y, M)
 /*
  * Input:  Two curves X, Y and a representation M on the standard basis of
  *         differentials.
  * Output: Matrix for standard differentials on the patches of X and Y used.
  */
 
+F := X`F;
 /* M acts on the right, so to precompose with the operation on X we multiply on
  * the left; we modify the rows. */
 if X`g eq 1 or X`is_hyperelliptic then
-    /* In this case only patch index 3 is possible */
     if X`patch_index eq 3 then
-        M := Matrix(X`F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
+        M := Matrix(F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
     end if;
 
 elif X`is_plane_quartic then
     if X`patch_index eq 2 then
-        M := Matrix(X`F, [ [ -row[1], -row[3], -row[2] ] : row in Rows(M) ]);
+        M := Matrix(F, [ [ -row[1], -row[3], -row[2] ] : row in Rows(M) ]);
     elif X`patch_index eq 3 then
-        M := Matrix(X`F, [ [ row[2], row[3], row[1] ] : row in Rows(M) ]);
+        M := Matrix(F, [ [ row[2], row[3], row[1] ] : row in Rows(M) ]);
+    end if;
+    if X`unif_index eq 2 then
+        M := Matrix(F, [ [ -row[2], -row[1], -row[3] ] : row in Rows(M) ]);
     end if;
 end if;
 
@@ -201,16 +196,18 @@ end if;
  * transpose and go back */
 M := Transpose(M);
 if Y`g eq 1 or Y`is_hyperelliptic then
-    /* In this case only patch index 3 is possible */
     if Y`patch_index eq 3 then
-        M := Matrix(Y`F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
+        M := Matrix(F, [ Reverse([ -c : c in Eltseq(row)]) : row in Rows(M) ]);
     end if;
 
 elif Y`is_plane_quartic then
     if Y`patch_index eq 2 then
-        M := Matrix(Y`F, [ [ -row[1], -row[3], -row[2] ] : row in Rows(M) ]);
+        M := Matrix(F, [ [ -row[1], -row[3], -row[2] ] : row in Rows(M) ]);
     elif Y`patch_index eq 3 then
-        M := Matrix(Y`F, [ [ row[2], row[3], row[1] ] : row in Rows(M) ]);
+        M := Matrix(F, [ [ row[2], row[3], row[1] ] : row in Rows(M) ]);
+    end if;
+    if X`unif_index eq 2 then
+        M := Matrix(F, [ [ -row[2], -row[1], -row[3] ] : row in Rows(M) ]);
     end if;
 end if;
 
@@ -244,28 +241,20 @@ function VariableOrder()
  */
 
 /* x(P) to 4th comp, y(P) to 2nd comp, etc */
+// TODO: Next line goes wrong, which should not be so?
+//return [4, 3, 1, 2];
+// TODO: The next ones seem to be rather good
+return [4, 3, 2, 1];
+return [1, 2, 3, 4];
 return [4, 2, 3, 1];
 
 end function;
 
 
-function ExtractPoint(X, P)
-/* Finds x(P) and y(P); indices depend on the choice of patch */
-
-R := X`R; x := X`x; y := X`y;
-if x eq R.1 then
-    return [ P[1], P[2] ];
-else
-    return [ P[2], P[1] ];
-end if;
-
-end function;
-
-
 function ExtractPoints(X, Y, P, Q)
-/* Because x and y may change depending on the choice of patch */
+/* Reflects order in VariableOrder */
 
-seq := ExtractPoint(X, P) cat ExtractPoint(Y, Q);
+seq := [ P[1], P[2], Q[1], Q[2] ];
 varord := VariableOrder();
 return [ seq[varord[i]] : i in [1..#varord] ];
 
@@ -279,13 +268,8 @@ varord := VariableOrder();
 Rprod := PolynomialRing(X`F, 4, "lex");
 seqX := [ Rprod.varord[i] : i in [1..2] ];
 seqY := [ Rprod.varord[i] : i in [3..4] ];
-if X`x ne RX.1 then
-    Reverse(~seqX);
-end if;
-if Y`x ne RY.1 then
-    Reverse(~seqY);
-end if;
-hX := hom<RX -> Rprod | seqX >; hY := hom<RY -> Rprod | seqY >;
+hX := hom<RX -> Rprod | seqX >;
+hY := hom<RY -> Rprod | seqY >;
 return [ hX, hY ];
 
 end function;
@@ -399,13 +383,13 @@ function CheckIrreducibleComponent(X, Y, I)
 
 A4 := Ambient(I); R4 := CoordinateRing(A4);
 R2 := PolynomialRing(X`F, 2); A2 := AffineSpace(R2);
-/* Note that here we do not care about the order of x and y */
 seq := [ X`P0[1], X`P0[2], R2.1, R2.2 ];
 varord := VariableOrder();
 seq := [ seq[varord[i]] : i in [1..#varord] ];
 h := hom< R4 -> R2 | seq >;
 eqs2 := [ h(eq4) : eq4 in DefiningEquations(I) ];
 S := Scheme(A2, eqs2);
+
 if Dimension(S) eq 0 then
     if Degree(ReducedSubscheme(S)) eq 1 then
         if Degree(S) eq Y`g then
@@ -424,7 +408,7 @@ intrinsic DivisorFromMatrix(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin := 2^4
 {Given two pointed curves (X, P0) and (Y, Q0) along with a tangent representation of a projection morphism on the standard basis of differentials, returns a corresponding divisor (if it exists). The parameter Margin specifies how many potentially superfluous terms are used in the development of the branch, the parameter LowerBound specifies at which degree one starts to look for a divisor, and the parameter UpperBound specifies where to stop.}
 
 output := InitializeCurve(X, P0); output := InitializeCurve(Y, Q0);
-NormM := ChangePatchTangentAction(X, Y, M);
+NormM := ChangeTangentAction(X, Y, M);
 NormM := Y`T * NormM * (X`T)^(-1);
 
 d := LowerBound;
@@ -477,9 +461,11 @@ intrinsic DivisorFromMatrixSplit(X::Crv, P0::Pt, Y::Crv, Q0::Pt, M::. : Margin :
 
 /* We start at a suspected estimate and then increase degree until we find an appropriate divisor */
 output := InitializeCurve(X, P0); output := InitializeCurve(Y, Q0);
-NormM := ChangePatchTangentAction(X, Y, M);
+NormM := ChangeTangentAction(X, Y, M);
 NormM := Y`T * NormM * (X`T)^(-1);
 tjs0, f := InitializeImageBranch(NormM);
+
+/* Some global elements needed below */
 F := X`F; rF := X`rF; OF := X`OF; BOF := X`BOF;
 Rprod := PolynomialRing(X`F, 4, "lex");
 P, Qs := ApproximationsFromTangentAction(X, Y, NormM, X`g);
@@ -504,6 +490,7 @@ while true do
     X_red := ReduceCurveSplit(X, p, rt); Y_red := ReduceCurveSplit(Y, p, rt);
     NormM_red := ReduceMatrixSplit(NormM, p, rt);
     BI := Basis(I);
+
     while true do
         found, S_red := DivisorFromMatrixSplitStepModP(X_red, Y_red, NormM_red, d : Margin := Margin, DivPP1 := DivPP1, have_to_check := have_to_check);
         /* If that does not work, give up and try one degree higher. Note that
@@ -544,8 +531,8 @@ while true do
     vprintf EndoCheck : "done.\n";
 
     if test1 then
-        S := Scheme(AffineSpace(Rprod), DEs);
         vprintf EndoCheck : "Step 2...\n";
+        S := Scheme(AffineSpace(Rprod), DEs);
         test2 := CheckIrreducibleComponent(X, Y, S);
         vprintf EndoCheck : "done.\n";
         if test2 then
@@ -594,6 +581,6 @@ for S_red in ICs_red do
         return true, S_red;
     end if;
 end for;
-return false, 0;
+return false, [ ];
 
 end function;
