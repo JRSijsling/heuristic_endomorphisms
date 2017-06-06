@@ -241,11 +241,7 @@ function VariableOrder()
  */
 
 /* x(P) to 4th comp, y(P) to 2nd comp, etc */
-// TODO: Next line goes wrong, which should not be so?
-//return [4, 3, 1, 2];
-// TODO: The next ones seem to be rather good
-return [4, 3, 2, 1];
-return [1, 2, 3, 4];
+// TODO: Test better ones
 return [4, 2, 3, 1];
 
 end function;
@@ -266,8 +262,8 @@ function ExtractHomomorphisms(X, Y)
 RX := X`R; RY := Y`R;
 varord := VariableOrder();
 Rprod := PolynomialRing(X`F, 4, "lex");
-seqX := [ Rprod.varord[i] : i in [1..2] ];
-seqY := [ Rprod.varord[i] : i in [3..4] ];
+seqX := [ Rprod.Index(varord, i) : i in [1..2] ];
+seqY := [ Rprod.Index(varord, i) : i in [3..4] ];
 hX := hom<RX -> Rprod | seqX >;
 hY := hom<RY -> Rprod | seqY >;
 return [ hX, hY ];
@@ -296,7 +292,6 @@ elif X`is_planar then
     Reverse(~divsX); Reverse(~divsY);
 end if;
 
-varord := VariableOrder();
 hs := ExtractHomomorphisms(X, Y);
 CP := [ [* divX, divY *] : divX in divsX, divY in divsY ];
 divs := [ &*[ hs[i](tup[i]) : i in [1..2] ] : tup in CP ];

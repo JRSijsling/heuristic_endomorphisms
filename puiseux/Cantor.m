@@ -64,6 +64,7 @@ if X`is_hyperelliptic or X`g eq 1 then
     dens := [ x^i : i in [0..(d div 2)] ];
     dens := nums;
 elif X`is_planar then
+    // TODO: Use Riemann-Roch space instead
     nums := [ x^i*y^j : i in [0..d], j in [0..(Degree(f, y) - 1)] | i + j le d ];
     dens := [ x^i : i in [0..d] ];
     dens := nums;
