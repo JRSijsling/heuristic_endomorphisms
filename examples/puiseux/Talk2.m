@@ -1,5 +1,5 @@
 AttachSpec("../../spec");
-SetVerbose("EndoCheck", 1);
+SetVerbose("EndoCheck", 0);
 
 R<t> := PolynomialRing(Rationals());
 F<r> := NumberField(t^2 - 2);
