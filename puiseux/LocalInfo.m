@@ -89,6 +89,11 @@ for n in [1..g] do
         Append(~eqs, powersum);
     end if;
 end for;
+vprintf EndoCheck, 3 : "\nEquations for leading coefficient of branch:\n";
+par<c1,c2> := Parent(eqs[1]);
+varnames := [ Sprintf("c%o", i) : i in [1..g] ];
+AssignNames(~par, varnames);
+vprint EndoCheck, 3 : eqs;
 S := Scheme(A, eqs);
 
 /* The upcoming steps are taken to avoid the use of an algebraic closure */

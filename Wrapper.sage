@@ -23,7 +23,7 @@ class EndomorphismData:
             self._P_ = periods
         else:
             self._P_ = self.period_matrix()
-        if prec > 100:
+        if prec >= 100:
             self._calculate_geometric_representation_()
 
     def __repr__(self):
