@@ -355,7 +355,7 @@ function ChangeFunctions(X, Y, fs)
 
 g := X`g; R := X`R; K := X`K;
 subsX := [ K ! X`x, K ! X`y ];
-if X`is_hyperelliptic or X`g eq 1 then
+if X`is_hyperelliptic then
     if X`patch_index eq 3 then
         subsX := [ subsX[2] / subsX[1]^(g + 1), 1 / subsX[1] ];
     end if;
@@ -382,7 +382,7 @@ if Y`g eq 1 then
     end if;
 end if;
 
-if X`is_hyperelliptic or X`g eq 1 then
+if X`is_hyperelliptic then
     if IsAffine(X) then
         A := X;
     else
