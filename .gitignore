@@ -4,6 +4,3 @@
 **/*.pyc
 **/*.sig
 **/.ropeproject*
-database/gce*full.txt
-odds_and_ends/*
-TODO.txt
