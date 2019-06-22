@@ -1,7 +1,3 @@
 # Description
 
-This repository is now superfluous; please visit
-```
-https://github.com/edgarcosta/endomorphisms
-```
-instead
+This repository is now superfluous; please visit [`edgarcosta/endomorphisms`](https://github.com/edgarcosta/endomorphisms) instead.
